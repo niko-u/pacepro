@@ -71,8 +71,8 @@ export async function POST(req: NextRequest) {
 async function generateWeeklyOutlookForUser(userId: string) {
   const supabase = getSupabase();
   
-  // Build context
-  const context = await buildCoachContext(userId);
+  // Build context (pass supabase client for cron context — no cookies available)
+  const context = await buildCoachContext(userId, supabase);
 
   // Get last week's workouts
   const lastWeekStart = new Date();

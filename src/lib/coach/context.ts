@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { SupabaseClient } from "@supabase/supabase-js";
 
 export interface AthleteProfile {
   id: string;
@@ -23,6 +24,8 @@ export interface AthleteProfile {
     life_context: string[];
   };
   notifications: Record<string, boolean>;
+  conversation_summary?: string;
+  timezone?: string;
 }
 
 export interface Workout {
@@ -86,10 +89,15 @@ export interface CoachContext {
 }
 
 /**
- * Build full context for AI coach to understand the athlete
+ * Build full context for AI coach to understand the athlete.
+ * Accepts an optional Supabase client for use in cron jobs / server contexts
+ * where cookie-based auth is not available.
  */
-export async function buildCoachContext(userId: string): Promise<CoachContext> {
-  const supabase = await createClient();
+export async function buildCoachContext(
+  userId: string,
+  externalSupabase?: SupabaseClient
+): Promise<CoachContext> {
+  const supabase = externalSupabase || (await createClient());
   const today = new Date().toISOString().split("T")[0];
 
   // Fetch all data in parallel
@@ -230,6 +238,12 @@ export function formatContextForAI(context: CoachContext): string {
   }
   if (athlete.learned_preferences?.limitations?.length) {
     parts.push(`LIMITATIONS: ${athlete.learned_preferences.limitations.join("; ")}`);
+  }
+
+  // Long-term memory (compressed conversation history)
+  if (athlete.conversation_summary) {
+    parts.push(`\nLONG-TERM MEMORY (previous conversations summary):`);
+    parts.push(athlete.conversation_summary);
   }
 
   return parts.join("\n");

@@ -4,6 +4,8 @@ import {
   WORKOUT_ANALYSIS_PROMPT, 
   WEEKLY_OUTLOOK_PROMPT,
   PREFERENCE_EXTRACTION_PROMPT,
+  DAILY_CHECKIN_PROMPT,
+  RECOVERY_ALERT_PROMPT,
 } from "./prompts";
 import { CoachContext, formatContextForAI } from "./context";
 
@@ -148,6 +150,70 @@ export async function extractPreferences(
   } catch {
     return {};
   }
+}
+
+/**
+ * Generate daily check-in message for an athlete
+ */
+export async function generateDailyCheckin(
+  context: CoachContext
+): Promise<string> {
+  const contextSummary = formatContextForAI(context);
+
+  const response = await getOpenAI().chat.completions.create({
+    model: "gpt-4-turbo-preview",
+    messages: [
+      {
+        role: "system",
+        content: `${COACH_SYSTEM_PROMPT}\n\n${DAILY_CHECKIN_PROMPT}\n\n--- ATHLETE CONTEXT ---\n${contextSummary}`,
+      },
+      {
+        role: "user",
+        content: "Generate a morning check-in message for this athlete.",
+      },
+    ],
+    temperature: 0.7,
+    max_tokens: 200,
+  });
+
+  return response.choices[0]?.message?.content || "Good morning! Ready for today?";
+}
+
+/**
+ * Generate recovery alert message when metrics are concerning
+ */
+export async function generateRecoveryAlert(
+  context: CoachContext,
+  alertData: {
+    recovery_score?: number;
+    hrv_drop_pct?: number;
+    rhr_spike_pct?: number;
+    current_hrv?: number;
+    avg_hrv?: number;
+    current_rhr?: number;
+    avg_rhr?: number;
+    sleep_hours?: number;
+  }
+): Promise<string> {
+  const contextSummary = formatContextForAI(context);
+
+  const response = await getOpenAI().chat.completions.create({
+    model: "gpt-4-turbo-preview",
+    messages: [
+      {
+        role: "system",
+        content: `${COACH_SYSTEM_PROMPT}\n\n${RECOVERY_ALERT_PROMPT}\n\n--- ATHLETE CONTEXT ---\n${contextSummary}`,
+      },
+      {
+        role: "user",
+        content: `Recovery alert data: ${JSON.stringify(alertData)}`,
+      },
+    ],
+    temperature: 0.7,
+    max_tokens: 250,
+  });
+
+  return response.choices[0]?.message?.content || "Hey, your recovery numbers look a bit low. Take it easy today.";
 }
 
 /**

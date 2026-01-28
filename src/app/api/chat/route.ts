@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { buildCoachContext } from "@/lib/coach/context";
 import { coachChat, extractPreferences } from "@/lib/coach/ai";
+import { mergePreferences } from "@/lib/coach/preferences";
+import { checkAndCompressConversation } from "@/lib/coach/memory";
 
 export async function POST(req: NextRequest) {
   try {
@@ -53,33 +55,22 @@ export async function POST(req: NextRequest) {
       message_type: "chat",
     });
 
-    // Extract and store any preferences (async, don't block response)
+    // Background tasks: preference extraction + memory compression (don't block response)
+    // 1. Extract and merge preferences
     extractPreferences(message, response).then(async (prefs) => {
       if (Object.keys(prefs).length > 0) {
-        // Get current learned preferences
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("learned_preferences")
-          .eq("id", user.id)
-          .single();
-
-        const current = profile?.learned_preferences || {};
-        
-        // Merge new preferences
-        const updated = { ...current };
-        for (const [key, values] of Object.entries(prefs)) {
-          if (Array.isArray(values) && values.length > 0) {
-            updated[key] = [...new Set([...(current[key] || []), ...values])];
-          }
-        }
-
-        // Update profile
-        await supabase
-          .from("profiles")
-          .update({ learned_preferences: updated })
-          .eq("id", user.id);
+        await mergePreferences(supabase, user.id, prefs);
       }
-    }).catch(console.error);
+    }).catch((err) => console.error("Preference extraction error:", err));
+
+    // 2. Check if conversation needs compression
+    checkAndCompressConversation(supabase, user.id)
+      .then((result) => {
+        if (result.compressed) {
+          console.log(`Compressed ${result.messagesCompressed} messages for user ${user.id}`);
+        }
+      })
+      .catch((err) => console.error("Conversation compression error:", err));
 
     return NextResponse.json({ response });
   } catch (error) {

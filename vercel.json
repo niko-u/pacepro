@@ -3,6 +3,14 @@
     {
       "path": "/api/cron/weekly-outlook",
       "schedule": "0 7 * * 1"
+    },
+    {
+      "path": "/api/cron/daily-checkin",
+      "schedule": "0 6,10,14 * * *"
+    },
+    {
+      "path": "/api/cron/recovery-check",
+      "schedule": "0 */4 * * *"
     }
   ]
 }
