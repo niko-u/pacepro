@@ -106,6 +106,8 @@ export default function OnboardingPage() {
     currentVolume: "",
     recentRaces: "",
     injuries: "",
+    // Equipment access
+    equipment: [] as string[],
     // Integrations
     stravaConnected: false,
     whoopConnected: false,
@@ -505,6 +507,41 @@ export default function OnboardingPage() {
                         ))}
                       </div>
                     </div>
+
+                    {/* Equipment - show for triathlon races */}
+                    {["sprint-tri", "olympic-tri", "half-ironman", "ironman"].includes(formData.raceType) && (
+                      <div>
+                        <label className="block text-sm text-zinc-400 mb-3">Equipment access (select all that apply)</label>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                          {[
+                            { id: "pool", name: "Pool", icon: "🏊" },
+                            { id: "openwater", name: "Open Water", icon: "🌊" },
+                            { id: "trainer", name: "Bike Trainer", icon: "🚴" },
+                            { id: "gym", name: "Gym", icon: "🏋️" },
+                            { id: "track", name: "Track", icon: "🏟️" },
+                            { id: "treadmill", name: "Treadmill", icon: "🏃" },
+                          ].map((item) => (
+                            <button
+                              key={item.id}
+                              onClick={() => {
+                                const newEquipment = formData.equipment.includes(item.id)
+                                  ? formData.equipment.filter(e => e !== item.id)
+                                  : [...formData.equipment, item.id];
+                                setFormData({ ...formData, equipment: newEquipment });
+                              }}
+                              className={`p-3 rounded-xl border text-center transition-all ${
+                                formData.equipment.includes(item.id)
+                                  ? "border-orange-500 bg-orange-500/10"
+                                  : "border-white/10 bg-white/[0.02] hover:bg-white/[0.05]"
+                              }`}
+                            >
+                              <span className="text-lg mr-2">{item.icon}</span>
+                              <span className="text-sm">{item.name}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </StepWrapper>
               )}
