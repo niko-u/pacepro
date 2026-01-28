@@ -53,11 +53,32 @@ export default function ChatClient({ user }: ChatClientProps) {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const messageText = input;
     setInput("");
     setIsTyping(true);
 
-    // Simulate AI response (would be real API call)
-    setTimeout(() => {
+    try {
+      // Call the real API
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: messageText }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to get response");
+      }
+
+      const data = await res.json();
+      
+      setMessages(prev => [...prev, {
+        role: "assistant",
+        content: data.response,
+        timestamp: new Date(),
+      }]);
+    } catch (error) {
+      console.error("Chat error:", error);
+      // Fallback to mock responses if API fails
       const responses: Record<string, string> = {
         "tired": "I hear you. Looking at your data, your HRV has actually been trending down over the past 3 days, and your sleep was only 6 hours last night.\n\nLet's swap today's workout. Instead of the tempo run, do an easy 30-minute jog — or even just a walk if you prefer. Your body is asking for recovery.\n\nI've updated your plan. The tempo will move to Saturday when you should be fresher. Sound good?",
         "swap": "Of course! What day were you thinking of swapping to?\n\nLooking at your week:\n• Thursday: Strength (could move)\n• Friday: Rest day\n• Saturday: Long run (important to keep)\n• Sunday: Recovery\n\nI'd suggest moving tomorrow's session to Thursday and making Wednesday a rest day instead. That gives you back-to-back recovery before your long run.",
@@ -68,7 +89,7 @@ export default function ChatClient({ user }: ChatClientProps) {
 
       let response = "I'm here to help! Could you tell me more about what's on your mind? I can help with workout modifications, analyze your recent training, or answer questions about your plan.";
       
-      const lowerInput = input.toLowerCase();
+      const lowerInput = messageText.toLowerCase();
       if (lowerInput.includes("tired") || lowerInput.includes("fatigue")) {
         response = responses.tired;
       } else if (lowerInput.includes("swap") || lowerInput.includes("move") || lowerInput.includes("reschedule")) {
@@ -86,8 +107,9 @@ export default function ChatClient({ user }: ChatClientProps) {
         content: response,
         timestamp: new Date(),
       }]);
+    } finally {
       setIsTyping(false);
-    }, 1500);
+    }
   };
 
   return (
