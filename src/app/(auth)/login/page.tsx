@@ -170,11 +170,11 @@ export default function LoginPage() {
           transition={{ duration: 0.7, delay: 0.2 }}
           className="max-w-md text-center"
         >
-          <div className="text-6xl mb-6">🏊‍♂️🚴‍♂️🏃‍♂️</div>
+          <div className="text-6xl mb-6">🏃‍♂️💬📊</div>
           <h2 className="text-2xl font-bold mb-4">Your AI coach is waiting</h2>
           <p className="text-zinc-400 leading-relaxed">
-            Pick up where you left off. Your personalized training plan adapts to every workout, 
-            every rest day, every life curveball.
+            Pick up where you left off. Your coach has been watching your recovery, 
+            analyzing your workouts, and adjusting your plan.
           </p>
         </motion.div>
       </div>

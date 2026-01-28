@@ -113,7 +113,7 @@ export default function OnboardingPage() {
   });
   const router = useRouter();
   
-  const totalSteps = 9; // Intro, Race Type, Find Race, Goals, Experience, Schedule, Preferences, Personality, Integrations
+  const totalSteps = 10; // Intro, Race Type, Find Race, Goals, Experience, Schedule, Preferences, Personality, Current Fitness, Integrations
 
   const filteredRaces = popularRaces.filter(race => 
     race.type === formData.raceType &&
@@ -146,7 +146,8 @@ export default function OnboardingPage() {
       case 5: return formData.weeklyHours !== "" && formData.preferredDays.length > 0; // Schedule
       case 6: return true; // Preferences (optional)
       case 7: return true; // Personality (has defaults)
-      case 8: return true; // Integrations (optional)
+      case 8: return true; // Current Fitness (optional)
+      case 9: return true; // Integrations (optional)
       default: return false;
     }
   };
@@ -260,7 +261,7 @@ export default function OnboardingPage() {
               {step === 0 && (
                 <StepWrapper key="intro">
                   <div className="text-center">
-                    <div className="text-6xl mb-6">🏊‍♂️🚴‍♂️🏃‍♂️</div>
+                    <div className="text-6xl mb-6">🏃‍♂️🎯💪</div>
                     <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
                       Let's build your perfect plan
                     </h1>
@@ -600,8 +601,63 @@ export default function OnboardingPage() {
                 </StepWrapper>
               )}
 
-              {/* Step 8: Integrations */}
+              {/* Step 8: Current Fitness */}
               {step === 8 && (
+                <StepWrapper key="fitness">
+                  <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-3">
+                    Tell us about your current fitness
+                  </h1>
+                  <p className="text-zinc-400 mb-8">
+                    This helps your coach calibrate your starting point. Skip what you don't know.
+                  </p>
+                  
+                  <div className="space-y-6">
+                    <div>
+                      <label className="block text-sm text-zinc-400 mb-2">Current weekly training volume</label>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        {["0-2 hrs", "3-5 hrs", "6-8 hrs", "9+ hrs"].map((vol) => (
+                          <button
+                            key={vol}
+                            onClick={() => setFormData({ ...formData, currentVolume: vol })}
+                            className={`p-3 rounded-xl border text-center text-sm transition-all ${
+                              formData.currentVolume === vol
+                                ? "border-orange-500 bg-orange-500/10"
+                                : "border-white/10 bg-white/[0.02] hover:bg-white/[0.05]"
+                            }`}
+                          >
+                            {vol}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm text-zinc-400 mb-2">Recent race results (optional)</label>
+                      <Input
+                        type="text"
+                        placeholder="e.g., 3:45 marathon in Oct 2024, 1:40 half in June"
+                        value={formData.recentRaces}
+                        onChange={(e) => setFormData({ ...formData, recentRaces: e.target.value })}
+                        className="h-12 bg-white/5 border-white/10 text-white placeholder:text-zinc-600 focus:border-orange-500/50"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm text-zinc-400 mb-2">Any injuries or limitations? (optional)</label>
+                      <Input
+                        type="text"
+                        placeholder="e.g., IT band issues, recovering from ankle sprain"
+                        value={formData.injuries}
+                        onChange={(e) => setFormData({ ...formData, injuries: e.target.value })}
+                        className="h-12 bg-white/5 border-white/10 text-white placeholder:text-zinc-600 focus:border-orange-500/50"
+                      />
+                    </div>
+                  </div>
+                </StepWrapper>
+              )}
+
+              {/* Step 9: Integrations */}
+              {step === 9 && (
                 <StepWrapper key="integrations">
                   <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-3">
                     Connect your apps
