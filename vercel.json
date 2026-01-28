@@ -6,11 +6,11 @@
     },
     {
       "path": "/api/cron/daily-checkin",
-      "schedule": "0 6,10,14 * * *"
+      "schedule": "0 11 * * *"
     },
     {
       "path": "/api/cron/recovery-check",
-      "schedule": "0 */4 * * *"
+      "schedule": "0 15 * * *"
     }
   ]
 }
