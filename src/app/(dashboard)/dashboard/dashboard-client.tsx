@@ -76,10 +76,11 @@ export default function DashboardClient({ user }: DashboardClientProps) {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black text-zinc-900 dark:text-white">
       {/* Background */}
-      <div className="fixed inset-0 bg-zinc-50 dark:bg-gradient-to-br dark:from-orange-600/5 dark:via-black dark:to-red-900/5" />
+      <div className="fixed inset-0 bg-zinc-50 dark:bg-black" />
+      <div className="fixed inset-0 dark:bg-gradient-to-br dark:from-orange-500/10 dark:via-transparent dark:to-red-500/10" />
 
       {/* Sidebar */}
-      <aside className={`fixed left-0 top-0 h-full w-64 border-r border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-900/90 backdrop-blur-xl z-40 transition-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <aside className={`fixed left-0 top-0 h-full w-64 border-r border-zinc-200 dark:border-white/10 bg-white dark:bg-black/95 backdrop-blur-xl z-40 transition-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-6">
           <div className="flex items-center gap-3 mb-8">
             <div className="relative">
@@ -116,7 +117,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
       {/* Main content */}
       <main className={`relative transition-all ${sidebarOpen ? 'ml-64' : 'ml-0'}`}>
         {/* Header */}
-        <header className="sticky top-0 z-30 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border-b border-zinc-200 dark:border-white/10">
+        <header className="sticky top-0 z-30 bg-white/80 dark:bg-black/90 backdrop-blur-xl border-b border-zinc-200 dark:border-white/10">
           <div className="px-6 h-16 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
@@ -165,7 +166,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 }}
-                  className="rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-900/50 overflow-hidden"
+                  className="rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-900 overflow-hidden"
                 >
                   <div className="p-6">
                     <div className="flex items-center justify-between mb-6">
@@ -235,7 +236,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
-                  className="rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-900/50 p-6"
+                  className="rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-900 p-6"
                 >
                   <h3 className="font-semibold mb-4">This Week</h3>
                   <div className="grid grid-cols-7 gap-2">
@@ -260,7 +261,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-900/50 flex flex-col h-[600px]"
+                className="rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-900 flex flex-col h-[600px]"
               >
                 <div className="p-4 border-b border-zinc-200 dark:border-white/10">
                   <h3 className="font-semibold flex items-center gap-2">

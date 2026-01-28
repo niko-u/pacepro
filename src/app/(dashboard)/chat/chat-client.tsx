@@ -88,11 +88,12 @@ export default function ChatClient({ user }: ChatClientProps) {
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black text-zinc-900 dark:text-white flex">
-      {/* Background - clean for light, gradient for dark */}
-      <div className="fixed inset-0 bg-zinc-50 dark:bg-gradient-to-br dark:from-orange-600/5 dark:via-black dark:to-red-900/5" />
+      {/* Background */}
+      <div className="fixed inset-0 bg-zinc-50 dark:bg-black" />
+      <div className="fixed inset-0 dark:bg-gradient-to-br dark:from-orange-500/10 dark:via-transparent dark:to-red-500/10" />
 
       {/* Sidebar */}
-      <aside className={`fixed left-0 top-0 h-full w-64 border-r border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-900/90 backdrop-blur-xl z-40 transition-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <aside className={`fixed left-0 top-0 h-full w-64 border-r border-zinc-200 dark:border-white/10 bg-white dark:bg-black/95 backdrop-blur-xl z-40 transition-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-6">
           <div className="flex items-center gap-3 mb-8">
             <div className="relative">
@@ -129,7 +130,7 @@ export default function ChatClient({ user }: ChatClientProps) {
       {/* Main chat area */}
       <main className={`relative flex-1 flex flex-col transition-all ${sidebarOpen ? 'ml-64' : 'ml-0'}`}>
         {/* Header */}
-        <header className="sticky top-0 z-30 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border-b border-zinc-200 dark:border-white/10">
+        <header className="sticky top-0 z-30 bg-white/80 dark:bg-black/90 backdrop-blur-xl border-b border-zinc-200 dark:border-white/10">
           <div className="px-6 h-16 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
@@ -173,7 +174,7 @@ export default function ChatClient({ user }: ChatClientProps) {
                   <div className={`p-4 rounded-2xl ${
                     msg.role === 'user'
                       ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white'
-                      : 'bg-white dark:bg-zinc-800/50 border border-zinc-200 dark:border-white/10 text-zinc-700 dark:text-zinc-300'
+                      : 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 text-zinc-700 dark:text-zinc-300'
                   }`}>
                     <p className="whitespace-pre-wrap">{msg.content}</p>
                   </div>
@@ -188,7 +189,7 @@ export default function ChatClient({ user }: ChatClientProps) {
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-white font-bold text-sm">
                   P
                 </div>
-                <div className="p-4 rounded-2xl bg-white dark:bg-zinc-800/50 border border-zinc-200 dark:border-white/10">
+                <div className="p-4 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10">
                   <div className="flex gap-1">
                     <span className="w-2 h-2 bg-zinc-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                     <span className="w-2 h-2 bg-zinc-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
@@ -211,7 +212,7 @@ export default function ChatClient({ user }: ChatClientProps) {
                   <button
                     key={i}
                     onClick={() => setInput(prompt)}
-                    className="px-3 py-2 rounded-xl bg-white dark:bg-zinc-800/50 border border-zinc-200 dark:border-white/10 text-sm text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-700/50 transition-colors"
+                    className="px-3 py-2 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 text-sm text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-700/50 transition-colors"
                   >
                     {prompt}
                   </button>
@@ -222,7 +223,7 @@ export default function ChatClient({ user }: ChatClientProps) {
         )}
 
         {/* Input */}
-        <div className="p-6 border-t border-zinc-200 dark:border-white/10 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl">
+        <div className="p-6 border-t border-zinc-200 dark:border-white/10 bg-white/80 dark:bg-black/90 backdrop-blur-xl">
           <div className="max-w-3xl mx-auto">
             <div className="flex gap-3">
               <input

@@ -100,10 +100,11 @@ export default function CalendarClient({ user }: CalendarClientProps) {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black text-zinc-900 dark:text-white">
       {/* Background */}
-      <div className="fixed inset-0 bg-zinc-50 dark:bg-gradient-to-br dark:from-orange-600/5 dark:via-black dark:to-red-900/5" />
+      <div className="fixed inset-0 bg-zinc-50 dark:bg-black" />
+      <div className="fixed inset-0 dark:bg-gradient-to-br dark:from-orange-500/10 dark:via-transparent dark:to-red-500/10" />
 
       {/* Sidebar */}
-      <aside className={`fixed left-0 top-0 h-full w-64 border-r border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-900/90 backdrop-blur-xl z-40 transition-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <aside className={`fixed left-0 top-0 h-full w-64 border-r border-zinc-200 dark:border-white/10 bg-white dark:bg-black/95 backdrop-blur-xl z-40 transition-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-6">
           <div className="flex items-center gap-3 mb-8">
             <div className="relative">
@@ -148,7 +149,7 @@ export default function CalendarClient({ user }: CalendarClientProps) {
       {/* Main content */}
       <main className={`relative transition-all ${sidebarOpen ? 'ml-64' : 'ml-0'}`}>
         {/* Header */}
-        <header className="sticky top-0 z-30 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border-b border-zinc-200 dark:border-white/10">
+        <header className="sticky top-0 z-30 bg-white/80 dark:bg-black/90 backdrop-blur-xl border-b border-zinc-200 dark:border-white/10">
           <div className="px-6 h-16 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
@@ -239,7 +240,7 @@ export default function CalendarClient({ user }: CalendarClientProps) {
                     className={`rounded-2xl border p-4 min-h-[300px] transition-all ${
                       isToday
                         ? "border-orange-400 dark:border-orange-500/50 bg-orange-50 dark:bg-orange-500/5"
-                        : "border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-900/50"
+                        : "border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-900"
                     } ${isPast ? "opacity-60" : ""}`}
                   >
                     <div className="flex items-center justify-between mb-4">
@@ -318,7 +319,7 @@ export default function CalendarClient({ user }: CalendarClientProps) {
                         isToday
                           ? "border-orange-400 dark:border-orange-500/50 bg-orange-50 dark:bg-orange-500/10"
                           : isCurrentMonth
-                          ? "border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-900/50"
+                          ? "border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-900"
                           : "border-zinc-100 dark:border-white/5 bg-zinc-50 dark:bg-zinc-900/30"
                       } ${isPast ? "opacity-50" : ""} ${!isCurrentMonth ? "opacity-40" : ""}`}
                     >

@@ -41,7 +41,7 @@ export default function SettingsClient({ user }: SettingsClientProps) {
       <div className="fixed inset-0 bg-zinc-50 dark:bg-gradient-to-br dark:from-orange-600/5 dark:via-black dark:to-red-900/5" />
 
       {/* Sidebar */}
-      <aside className={`fixed left-0 top-0 h-full w-64 border-r border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-900/90 backdrop-blur-xl z-40 transition-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <aside className={`fixed left-0 top-0 h-full w-64 border-r border-zinc-200 dark:border-white/10 bg-white dark:bg-black/95 backdrop-blur-xl z-40 transition-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-6">
           <div className="flex items-center gap-3 mb-8">
             <div className="relative">
@@ -78,7 +78,7 @@ export default function SettingsClient({ user }: SettingsClientProps) {
       {/* Main content */}
       <main className={`relative transition-all ${sidebarOpen ? 'ml-64' : 'ml-0'}`}>
         {/* Header */}
-        <header className="sticky top-0 z-30 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border-b border-zinc-200 dark:border-white/10">
+        <header className="sticky top-0 z-30 bg-white/80 dark:bg-black/90 backdrop-blur-xl border-b border-zinc-200 dark:border-white/10">
           <div className="px-6 h-16 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
@@ -127,7 +127,7 @@ export default function SettingsClient({ user }: SettingsClientProps) {
                 animate={{ opacity: 1, y: 0 }}
                 className="space-y-6"
               >
-                <div className="rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-900/50 p-6">
+                <div className="rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-900 p-6">
                   <h3 className="font-semibold mb-6">Profile Information</h3>
                   <div className="space-y-4">
                     <div>
@@ -153,7 +153,7 @@ export default function SettingsClient({ user }: SettingsClientProps) {
                   </Button>
                 </div>
 
-                <div className="rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-900/50 p-6">
+                <div className="rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-900 p-6">
                   <h3 className="font-semibold mb-4">Training Preferences</h3>
                   <p className="text-zinc-600 dark:text-zinc-400 text-sm mb-4">Update your training preferences and goals.</p>
                   <Button variant="outline" className="border-zinc-300 dark:border-white/10 hover:bg-zinc-100 dark:hover:bg-white/5">
@@ -251,7 +251,7 @@ export default function SettingsClient({ user }: SettingsClientProps) {
                   </p>
                 </div>
 
-                <div className="rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-900/50 p-6">
+                <div className="rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-900 p-6">
                   <h3 className="font-semibold mb-4">Plan Features</h3>
                   <ul className="space-y-3">
                     {[
@@ -273,7 +273,7 @@ export default function SettingsClient({ user }: SettingsClientProps) {
                   </ul>
                 </div>
 
-                <div className="rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-900/50 p-6">
+                <div className="rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-900 p-6">
                   <h3 className="font-semibold mb-4">Billing</h3>
                   <div className="space-y-3">
                     <Button variant="outline" className="w-full justify-start border-zinc-300 dark:border-white/10 hover:bg-zinc-100 dark:hover:bg-white/5">
@@ -301,7 +301,7 @@ export default function SettingsClient({ user }: SettingsClientProps) {
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-900/50 p-6"
+                className="rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-900 p-6"
               >
                 <h3 className="font-semibold mb-6">Notification Preferences</h3>
                 <div className="space-y-4">
@@ -372,7 +372,7 @@ function IntegrationCard({
     <div className={`p-4 rounded-xl border transition-all ${
       connected 
         ? 'border-green-300 dark:border-green-500/30 bg-green-50 dark:bg-green-500/5' 
-        : 'border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-900/50'
+        : 'border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-900'
     }`}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
