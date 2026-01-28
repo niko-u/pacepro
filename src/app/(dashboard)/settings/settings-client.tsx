@@ -127,7 +127,7 @@ export default function SettingsClient({ user }: SettingsClientProps) {
                 animate={{ opacity: 1, y: 0 }}
                 className="space-y-6"
               >
-                <div className="rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-black/80 p-6">
+                <div className="rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-900 p-6">
                   <h3 className="font-semibold mb-6">Profile Information</h3>
                   <div className="space-y-4">
                     <div>
@@ -135,7 +135,7 @@ export default function SettingsClient({ user }: SettingsClientProps) {
                       <Input
                         value={profile.name}
                         onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-                        className="h-12 bg-zinc-50 dark:bg-white/5 border-zinc-200 dark:border-white/10"
+                        className="h-12 bg-zinc-50 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white"
                       />
                     </div>
                     <div>
@@ -143,7 +143,7 @@ export default function SettingsClient({ user }: SettingsClientProps) {
                       <Input
                         value={profile.email}
                         disabled
-                        className="h-12 bg-zinc-100 dark:bg-white/5 border-zinc-200 dark:border-white/10 text-zinc-500"
+                        className="h-12 bg-zinc-100 dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400"
                       />
                       <p className="text-xs text-zinc-500 mt-1">Email cannot be changed</p>
                     </div>
@@ -153,18 +153,18 @@ export default function SettingsClient({ user }: SettingsClientProps) {
                   </Button>
                 </div>
 
-                <div className="rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-black/80 p-6">
+                <div className="rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-900 p-6">
                   <h3 className="font-semibold mb-4">Training Preferences</h3>
                   <p className="text-zinc-600 dark:text-zinc-400 text-sm mb-4">Update your training preferences and goals.</p>
-                  <Button variant="outline" className="border-zinc-300 dark:border-white/10 hover:bg-zinc-100 dark:hover:bg-white/5">
+                  <Button variant="outline" className="border-zinc-300 dark:border-zinc-600 hover:bg-zinc-100 dark:hover:bg-zinc-800">
                     Edit Training Profile
                   </Button>
                 </div>
 
-                <div className="rounded-2xl border border-red-200 dark:border-red-500/20 bg-red-50 dark:bg-red-500/5 p-6">
+                <div className="rounded-2xl border border-red-200 dark:border-red-500/30 bg-red-50 dark:bg-red-950/50 p-6">
                   <h3 className="font-semibold text-red-600 dark:text-red-400 mb-4">Danger Zone</h3>
                   <p className="text-zinc-600 dark:text-zinc-400 text-sm mb-4">Permanently delete your account and all data.</p>
-                  <Button variant="outline" className="border-red-300 dark:border-red-500/50 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/10">
+                  <Button variant="outline" className="border-red-300 dark:border-red-500/50 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30">
                     Delete Account
                   </Button>
                 </div>
@@ -236,13 +236,13 @@ export default function SettingsClient({ user }: SettingsClientProps) {
                 animate={{ opacity: 1, y: 0 }}
                 className="space-y-6"
               >
-                <div className="rounded-2xl border border-orange-300 dark:border-orange-500/30 bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-500/10 dark:to-red-500/10 p-6">
+                <div className="rounded-2xl border border-orange-300 dark:border-orange-500/30 bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-950/50 dark:to-red-950/50 p-6">
                   <div className="flex items-center justify-between mb-4">
                     <div>
                       <h3 className="text-xl font-semibold">{subscription.plan} Plan</h3>
                       <p className="text-zinc-600 dark:text-zinc-400">{subscription.price}</p>
                     </div>
-                    <span className="px-3 py-1 rounded-full bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400 text-sm">
+                    <span className="px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 text-sm">
                       {subscription.status}
                     </span>
                   </div>
@@ -251,7 +251,7 @@ export default function SettingsClient({ user }: SettingsClientProps) {
                   </p>
                 </div>
 
-                <div className="rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-black/80 p-6">
+                <div className="rounded-2xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-6">
                   <h3 className="font-semibold mb-4">Plan Features</h3>
                   <ul className="space-y-3">
                     {[
@@ -273,22 +273,22 @@ export default function SettingsClient({ user }: SettingsClientProps) {
                   </ul>
                 </div>
 
-                <div className="rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-black/80 p-6">
+                <div className="rounded-2xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-6">
                   <h3 className="font-semibold mb-4">Billing</h3>
                   <div className="space-y-3">
-                    <Button variant="outline" className="w-full justify-start border-zinc-300 dark:border-white/10 hover:bg-zinc-100 dark:hover:bg-white/5">
+                    <Button variant="outline" className="w-full justify-start border-zinc-300 dark:border-zinc-600 hover:bg-zinc-100 dark:hover:bg-zinc-800">
                       <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                       </svg>
                       Update payment method
                     </Button>
-                    <Button variant="outline" className="w-full justify-start border-zinc-300 dark:border-white/10 hover:bg-zinc-100 dark:hover:bg-white/5">
+                    <Button variant="outline" className="w-full justify-start border-zinc-300 dark:border-zinc-600 hover:bg-zinc-100 dark:hover:bg-zinc-800">
                       <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
                       View billing history
                     </Button>
-                    <Button variant="outline" className="w-full justify-start border-zinc-300 dark:border-white/10 hover:bg-zinc-100 dark:hover:bg-white/5 text-zinc-500">
+                    <Button variant="outline" className="w-full justify-start border-zinc-300 dark:border-zinc-600 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500">
                       Cancel subscription
                     </Button>
                   </div>
@@ -301,7 +301,7 @@ export default function SettingsClient({ user }: SettingsClientProps) {
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-black/80 p-6"
+                className="rounded-2xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-6"
               >
                 <h3 className="font-semibold mb-6">Notification Preferences</h3>
                 <div className="space-y-4">
@@ -371,12 +371,12 @@ function IntegrationCard({
   return (
     <div className={`p-4 rounded-xl border transition-all ${
       connected 
-        ? 'border-green-300 dark:border-green-500/30 bg-green-50 dark:bg-green-500/5' 
-        : 'border-zinc-200 dark:border-white/10 bg-white dark:bg-black/80'
+        ? 'border-green-300 dark:border-green-500/30 bg-green-50 dark:bg-green-950/50' 
+        : 'border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900'
     }`}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-zinc-100 dark:bg-white/5 flex items-center justify-center text-2xl">
+          <div className="w-12 h-12 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-2xl">
             {icon}
           </div>
           <div>
@@ -394,14 +394,14 @@ function IntegrationCard({
         </div>
         {connected ? (
           <div className="flex items-center gap-3">
-            <span className="px-3 py-1 rounded-full bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400 text-sm">
+            <span className="px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 text-sm">
               Connected
             </span>
             <Button
               variant="outline"
               size="sm"
               onClick={onDisconnect}
-              className="border-zinc-300 dark:border-white/10 text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/5"
+              className="border-zinc-300 dark:border-zinc-600 text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800"
             >
               Disconnect
             </Button>
@@ -423,7 +423,7 @@ function NotificationToggle({ label, description, defaultChecked = false }: { la
   const [checked, setChecked] = useState(defaultChecked);
   
   return (
-    <div className="flex items-center justify-between py-3 border-b border-zinc-100 dark:border-white/5 last:border-0">
+    <div className="flex items-center justify-between py-3 border-b border-zinc-100 dark:border-zinc-800 last:border-0">
       <div>
         <div className="font-medium">{label}</div>
         <div className="text-sm text-zinc-500">{description}</div>
