@@ -28,7 +28,7 @@ export function RecoveryWidget({ data }: RecoveryWidgetProps) {
   const strokeDashoffset = circumference - (data.score / 100) * circumference;
 
   return (
-    <div className="rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-900/50 p-6">
+    <div className="rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-black/80/50 p-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold">Today's Recovery</h3>
         <span className="text-xs text-zinc-500 flex items-center gap-1">

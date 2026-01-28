@@ -166,7 +166,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 }}
-                  className="rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-900 overflow-hidden"
+                  className="rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-black/80 overflow-hidden"
                 >
                   <div className="p-6">
                     <div className="flex items-center justify-between mb-6">
@@ -236,7 +236,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
-                  className="rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-900 p-6"
+                  className="rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-black/80 p-6"
                 >
                   <h3 className="font-semibold mb-4">This Week</h3>
                   <div className="grid grid-cols-7 gap-2">
@@ -261,7 +261,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-900 flex flex-col h-[600px]"
+                className="rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-black/80 flex flex-col h-[600px]"
               >
                 <div className="p-4 border-b border-zinc-200 dark:border-white/10">
                   <h3 className="font-semibold flex items-center gap-2">

@@ -174,7 +174,7 @@ export default function ChatClient({ user }: ChatClientProps) {
                   <div className={`p-4 rounded-2xl ${
                     msg.role === 'user'
                       ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white'
-                      : 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 text-zinc-700 dark:text-zinc-300'
+                      : 'bg-white dark:bg-black/80 border border-zinc-200 dark:border-white/10 text-zinc-700 dark:text-zinc-300'
                   }`}>
                     <p className="whitespace-pre-wrap">{msg.content}</p>
                   </div>
@@ -189,7 +189,7 @@ export default function ChatClient({ user }: ChatClientProps) {
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-white font-bold text-sm">
                   P
                 </div>
-                <div className="p-4 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10">
+                <div className="p-4 rounded-2xl bg-white dark:bg-black/80 border border-zinc-200 dark:border-white/10">
                   <div className="flex gap-1">
                     <span className="w-2 h-2 bg-zinc-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                     <span className="w-2 h-2 bg-zinc-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
@@ -212,7 +212,7 @@ export default function ChatClient({ user }: ChatClientProps) {
                   <button
                     key={i}
                     onClick={() => setInput(prompt)}
-                    className="px-3 py-2 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 text-sm text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-700/50 transition-colors"
+                    className="px-3 py-2 rounded-xl bg-white dark:bg-black/80 border border-zinc-200 dark:border-white/10 text-sm text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-700/50 transition-colors"
                   >
                     {prompt}
                   </button>

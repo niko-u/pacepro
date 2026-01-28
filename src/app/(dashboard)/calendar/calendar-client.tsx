@@ -240,7 +240,7 @@ export default function CalendarClient({ user }: CalendarClientProps) {
                     className={`rounded-2xl border p-4 min-h-[300px] transition-all ${
                       isToday
                         ? "border-orange-400 dark:border-orange-500/50 bg-orange-50 dark:bg-orange-500/5"
-                        : "border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-900"
+                        : "border-zinc-200 dark:border-white/10 bg-white dark:bg-black/80"
                     } ${isPast ? "opacity-60" : ""}`}
                   >
                     <div className="flex items-center justify-between mb-4">
@@ -319,8 +319,8 @@ export default function CalendarClient({ user }: CalendarClientProps) {
                         isToday
                           ? "border-orange-400 dark:border-orange-500/50 bg-orange-50 dark:bg-orange-500/10"
                           : isCurrentMonth
-                          ? "border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-900"
-                          : "border-zinc-100 dark:border-white/5 bg-zinc-50 dark:bg-zinc-900/30"
+                          ? "border-zinc-200 dark:border-white/10 bg-white dark:bg-black/80"
+                          : "border-zinc-100 dark:border-white/5 bg-zinc-50 dark:bg-black/80/30"
                       } ${isPast ? "opacity-50" : ""} ${!isCurrentMonth ? "opacity-40" : ""}`}
                     >
                       <div className={`text-sm font-medium mb-1 ${
