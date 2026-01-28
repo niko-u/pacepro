@@ -148,19 +148,22 @@ export default function Home() {
         <div className="max-w-7xl mx-auto">
           <p className="text-center text-zinc-500 mb-12 text-lg">Syncs with your favorite fitness wearables</p>
           <div className="flex flex-wrap justify-center items-center gap-12 md:gap-20">
-            {/* WHOOP */}
+            {/* WHOOP - iconic strap shape */}
             <div className="flex flex-col items-center gap-3 opacity-60 hover:opacity-100 transition-opacity">
               <div className="h-14 flex items-center justify-center">
-                <span className="text-3xl font-black tracking-tighter text-white">WHOOP</span>
-              </div>
-            </div>
-            {/* Garmin */}
-            <div className="flex flex-col items-center gap-3 opacity-60 hover:opacity-100 transition-opacity">
-              <div className="h-14 flex items-center justify-center">
-                <svg viewBox="0 0 200 50" className="h-10 text-white" fill="currentColor">
-                  <path d="M25 10 L25 40 L30 40 L30 27 L45 27 L45 40 L50 40 L50 10 L45 10 L45 22 L30 22 L30 10 Z"/>
-                  <text x="55" y="35" className="text-3xl font-bold" style={{fontSize: '28px'}}>GARMIN</text>
+                <svg viewBox="0 0 80 40" className="h-10 text-white" fill="currentColor">
+                  {/* WHOOP strap band shape */}
+                  <rect x="5" y="12" width="70" height="16" rx="8" fill="currentColor"/>
+                  <rect x="15" y="16" width="50" height="8" rx="4" fill="black"/>
+                  <circle cx="40" cy="20" r="3" fill="currentColor"/>
                 </svg>
+              </div>
+              <span className="text-sm font-medium text-zinc-400">WHOOP</span>
+            </div>
+            {/* Garmin - text only, no H */}
+            <div className="flex flex-col items-center gap-3 opacity-60 hover:opacity-100 transition-opacity">
+              <div className="h-14 flex items-center justify-center">
+                <span className="text-2xl font-bold tracking-wider text-white">GARMIN</span>
               </div>
             </div>
             {/* Apple Health */}
@@ -239,20 +242,20 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Second angled screenshot - Analytics/Dashboard preview - upward angle */}
+          {/* Second screenshot - perspective: wider at bottom, tighter at top */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
             viewport={{ once: true }}
             className="max-w-5xl mx-auto"
-            style={{ perspective: '1000px' }}
+            style={{ perspective: '1200px' }}
           >
             <div 
               className="rounded-2xl border border-white/10 bg-zinc-900/80 backdrop-blur-xl overflow-hidden shadow-2xl shadow-orange-500/10"
               style={{ 
-                transform: 'rotateX(-6deg) rotateY(6deg) rotateZ(-1deg)',
-                transformOrigin: 'center center'
+                transform: 'rotateX(12deg)',
+                transformOrigin: 'center bottom'
               }}
             >
               <div className="p-4 border-b border-white/5 flex items-center gap-3">
@@ -312,7 +315,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features - Linear style with description + screenshot */}
+      {/* Features - Clean Linear-style with dividers */}
       <section id="features" className="relative py-32 px-6 border-t border-white/5">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
@@ -325,44 +328,35 @@ export default function Home() {
           </div>
 
           {/* Feature 1: Conversational Coaching */}
-          <div className="grid lg:grid-cols-2 gap-12 items-center mb-24">
+          <div className="grid lg:grid-cols-2 gap-16 items-center py-16 border-t border-white/5">
             <div>
-              <h3 className="text-3xl font-bold mb-4">Conversational Coaching</h3>
-              <p className="text-lg text-zinc-400 mb-6 leading-relaxed">
-                Chat with your coach anytime, anywhere. Ask questions, request workout modifications, discuss race strategy, or just vent about a tough day. Your AI coach knows your entire training history and responds with personalized guidance that actually makes sense for you.
+              <h3 className="text-2xl font-bold mb-4">Conversational Coaching</h3>
+              <p className="text-zinc-400 leading-relaxed mb-6">
+                Chat with your coach anytime. Ask questions, request modifications, or just check in after a tough day.
               </p>
-              <ul className="space-y-3 text-zinc-400">
-                <li className="flex items-center gap-3">
-                  <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />
-                  Instant responses, 24/7 availability
-                </li>
-                <li className="flex items-center gap-3">
-                  <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />
-                  Remembers your preferences and history
-                </li>
-                <li className="flex items-center gap-3">
-                  <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />
-                  Natural conversation, not menu navigation
-                </li>
-              </ul>
+              <div className="flex flex-wrap gap-3">
+                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-sm text-zinc-400">24/7 availability</span>
+                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-sm text-zinc-400">Remembers history</span>
+                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-sm text-zinc-400">Natural language</span>
+              </div>
             </div>
             <div className="rounded-2xl border border-white/10 bg-zinc-900/50 p-4 overflow-hidden">
               <div className="space-y-3">
                 <div className="flex gap-2">
                   <div className="w-6 h-6 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-xs font-bold flex-shrink-0">P</div>
                   <div className="bg-white/5 rounded-xl rounded-tl-none p-3 text-sm text-zinc-300">
-                    Looking at your upcoming race schedule, I'd recommend starting your taper in 2 weeks. That gives you 10 days to reduce volume while maintaining sharpness.
+                    Looking at your race schedule, I'd start taper in 2 weeks. That gives you 10 days to reduce volume while staying sharp.
                   </div>
                 </div>
                 <div className="flex gap-2 justify-end">
                   <div className="bg-gradient-to-r from-orange-500/80 to-red-600/80 rounded-xl rounded-tr-none p-3 text-sm">
-                    What about the long run this Saturday? Should I still do 18 miles?
+                    Should I still do 18 miles Saturday?
                   </div>
                 </div>
                 <div className="flex gap-2">
                   <div className="w-6 h-6 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-xs font-bold flex-shrink-0">P</div>
                   <div className="bg-white/5 rounded-xl rounded-tl-none p-3 text-sm text-zinc-300">
-                    Great question! Yes, let's keep this Saturday at 18 miles — it's your last long run before taper. After that, we'll drop to 12, then 8. I'll update your calendar.
+                    Yes! It's your last long run before taper. After that, 12 then 8. I'll update the calendar.
                   </div>
                 </div>
               </div>
@@ -370,113 +364,89 @@ export default function Home() {
           </div>
 
           {/* Feature 2: Post-Workout Analysis */}
-          <div className="grid lg:grid-cols-2 gap-12 items-center mb-24">
+          <div className="grid lg:grid-cols-2 gap-16 items-center py-16 border-t border-white/5">
             <div className="order-2 lg:order-1 rounded-2xl border border-white/10 bg-zinc-900/50 p-4 overflow-hidden">
-              <div className="p-4 border-b border-white/5 mb-4">
-                <div className="text-sm text-zinc-500">Yesterday's Run</div>
-                <div className="text-lg font-semibold">Tempo Run • 45 min</div>
+              <div className="p-3 border-b border-white/5 mb-3">
+                <div className="text-xs text-zinc-500">Yesterday</div>
+                <div className="font-semibold">Tempo Run • 45 min</div>
               </div>
-              <div className="grid grid-cols-3 gap-3 mb-4">
-                <div className="p-3 rounded-lg bg-white/5 text-center">
-                  <div className="text-2xl font-bold text-green-400">7:15</div>
-                  <div className="text-xs text-zinc-500">Avg Pace</div>
+              <div className="grid grid-cols-3 gap-2 mb-3">
+                <div className="p-2 rounded-lg bg-white/5 text-center">
+                  <div className="text-lg font-bold text-green-400">7:15</div>
+                  <div className="text-xs text-zinc-500">Pace</div>
                 </div>
-                <div className="p-3 rounded-lg bg-white/5 text-center">
-                  <div className="text-2xl font-bold text-orange-400">162</div>
-                  <div className="text-xs text-zinc-500">Avg HR</div>
+                <div className="p-2 rounded-lg bg-white/5 text-center">
+                  <div className="text-lg font-bold text-orange-400">162</div>
+                  <div className="text-xs text-zinc-500">HR</div>
                 </div>
-                <div className="p-3 rounded-lg bg-white/5 text-center">
-                  <div className="text-2xl font-bold text-blue-400">6.2</div>
+                <div className="p-2 rounded-lg bg-white/5 text-center">
+                  <div className="text-lg font-bold text-blue-400">6.2</div>
                   <div className="text-xs text-zinc-500">Miles</div>
                 </div>
               </div>
-              <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20 text-sm text-zinc-300">
-                <span className="text-green-400 font-medium">Analysis:</span> Strong session! You negative split the final 2 miles and stayed in zone 3 throughout the tempo portion. This is a 12-second improvement from your last tempo.
+              <div className="p-2 rounded-lg bg-green-500/10 border border-green-500/20 text-xs text-zinc-300">
+                <span className="text-green-400 font-medium">✓</span> Strong session! Negative split the final 2 miles. 12s faster than last tempo.
               </div>
             </div>
             <div className="order-1 lg:order-2">
-              <h3 className="text-3xl font-bold mb-4">Post-Workout Analysis</h3>
-              <p className="text-lg text-zinc-400 mb-6 leading-relaxed">
-                After every workout, your coach analyzes the data and gives you meaningful insights — not just graphs and numbers. Understand what went well, what to watch for, and how each session fits into your bigger picture.
+              <h3 className="text-2xl font-bold mb-4">Post-Workout Analysis</h3>
+              <p className="text-zinc-400 leading-relaxed mb-6">
+                After every workout, get meaningful insights — not just graphs. Understand what went well and how it fits the bigger picture.
               </p>
-              <ul className="space-y-3 text-zinc-400">
-                <li className="flex items-center gap-3">
-                  <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />
-                  Automatic sync from Strava, Garmin, or watch
-                </li>
-                <li className="flex items-center gap-3">
-                  <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />
-                  Compare planned vs actual performance
-                </li>
-                <li className="flex items-center gap-3">
-                  <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />
-                  Track progress trends over weeks and months
-                </li>
-              </ul>
+              <div className="flex flex-wrap gap-3">
+                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-sm text-zinc-400">Auto-sync from Strava</span>
+                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-sm text-zinc-400">Planned vs actual</span>
+                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-sm text-zinc-400">Progress trends</span>
+              </div>
             </div>
           </div>
 
           {/* Feature 3: Recovery Intelligence */}
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="grid lg:grid-cols-2 gap-16 items-center py-16 border-t border-white/5">
             <div>
-              <h3 className="text-3xl font-bold mb-4">Recovery Intelligence</h3>
-              <p className="text-lg text-zinc-400 mb-6 leading-relaxed">
-                Connect your WHOOP, Garmin, or Apple Watch and let your coach see the full picture. Your HRV, sleep quality, and recovery metrics inform every training decision — so you train hard when you can, and rest when you need to.
+              <h3 className="text-2xl font-bold mb-4">Recovery Intelligence</h3>
+              <p className="text-zinc-400 leading-relaxed mb-6">
+                Connect your wearable and let your coach see the full picture. HRV, sleep, and recovery metrics inform every training decision.
               </p>
-              <ul className="space-y-3 text-zinc-400">
-                <li className="flex items-center gap-3">
-                  <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />
-                  Auto-adjust workouts based on recovery
-                </li>
-                <li className="flex items-center gap-3">
-                  <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />
-                  Spot overtraining before burnout
-                </li>
-                <li className="flex items-center gap-3">
-                  <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />
-                  Optimize sleep and recovery habits
-                </li>
-              </ul>
+              <div className="flex flex-wrap gap-3">
+                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-sm text-zinc-400">Auto-adjust workouts</span>
+                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-sm text-zinc-400">Spot overtraining</span>
+                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-sm text-zinc-400">Sleep insights</span>
+              </div>
             </div>
             <div className="rounded-2xl border border-white/10 bg-zinc-900/50 p-4 overflow-hidden">
-              <div className="flex items-center gap-4 p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/20 mb-4">
-                <div className="relative w-14 h-14">
-                  <svg className="w-14 h-14 -rotate-90">
-                    <circle cx="28" cy="28" r="24" fill="none" stroke="currentColor" strokeWidth="4" className="text-white/10" />
-                    <circle cx="28" cy="28" r="24" fill="none" stroke="url(#yellow-gradient)" strokeWidth="4" strokeDasharray="90 150" strokeLinecap="round" />
-                    <defs>
-                      <linearGradient id="yellow-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="#eab308" />
-                        <stop offset="100%" stopColor="#f59e0b" />
-                      </linearGradient>
-                    </defs>
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/20 mb-3">
+                <div className="relative w-12 h-12">
+                  <svg className="w-12 h-12 -rotate-90">
+                    <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" strokeWidth="3" className="text-white/10" />
+                    <circle cx="24" cy="24" r="20" fill="none" stroke="#eab308" strokeWidth="3" strokeDasharray="73 125" strokeLinecap="round" />
                   </svg>
-                  <span className="absolute inset-0 flex items-center justify-center text-lg font-bold text-yellow-400">58%</span>
+                  <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-yellow-400">58%</span>
                 </div>
                 <div>
-                  <div className="font-semibold text-yellow-400">Recovery Below Average</div>
-                  <div className="text-sm text-zinc-400">HRV down 15% • Sleep: 5.8h</div>
+                  <div className="text-sm font-medium text-yellow-400">Recovery Below Average</div>
+                  <div className="text-xs text-zinc-500">HRV down 15% • Sleep: 5.8h</div>
                 </div>
               </div>
-              <div className="p-3 rounded-lg bg-white/5 text-sm text-zinc-300">
-                <span className="text-yellow-400 font-medium">Coach says:</span> Your body is asking for rest. I've swapped today's intervals for an easy 30-minute jog. Let's push the hard work to Thursday when you're more recovered.
+              <div className="p-2 rounded-lg bg-white/5 text-xs text-zinc-300">
+                <span className="text-yellow-400">Coach:</span> Swapping today's intervals for easy 30min jog. Hard work moves to Thursday.
               </div>
             </div>
           </div>
 
-          {/* Additional features grid */}
-          <div className="grid md:grid-cols-3 gap-6 mt-24">
-            <div className="p-6 rounded-2xl border border-white/10 bg-white/[0.02]">
-              <h4 className="text-lg font-semibold mb-2">Personalized Plans</h4>
-              <p className="text-zinc-400 text-sm">Not templates. Plans built for YOUR schedule, YOUR goals, YOUR body. From 5K to Ironman.</p>
+          {/* Additional features - compact grid */}
+          <div className="grid md:grid-cols-3 gap-4 pt-16 border-t border-white/5">
+            <div className="p-5 rounded-xl border border-white/5 bg-white/[0.02]">
+              <h4 className="font-semibold mb-2">Personalized Plans</h4>
+              <p className="text-sm text-zinc-500">Built for your schedule, goals, and body. From 5K to Ironman.</p>
             </div>
-            <div className="p-6 rounded-2xl border border-white/10 bg-white/[0.02]">
-              <h4 className="text-lg font-semibold mb-2">Real-time Adaptation</h4>
-              <p className="text-zinc-400 text-sm">Life happens. Miss a workout, get sick, travel — your plan adjusts automatically with full transparency.</p>
+            <div className="p-5 rounded-xl border border-white/5 bg-white/[0.02]">
+              <h4 className="font-semibold mb-2">Real-time Adaptation</h4>
+              <p className="text-sm text-zinc-500">Miss a workout? Get sick? Your plan adjusts automatically.</p>
             </div>
-            <div className="p-6 rounded-2xl border border-white/10 bg-white/[0.02]">
-              <h4 className="text-lg font-semibold mb-2">Race-Day Ready</h4>
-              <p className="text-zinc-400 text-sm">Taper protocols, pacing strategy, and mental prep. Your coach ensures you peak when it matters.</p>
+            <div className="p-5 rounded-xl border border-white/5 bg-white/[0.02]">
+              <h4 className="font-semibold mb-2">Race-Day Ready</h4>
+              <p className="text-sm text-zinc-500">Taper, pacing, mental prep. Peak when it matters.</p>
             </div>
           </div>
         </div>
