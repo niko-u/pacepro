@@ -7,9 +7,16 @@ import {
 } from "./prompts";
 import { CoachContext, formatContextForAI } from "./context";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Lazy-load OpenAI client to avoid build-time errors
+let _openai: OpenAI | null = null;
+function getOpenAI(): OpenAI {
+  if (!_openai) {
+    _openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+  }
+  return _openai;
+}
 
 export interface ChatMessage {
   role: "user" | "assistant" | "system";
@@ -26,7 +33,7 @@ export async function coachChat(
 ): Promise<string> {
   const contextSummary = formatContextForAI(context);
 
-  const response = await openai.chat.completions.create({
+  const response = await getOpenAI().chat.completions.create({
     model: "gpt-4-turbo-preview",
     messages: [
       {
@@ -60,7 +67,7 @@ export async function analyzeWorkout(
 ): Promise<string> {
   const contextSummary = formatContextForAI(context);
 
-  const response = await openai.chat.completions.create({
+  const response = await getOpenAI().chat.completions.create({
     model: "gpt-4-turbo-preview",
     messages: [
       {
@@ -89,7 +96,7 @@ export async function generateWeeklyOutlook(
 ): Promise<string> {
   const contextSummary = formatContextForAI(context);
 
-  const response = await openai.chat.completions.create({
+  const response = await getOpenAI().chat.completions.create({
     model: "gpt-4-turbo-preview",
     messages: [
       {
@@ -118,7 +125,7 @@ export async function extractPreferences(
   userMessage: string,
   coachResponse: string
 ): Promise<Record<string, string[]>> {
-  const response = await openai.chat.completions.create({
+  const response = await getOpenAI().chat.completions.create({
     model: "gpt-4-turbo-preview",
     messages: [
       {
@@ -152,7 +159,7 @@ export async function quickCoachResponse(
 ): Promise<string> {
   const contextSummary = formatContextForAI(context);
 
-  const response = await openai.chat.completions.create({
+  const response = await getOpenAI().chat.completions.create({
     model: "gpt-4-turbo-preview",
     messages: [
       {
