@@ -6,37 +6,31 @@ import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-black text-white overflow-hidden">
-      {/* Gradient background */}
-      <div className="fixed inset-0 bg-gradient-to-br from-orange-600/20 via-black to-red-900/20" />
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-orange-500/10 via-transparent to-transparent" />
-      <div className="fixed inset-0 bg-[linear-gradient(rgba(255,255,255,.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.02)_1px,transparent_1px)] bg-[size:72px_72px]" />
-
+    <div className="min-h-screen bg-[#0a0a0a] text-white overflow-hidden">
+      {/* Subtle gradient background like Linear */}
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(249,115,22,0.15),transparent)]" />
+      
       {/* Nav */}
-      <nav className="fixed top-0 w-full z-50 border-b border-white/5 bg-black/50 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl blur-lg opacity-50" />
-              <div className="relative w-9 h-9 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center font-bold text-sm">
-                P
-              </div>
+      <nav className="fixed top-0 w-full z-50 border-b border-white/[0.08] bg-[#0a0a0a]/80 backdrop-blur-xl">
+        <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg flex items-center justify-center font-bold text-xs">
+              P
             </div>
-            <span className="font-semibold text-lg tracking-tight">PacePro</span>
+            <span className="font-semibold tracking-tight">PacePro</span>
           </div>
-          <div className="hidden md:flex items-center gap-8 text-sm text-zinc-400">
+          <div className="hidden md:flex items-center gap-8 text-[13px] text-zinc-400">
             <a href="#features" className="hover:text-white transition-colors">Features</a>
-            <a href="#how-it-works" className="hover:text-white transition-colors">How It Works</a>
             <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
           </div>
           <div className="flex items-center gap-3">
             <Link href="/login">
-              <Button variant="ghost" className="text-zinc-400 hover:text-white hover:bg-white/5">
+              <Button variant="ghost" size="sm" className="text-zinc-400 hover:text-white hover:bg-white/5 text-[13px]">
                 Log in
               </Button>
             </Link>
             <Link href="/signup">
-              <Button className="bg-white text-black hover:bg-zinc-200 font-medium">
+              <Button size="sm" className="bg-white text-black hover:bg-zinc-200 text-[13px] font-medium h-8">
                 Start Free Trial
               </Button>
             </Link>
@@ -45,96 +39,71 @@ export default function Home() {
       </nav>
 
       {/* Hero */}
-      <section className="relative pt-32 pb-24 px-6">
-        <div className="max-w-7xl mx-auto">
+      <section className="relative pt-28 pb-20 px-6">
+        <div className="max-w-6xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="max-w-4xl"
+            transition={{ duration: 0.6 }}
+            className="text-center max-w-3xl mx-auto"
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-sm text-zinc-400 mb-8">
-              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-              AI coaching for runners & triathletes
-            </div>
-            
-            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.9] mb-8">
-              A coach that
+            <h1 className="text-[56px] md:text-[72px] font-semibold tracking-[-0.04em] leading-[1.05] mb-6">
+              AI coaching that
               <br />
-              <span className="bg-gradient-to-r from-orange-400 via-red-500 to-orange-600 bg-clip-text text-transparent">
-                actually knows you.
+              <span className="bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">
+                actually coaches.
               </span>
             </h1>
             
-            <p className="text-xl md:text-2xl text-zinc-400 max-w-2xl leading-relaxed mb-12">
-              Not just training plans — an AI coach that reads your recovery, analyzes your workouts, 
-              and adjusts your training before you even ask.
+            <p className="text-lg text-zinc-400 max-w-xl mx-auto leading-relaxed mb-10">
+              Not templates. A real AI coach that reads your recovery, analyzes every workout, and adapts your training in real-time.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex justify-center gap-4">
               <Link href="/signup">
-                <Button size="lg" className="h-14 px-8 text-lg bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 border-0 shadow-lg shadow-orange-500/25">
-                  Start 7-day free trial
-                  <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <Button className="h-11 px-6 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 border-0 text-[15px] font-medium">
+                  Start free trial
+                  <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                   </svg>
                 </Button>
               </Link>
-              <Button size="lg" variant="outline" className="h-14 px-8 text-lg border-white/10 bg-white/5 hover:bg-white/10 backdrop-blur">
-                <svg className="mr-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                See it in action
-              </Button>
             </div>
           </motion.div>
 
-          {/* Coach chat preview - Angled like Linear */}
+          {/* Hero screenshot - Linear style */}
           <motion.div
-            initial={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 0, y: 60 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.3 }}
-            className="mt-20 max-w-5xl mx-auto"
-            style={{ perspective: '1000px' }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="mt-16 relative"
           >
-            <div 
-              className="rounded-2xl border border-white/10 bg-zinc-900/80 backdrop-blur-xl overflow-hidden shadow-2xl shadow-orange-500/10"
-              style={{ 
-                transform: 'rotateX(8deg) rotateY(-8deg) rotateZ(2deg)',
-                transformOrigin: 'center center'
-              }}
-            >
-              <div className="p-4 border-b border-white/5 flex items-center gap-3">
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent z-10 pointer-events-none" />
+            <div className="rounded-xl border border-white/[0.08] bg-[#111] overflow-hidden shadow-2xl">
+              <div className="p-3 border-b border-white/[0.06] flex items-center gap-2">
                 <div className="flex gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-red-500" />
-                  <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                  <div className="w-3 h-3 rounded-full bg-green-500" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-white/20" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-white/20" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-white/20" />
                 </div>
-                <span className="text-sm text-zinc-400">Chat with Coach</span>
+                <span className="text-xs text-zinc-500 ml-2">Chat with Coach</span>
               </div>
               <div className="p-6 space-y-4">
                 <div className="flex gap-3">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-xs font-bold flex-shrink-0">
-                    P
-                  </div>
-                  <div className="bg-white/5 rounded-2xl rounded-tl-none p-4 max-w-lg">
-                    <p className="text-zinc-300">Good morning! 👋 I saw your tempo run from yesterday — nice work holding 7:15 pace for the main set. That's 12 seconds faster than your last tempo.</p>
-                    <p className="text-zinc-300 mt-2">Your WHOOP shows 78% recovery today. You're cleared for intervals, but I'd suggest keeping the rest periods a bit longer. Sound good?</p>
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-[10px] font-bold flex-shrink-0">P</div>
+                  <div className="bg-white/[0.04] rounded-2xl rounded-tl-sm p-4 max-w-md">
+                    <p className="text-[14px] text-zinc-300 leading-relaxed">Good morning! Your tempo run yesterday was solid — 7:15 pace, 12 seconds faster than last month. WHOOP shows 78% recovery. Ready for intervals today?</p>
                   </div>
                 </div>
                 <div className="flex gap-3 justify-end">
-                  <div className="bg-gradient-to-r from-orange-500 to-red-600 rounded-2xl rounded-tr-none p-4 max-w-lg">
-                    <p>Actually I'm feeling a bit tired today. Can we do something easier?</p>
+                  <div className="bg-gradient-to-r from-orange-500/90 to-red-600/90 rounded-2xl rounded-tr-sm p-4 max-w-md">
+                    <p className="text-[14px]">I'm feeling tired. Can we do something easier?</p>
                   </div>
                 </div>
                 <div className="flex gap-3">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-xs font-bold flex-shrink-0">
-                    P
-                  </div>
-                  <div className="bg-white/5 rounded-2xl rounded-tl-none p-4 max-w-lg">
-                    <p className="text-zinc-300">Absolutely. Smart call — your HRV has actually been trending down this week. Let's swap today for an easy 40-minute run in Zone 2. I'll move intervals to Thursday when you should be more recovered.</p>
-                    <p className="text-zinc-300 mt-2">Updated your plan. Take it easy today! 🏃‍♂️</p>
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-[10px] font-bold flex-shrink-0">P</div>
+                  <div className="bg-white/[0.04] rounded-2xl rounded-tl-sm p-4 max-w-md">
+                    <p className="text-[14px] text-zinc-300 leading-relaxed">Smart call. Your HRV has been trending down. Swapping to easy 40min Zone 2. Intervals moved to Thursday when you'll be recovered. Plan updated ✓</p>
                   </div>
                 </div>
               </div>
@@ -143,417 +112,234 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Wearable Integrations */}
-      <section className="relative py-20 px-6 border-y border-white/5 bg-white/[0.01]">
-        <div className="max-w-7xl mx-auto">
-          <p className="text-center text-zinc-500 mb-12 text-lg">Syncs with your favorite fitness wearables</p>
-          <div className="flex flex-wrap justify-center items-center gap-12 md:gap-20">
-            {/* WHOOP - iconic strap shape */}
-            <div className="flex flex-col items-center gap-3 opacity-60 hover:opacity-100 transition-opacity">
-              <div className="h-14 flex items-center justify-center">
-                <svg viewBox="0 0 80 40" className="h-10 text-white" fill="currentColor">
-                  {/* WHOOP strap band shape */}
-                  <rect x="5" y="12" width="70" height="16" rx="8" fill="currentColor"/>
-                  <rect x="15" y="16" width="50" height="8" rx="4" fill="black"/>
-                  <circle cx="40" cy="20" r="3" fill="currentColor"/>
-                </svg>
-              </div>
-              <span className="text-sm font-medium text-zinc-400">WHOOP</span>
-            </div>
-            {/* Garmin - text only, no H */}
-            <div className="flex flex-col items-center gap-3 opacity-60 hover:opacity-100 transition-opacity">
-              <div className="h-14 flex items-center justify-center">
-                <span className="text-2xl font-bold tracking-wider text-white">GARMIN</span>
-              </div>
-            </div>
-            {/* Apple Health */}
-            <div className="flex flex-col items-center gap-3 opacity-60 hover:opacity-100 transition-opacity">
-              <div className="h-14 flex items-center justify-center">
-                <svg viewBox="0 0 24 24" className="h-12 w-12 text-white" fill="currentColor">
-                  <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-                </svg>
-              </div>
-            </div>
-            {/* Strava */}
-            <div className="flex flex-col items-center gap-3 opacity-60 hover:opacity-100 transition-opacity">
-              <div className="h-14 flex items-center justify-center">
-                <svg viewBox="0 0 24 24" className="h-12 w-12 text-[#FC4C02]" fill="currentColor">
-                  <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/>
-                </svg>
-              </div>
-            </div>
-            {/* Oura */}
-            <div className="flex flex-col items-center gap-3 opacity-60 hover:opacity-100 transition-opacity">
-              <div className="h-14 flex items-center justify-center">
-                <span className="text-2xl font-semibold tracking-wide text-white">ŌURA</span>
-              </div>
-            </div>
+      {/* Integrations - clean logos */}
+      <section className="relative py-16 px-6 border-y border-white/[0.06]">
+        <div className="max-w-6xl mx-auto">
+          <p className="text-center text-[13px] text-zinc-500 mb-10">Syncs with your wearables</p>
+          <div className="flex flex-wrap justify-center items-center gap-12 md:gap-16">
+            <span className="text-xl font-black tracking-tight text-zinc-500 hover:text-zinc-300 transition-colors">WHOOP</span>
+            <span className="text-xl font-bold tracking-wide text-zinc-500 hover:text-zinc-300 transition-colors">GARMIN</span>
+            <svg viewBox="0 0 24 24" className="h-7 text-zinc-500 hover:text-zinc-300 transition-colors" fill="currentColor">
+              <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+            </svg>
+            <svg viewBox="0 0 24 24" className="h-7 text-zinc-500 hover:text-[#FC4C02] transition-colors" fill="currentColor">
+              <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/>
+            </svg>
+            <span className="text-xl font-semibold tracking-wide text-zinc-500 hover:text-zinc-300 transition-colors">ŌURA</span>
           </div>
         </div>
       </section>
 
-      {/* How it works - with second angled screenshot */}
-      <section id="how-it-works" className="relative py-32 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="max-w-2xl mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">
-              More than plans.
-              <br />
-              <span className="text-zinc-500">Real coaching.</span>
-            </h2>
-            <p className="text-lg text-zinc-400">
-              Your AI coach doesn't just generate a plan and disappear. It watches, learns, and adapts — just like a real coach would.
-            </p>
-          </div>
-
-          {/* Clean orange cards without emojis */}
-          <div className="grid md:grid-cols-3 gap-6 mb-20">
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-red-600/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="relative p-6 rounded-2xl border border-orange-500/30 bg-gradient-to-br from-orange-500/10 to-red-600/10 h-full">
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-lg font-bold mb-4">1</div>
-                <h3 className="text-xl font-semibold mb-3">Talk to your coach</h3>
-                <p className="text-zinc-400">
-                  Ask questions, request changes, report how you're feeling. Your coach responds instantly with personalized guidance.
-                </p>
-              </div>
+      {/* Features - Linear style: title + description + visual */}
+      <section id="features" className="relative py-24 px-6">
+        <div className="max-w-6xl mx-auto">
+          
+          {/* Feature 1 */}
+          <div className="mb-32">
+            <div className="max-w-xl mb-12">
+              <h2 className="text-3xl font-semibold tracking-tight mb-4">Talk to your coach, anytime</h2>
+              <p className="text-zinc-400 leading-relaxed">
+                Ask questions, request changes, or discuss strategy. Your AI coach knows your entire training history and responds instantly.
+              </p>
             </div>
-
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-red-600/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="relative p-6 rounded-2xl border border-orange-500/30 bg-gradient-to-br from-orange-500/10 to-red-600/10 h-full">
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-lg font-bold mb-4">2</div>
-                <h3 className="text-xl font-semibold mb-3">Get post-workout analysis</h3>
-                <p className="text-zinc-400">
-                  After every run, your coach analyzes the data: pace, heart rate, effort. You get insights, not just numbers.
-                </p>
-              </div>
-            </div>
-
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-red-600/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="relative p-6 rounded-2xl border border-orange-500/30 bg-gradient-to-br from-orange-500/10 to-red-600/10 h-full">
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-lg font-bold mb-4">3</div>
-                <h3 className="text-xl font-semibold mb-3">Watch it adapt</h3>
-                <p className="text-zinc-400">
-                  Low recovery score? Missed a workout? Your plan adjusts automatically — and your coach tells you why.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Second screenshot - perspective: wider at bottom, tighter at top */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-            viewport={{ once: true }}
-            className="max-w-5xl mx-auto"
-            style={{ perspective: '1200px' }}
-          >
-            <div 
-              className="rounded-2xl border border-white/10 bg-zinc-900/80 backdrop-blur-xl overflow-hidden shadow-2xl shadow-orange-500/10"
-              style={{ 
-                transform: 'rotateX(12deg)',
-                transformOrigin: 'center bottom'
-              }}
-            >
-              <div className="p-4 border-b border-white/5 flex items-center gap-3">
-                <div className="flex gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-red-500" />
-                  <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                  <div className="w-3 h-3 rounded-full bg-green-500" />
-                </div>
-                <span className="text-sm text-zinc-400">Training Dashboard</span>
-              </div>
-              <div className="p-6">
-                {/* Recovery Score */}
-                <div className="flex gap-6 mb-6">
-                  <div className="flex-1 p-4 rounded-xl bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20">
-                    <div className="text-sm text-zinc-400 mb-2">Recovery Score</div>
-                    <div className="flex items-center gap-4">
-                      <div className="relative w-16 h-16">
-                        <svg className="w-16 h-16 -rotate-90">
-                          <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="4" className="text-white/10" />
-                          <circle cx="32" cy="32" r="28" fill="none" stroke="url(#green-gradient)" strokeWidth="4" strokeDasharray="140 176" strokeLinecap="round" />
-                          <defs>
-                            <linearGradient id="green-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                              <stop offset="0%" stopColor="#22c55e" />
-                              <stop offset="100%" stopColor="#10b981" />
-                            </linearGradient>
-                          </defs>
-                        </svg>
-                        <span className="absolute inset-0 flex items-center justify-center text-xl font-bold text-green-400">78%</span>
-                      </div>
-                      <div className="text-sm text-zinc-400">
-                        <div>HRV: 52ms</div>
-                        <div>Sleep: 7.2h</div>
-                      </div>
-                    </div>
+            <div className="grid md:grid-cols-2 gap-8">
+              <div className="rounded-xl border border-white/[0.08] bg-[#111] p-5">
+                <div className="space-y-3 text-[13px]">
+                  <div className="flex gap-2">
+                    <div className="w-5 h-5 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-[8px] font-bold">P</div>
+                    <div className="bg-white/[0.04] rounded-xl rounded-tl-sm p-3 text-zinc-300">I'd start your taper in 2 weeks. That gives 10 days to reduce volume while staying sharp.</div>
                   </div>
-                  <div className="flex-1 p-4 rounded-xl bg-white/5 border border-white/10">
-                    <div className="text-sm text-zinc-400 mb-2">Today's Workout</div>
-                    <div className="text-lg font-semibold">Easy Recovery Run</div>
-                    <div className="text-sm text-zinc-500 mt-1">45 min • Zone 2</div>
-                    <div className="mt-3 h-2 bg-white/10 rounded-full overflow-hidden">
-                      <div className="h-full w-0 bg-gradient-to-r from-orange-500 to-red-600 rounded-full" />
-                    </div>
+                  <div className="flex gap-2 justify-end">
+                    <div className="bg-orange-500/20 border border-orange-500/30 rounded-xl rounded-tr-sm p-3 text-zinc-200">Should I still do 18 miles Saturday?</div>
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="w-5 h-5 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-[8px] font-bold">P</div>
+                    <div className="bg-white/[0.04] rounded-xl rounded-tl-sm p-3 text-zinc-300">Yes — it's your last long run before taper. After that, 12 then 8. Calendar updated.</div>
                   </div>
                 </div>
-                {/* Week Calendar */}
-                <div className="flex gap-2">
-                  {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, i) => (
-                    <div key={day} className={`flex-1 p-3 rounded-lg text-center ${i === 0 ? 'bg-gradient-to-br from-orange-500/20 to-red-500/20 border border-orange-500/30' : 'bg-white/5'}`}>
-                      <div className="text-xs text-zinc-500">{day}</div>
-                      <div className="text-lg mt-1">{['🏃', '🏊', '🚴', '💪', '🏃', '🚴', '😴'][i]}</div>
-                    </div>
+              </div>
+              <div className="rounded-xl border border-white/[0.08] bg-[#111] p-5">
+                <div className="text-[13px] text-zinc-500 mb-3">Quick actions</div>
+                <div className="flex flex-wrap gap-2">
+                  {["How's my training load?", "Swap today's workout", "I'm feeling tired", "Explain today's intervals"].map(q => (
+                    <span key={q} className="px-3 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.06] text-[12px] text-zinc-400">{q}</span>
                   ))}
                 </div>
               </div>
             </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Features - Clean Linear-style with dividers */}
-      <section id="features" className="relative py-32 px-6 border-t border-white/5">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">
-              Everything a great coach does
-            </h2>
-            <p className="text-lg text-zinc-400 max-w-2xl mx-auto">
-              Except available 24/7, for a fraction of the cost.
-            </p>
           </div>
 
-          {/* Feature 1: Conversational Coaching */}
-          <div className="grid lg:grid-cols-2 gap-16 items-center py-16 border-t border-white/5">
-            <div>
-              <h3 className="text-2xl font-bold mb-4">Conversational Coaching</h3>
-              <p className="text-zinc-400 leading-relaxed mb-6">
-                Chat with your coach anytime. Ask questions, request modifications, or just check in after a tough day.
+          {/* Feature 2 */}
+          <div className="mb-32">
+            <div className="max-w-xl mb-12">
+              <h2 className="text-3xl font-semibold tracking-tight mb-4">Every workout, analyzed</h2>
+              <p className="text-zinc-400 leading-relaxed">
+                After each session, your coach breaks down what happened — pace, effort, how it compares to your plan — and tells you what it means.
               </p>
-              <div className="flex flex-wrap gap-3">
-                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-sm text-zinc-400">24/7 availability</span>
-                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-sm text-zinc-400">Remembers history</span>
-                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-sm text-zinc-400">Natural language</span>
-              </div>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-zinc-900/50 p-4 overflow-hidden">
-              <div className="space-y-3">
-                <div className="flex gap-2">
-                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-xs font-bold flex-shrink-0">P</div>
-                  <div className="bg-white/5 rounded-xl rounded-tl-none p-3 text-sm text-zinc-300">
-                    Looking at your race schedule, I'd start taper in 2 weeks. That gives you 10 days to reduce volume while staying sharp.
-                  </div>
-                </div>
-                <div className="flex gap-2 justify-end">
-                  <div className="bg-gradient-to-r from-orange-500/80 to-red-600/80 rounded-xl rounded-tr-none p-3 text-sm">
-                    Should I still do 18 miles Saturday?
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-xs font-bold flex-shrink-0">P</div>
-                  <div className="bg-white/5 rounded-xl rounded-tl-none p-3 text-sm text-zinc-300">
-                    Yes! It's your last long run before taper. After that, 12 then 8. I'll update the calendar.
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Feature 2: Post-Workout Analysis */}
-          <div className="grid lg:grid-cols-2 gap-16 items-center py-16 border-t border-white/5">
-            <div className="order-2 lg:order-1 rounded-2xl border border-white/10 bg-zinc-900/50 p-4 overflow-hidden">
-              <div className="p-3 border-b border-white/5 mb-3">
-                <div className="text-xs text-zinc-500">Yesterday</div>
-                <div className="font-semibold">Tempo Run • 45 min</div>
-              </div>
-              <div className="grid grid-cols-3 gap-2 mb-3">
-                <div className="p-2 rounded-lg bg-white/5 text-center">
-                  <div className="text-lg font-bold text-green-400">7:15</div>
-                  <div className="text-xs text-zinc-500">Pace</div>
-                </div>
-                <div className="p-2 rounded-lg bg-white/5 text-center">
-                  <div className="text-lg font-bold text-orange-400">162</div>
-                  <div className="text-xs text-zinc-500">HR</div>
-                </div>
-                <div className="p-2 rounded-lg bg-white/5 text-center">
-                  <div className="text-lg font-bold text-blue-400">6.2</div>
-                  <div className="text-xs text-zinc-500">Miles</div>
-                </div>
-              </div>
-              <div className="p-2 rounded-lg bg-green-500/10 border border-green-500/20 text-xs text-zinc-300">
-                <span className="text-green-400 font-medium">✓</span> Strong session! Negative split the final 2 miles. 12s faster than last tempo.
-              </div>
-            </div>
-            <div className="order-1 lg:order-2">
-              <h3 className="text-2xl font-bold mb-4">Post-Workout Analysis</h3>
-              <p className="text-zinc-400 leading-relaxed mb-6">
-                After every workout, get meaningful insights — not just graphs. Understand what went well and how it fits the bigger picture.
-              </p>
-              <div className="flex flex-wrap gap-3">
-                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-sm text-zinc-400">Auto-sync from Strava</span>
-                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-sm text-zinc-400">Planned vs actual</span>
-                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-sm text-zinc-400">Progress trends</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Feature 3: Recovery Intelligence */}
-          <div className="grid lg:grid-cols-2 gap-16 items-center py-16 border-t border-white/5">
-            <div>
-              <h3 className="text-2xl font-bold mb-4">Recovery Intelligence</h3>
-              <p className="text-zinc-400 leading-relaxed mb-6">
-                Connect your wearable and let your coach see the full picture. HRV, sleep, and recovery metrics inform every training decision.
-              </p>
-              <div className="flex flex-wrap gap-3">
-                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-sm text-zinc-400">Auto-adjust workouts</span>
-                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-sm text-zinc-400">Spot overtraining</span>
-                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-sm text-zinc-400">Sleep insights</span>
-              </div>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-zinc-900/50 p-4 overflow-hidden">
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/20 mb-3">
-                <div className="relative w-12 h-12">
-                  <svg className="w-12 h-12 -rotate-90">
-                    <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" strokeWidth="3" className="text-white/10" />
-                    <circle cx="24" cy="24" r="20" fill="none" stroke="#eab308" strokeWidth="3" strokeDasharray="73 125" strokeLinecap="round" />
-                  </svg>
-                  <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-yellow-400">58%</span>
-                </div>
+            <div className="rounded-xl border border-white/[0.08] bg-[#111] p-6">
+              <div className="flex items-center justify-between mb-6">
                 <div>
-                  <div className="text-sm font-medium text-yellow-400">Recovery Below Average</div>
-                  <div className="text-xs text-zinc-500">HRV down 15% • Sleep: 5.8h</div>
+                  <div className="text-[13px] text-zinc-500">Yesterday</div>
+                  <div className="text-lg font-medium">Tempo Run</div>
+                </div>
+                <span className="px-2.5 py-1 rounded-md bg-green-500/10 border border-green-500/20 text-green-400 text-[12px]">Completed</span>
+              </div>
+              <div className="grid grid-cols-4 gap-4 mb-6">
+                <div className="text-center">
+                  <div className="text-2xl font-semibold text-green-400">7:15</div>
+                  <div className="text-[12px] text-zinc-500">Pace</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-semibold">45:12</div>
+                  <div className="text-[12px] text-zinc-500">Time</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-semibold">162</div>
+                  <div className="text-[12px] text-zinc-500">Avg HR</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-semibold">6.2</div>
+                  <div className="text-[12px] text-zinc-500">Miles</div>
                 </div>
               </div>
-              <div className="p-2 rounded-lg bg-white/5 text-xs text-zinc-300">
-                <span className="text-yellow-400">Coach:</span> Swapping today's intervals for easy 30min jog. Hard work moves to Thursday.
+              <div className="p-4 rounded-lg bg-green-500/5 border border-green-500/10">
+                <p className="text-[13px] text-zinc-300"><span className="text-green-400 font-medium">Analysis:</span> Strong session. You negative split the final 2 miles and stayed in Z3 throughout. 12 seconds faster than your last tempo — fitness is building.</p>
               </div>
             </div>
           </div>
 
-          {/* Additional features - compact grid */}
-          <div className="grid md:grid-cols-3 gap-4 pt-16 border-t border-white/5">
-            <div className="p-5 rounded-xl border border-white/5 bg-white/[0.02]">
-              <h4 className="font-semibold mb-2">Personalized Plans</h4>
-              <p className="text-sm text-zinc-500">Built for your schedule, goals, and body. From 5K to Ironman.</p>
+          {/* Feature 3 */}
+          <div className="mb-24">
+            <div className="max-w-xl mb-12">
+              <h2 className="text-3xl font-semibold tracking-tight mb-4">Recovery-driven adaptation</h2>
+              <p className="text-zinc-400 leading-relaxed">
+                Your coach sees your HRV, sleep, and strain from WHOOP, Garmin, or Apple Watch — and adjusts your plan before you even ask.
+              </p>
             </div>
-            <div className="p-5 rounded-xl border border-white/5 bg-white/[0.02]">
-              <h4 className="font-semibold mb-2">Real-time Adaptation</h4>
-              <p className="text-sm text-zinc-500">Miss a workout? Get sick? Your plan adjusts automatically.</p>
+            <div className="grid md:grid-cols-2 gap-8">
+              <div className="rounded-xl border border-yellow-500/20 bg-yellow-500/5 p-5">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="relative w-14 h-14">
+                    <svg className="w-14 h-14 -rotate-90">
+                      <circle cx="28" cy="28" r="24" fill="none" stroke="currentColor" strokeWidth="3" className="text-white/10" />
+                      <circle cx="28" cy="28" r="24" fill="none" stroke="#eab308" strokeWidth="3" strokeDasharray="87 150" strokeLinecap="round" />
+                    </svg>
+                    <span className="absolute inset-0 flex items-center justify-center text-lg font-semibold text-yellow-400">58%</span>
+                  </div>
+                  <div>
+                    <div className="font-medium text-yellow-400">Recovery Below Average</div>
+                    <div className="text-[13px] text-zinc-500">HRV down 15% • 5.8h sleep</div>
+                  </div>
+                </div>
+                <p className="text-[13px] text-zinc-400">Your body needs rest. Swapping intervals for easy 30min jog. Hard work moves to Thursday.</p>
+              </div>
+              <div className="rounded-xl border border-green-500/20 bg-green-500/5 p-5">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="relative w-14 h-14">
+                    <svg className="w-14 h-14 -rotate-90">
+                      <circle cx="28" cy="28" r="24" fill="none" stroke="currentColor" strokeWidth="3" className="text-white/10" />
+                      <circle cx="28" cy="28" r="24" fill="none" stroke="#22c55e" strokeWidth="3" strokeDasharray="130 150" strokeLinecap="round" />
+                    </svg>
+                    <span className="absolute inset-0 flex items-center justify-center text-lg font-semibold text-green-400">86%</span>
+                  </div>
+                  <div>
+                    <div className="font-medium text-green-400">Fully Recovered</div>
+                    <div className="text-[13px] text-zinc-500">HRV up 8% • 8.2h sleep</div>
+                  </div>
+                </div>
+                <p className="text-[13px] text-zinc-400">Green light for intensity. Today's VO2max intervals will hit different. Let's go.</p>
+              </div>
             </div>
-            <div className="p-5 rounded-xl border border-white/5 bg-white/[0.02]">
-              <h4 className="font-semibold mb-2">Race-Day Ready</h4>
-              <p className="text-sm text-zinc-500">Taper, pacing, mental prep. Peak when it matters.</p>
+          </div>
+
+          {/* Small features grid */}
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="p-5 rounded-xl border border-white/[0.06] bg-white/[0.02]">
+              <h3 className="font-medium mb-2">Personalized plans</h3>
+              <p className="text-[13px] text-zinc-500">Built for your schedule, goals, and body. 5K to Ironman.</p>
+            </div>
+            <div className="p-5 rounded-xl border border-white/[0.06] bg-white/[0.02]">
+              <h3 className="font-medium mb-2">Auto-adaptation</h3>
+              <p className="text-[13px] text-zinc-500">Miss a workout? Get sick? Plan adjusts automatically.</p>
+            </div>
+            <div className="p-5 rounded-xl border border-white/[0.06] bg-white/[0.02]">
+              <h3 className="font-medium mb-2">Race-day ready</h3>
+              <p className="text-[13px] text-zinc-500">Taper protocols and pacing strategy. Peak when it matters.</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Pricing */}
-      <section id="pricing" className="relative py-32 px-6 border-t border-white/5">
-        <div className="max-w-7xl mx-auto">
+      <section id="pricing" className="relative py-24 px-6 border-t border-white/[0.06]">
+        <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">
-              Real coaching, fair price
-            </h2>
-            <p className="text-lg text-zinc-400">
-              A human coach costs $200-400/month. PacePro delivers the same personalization for a fraction of that.
-            </p>
+            <h2 className="text-3xl font-semibold tracking-tight mb-4">Real coaching, fair price</h2>
+            <p className="text-zinc-400">Human coaches cost $200-400/month. PacePro is a fraction of that.</p>
           </div>
 
-          <div className="max-w-lg mx-auto">
-            <div className="relative group">
-              <div className="absolute -inset-px bg-gradient-to-br from-orange-500 to-red-600 rounded-3xl opacity-75 blur-sm group-hover:opacity-100 transition-opacity" />
-              <div className="relative p-8 rounded-3xl border border-orange-500/50 bg-black">
-                <div className="text-center mb-8">
-                  <h3 className="text-2xl font-semibold mb-2">PacePro Coach</h3>
-                  <div className="flex items-baseline justify-center gap-1">
-                    <span className="text-6xl font-bold">$50</span>
-                    <span className="text-zinc-500">/month</span>
-                  </div>
-                  <p className="text-sm text-zinc-500 mt-2">7-day free trial • Cancel anytime</p>
+          <div className="max-w-sm mx-auto">
+            <div className="rounded-2xl border border-orange-500/30 bg-gradient-to-b from-orange-500/10 to-transparent p-6">
+              <div className="text-center mb-6">
+                <div className="text-sm text-zinc-400 mb-1">PacePro Coach</div>
+                <div className="flex items-baseline justify-center">
+                  <span className="text-5xl font-semibold">$50</span>
+                  <span className="text-zinc-500 ml-1">/mo</span>
                 </div>
-
-                <ul className="space-y-4 mb-8">
-                  <PricingFeature text="Unlimited coach chat" />
-                  <PricingFeature text="Post-workout analysis on every session" />
-                  <PricingFeature text="Recovery-based plan adjustments" />
-                  <PricingFeature text="Personalized periodized training plan" />
-                  <PricingFeature text="Strava, WHOOP, Garmin integration" />
-                  <PricingFeature text="Race-day protocols and taper" />
-                  <PricingFeature text="Weekly progress summaries" />
-                </ul>
-
-                <Link href="/signup">
-                  <Button className="w-full h-14 text-lg bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 border-0 shadow-lg shadow-orange-500/25">
-                    Start your free trial
-                  </Button>
-                </Link>
+                <div className="text-[13px] text-zinc-500 mt-2">7-day free trial</div>
               </div>
-            </div>
 
-            <p className="text-center text-zinc-500 text-sm mt-6">
-              Annual plan available: $500/year (save 2 months)
-            </p>
+              <ul className="space-y-3 mb-6 text-[14px]">
+                {["Unlimited coach chat", "Post-workout analysis", "Recovery-based adjustments", "Personalized training plan", "WHOOP, Garmin, Strava sync", "Race-day protocols"].map(f => (
+                  <li key={f} className="flex items-center gap-3 text-zinc-300">
+                    <svg className="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+
+              <Link href="/signup">
+                <Button className="w-full h-11 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 border-0 font-medium">
+                  Start free trial
+                </Button>
+              </Link>
+            </div>
+            <p className="text-center text-[13px] text-zinc-500 mt-4">$500/year (save 2 months)</p>
           </div>
         </div>
       </section>
 
       {/* Final CTA */}
-      <section className="relative py-32 px-6 border-t border-white/5">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
-            Ready for a coach that
-            <br />
-            actually coaches?
+      <section className="relative py-24 px-6 border-t border-white/[0.06]">
+        <div className="max-w-2xl mx-auto text-center">
+          <h2 className="text-4xl font-semibold tracking-tight mb-4">
+            Ready for a coach that actually coaches?
           </h2>
-          <p className="text-xl text-zinc-400 mb-10">
-            Start your 7-day free trial. No credit card required.
-          </p>
+          <p className="text-zinc-400 mb-8">Start your 7-day free trial. No credit card required.</p>
           <Link href="/signup">
-            <Button size="lg" className="h-14 px-10 text-lg bg-white text-black hover:bg-zinc-200 font-medium">
+            <Button className="h-11 px-8 bg-white text-black hover:bg-zinc-200 font-medium">
               Get started free
-              <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
             </Button>
           </Link>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="relative py-12 px-6 border-t border-white/5">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg flex items-center justify-center font-bold text-sm">
-              P
-            </div>
-            <span className="font-semibold">PacePro</span>
+      <footer className="relative py-8 px-6 border-t border-white/[0.06]">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 bg-gradient-to-br from-orange-500 to-red-600 rounded-md flex items-center justify-center text-[10px] font-bold">P</div>
+            <span className="font-medium text-sm">PacePro</span>
           </div>
-          <div className="flex items-center gap-8 text-sm text-zinc-500">
+          <div className="flex items-center gap-6 text-[13px] text-zinc-500">
             <a href="#" className="hover:text-white transition-colors">Privacy</a>
             <a href="#" className="hover:text-white transition-colors">Terms</a>
-            <a href="#" className="hover:text-white transition-colors">Contact</a>
           </div>
-          <p className="text-sm text-zinc-600">
-            © 2025 PacePro. All rights reserved.
-          </p>
         </div>
       </footer>
     </div>
-  );
-}
-
-function PricingFeature({ text }: { text: string }) {
-  return (
-    <li className="flex items-center gap-3 text-zinc-300">
-      <svg className="w-5 h-5 text-orange-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-      </svg>
-      {text}
-    </li>
   );
 }

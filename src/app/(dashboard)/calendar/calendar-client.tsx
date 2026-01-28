@@ -126,7 +126,7 @@ export default function CalendarClient({ user }: CalendarClientProps) {
         </div>
 
         <div className="absolute bottom-20 left-0 right-0 px-6">
-          <div className="p-4 rounded-xl bg-orange-50 dark:bg-orange-500/10 border border-orange-200 dark:border-orange-500/20">
+          <div className="p-4 rounded-xl bg-orange-50 dark:bg-orange-500/10 border border-orange-200 border-orange-500/40">
             <div className="text-sm text-zinc-600 dark:text-zinc-400 mb-1">{mockPlan.race.name}</div>
             <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">{mockPlan.race.weeksOut} weeks</div>
             <div className="text-xs text-zinc-500">until race day</div>
@@ -356,9 +356,9 @@ function NavItem({ href, icon, label, active = false }: { href: string; icon: st
   return (
     <Link
       href={href}
-      className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+      className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all ${
         active 
-          ? 'bg-orange-100 dark:bg-gradient-to-r dark:from-orange-500/10 dark:to-red-500/10 text-orange-700 dark:text-white border border-orange-200 dark:border-orange-500/20' 
+          ? 'bg-orange-100 dark:bg-gradient-to-r dark:from-orange-500/20 dark:to-red-600/20 text-orange-700 dark:text-orange-400 border border-orange-200 dark:border-orange-500/40 shadow-sm dark:shadow-orange-500/10' 
           : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/5'
       }`}
     >
