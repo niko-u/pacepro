@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { randomBytes } from "crypto";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const supabase = await createClient();
 
   const {
@@ -15,9 +15,13 @@ export async function GET() {
     );
   }
 
-  // Generate CSRF state: base64(userId:nonce)
+  // Check for returnTo param (e.g., /onboarding)
+  const url = new URL(req.url);
+  const returnTo = url.searchParams.get("returnTo") || "/settings";
+
+  // Generate CSRF state: base64url(userId:nonce:returnTo)
   const nonce = randomBytes(16).toString("hex");
-  const state = Buffer.from(`${user.id}:${nonce}`).toString("base64url");
+  const state = Buffer.from(`${user.id}:${nonce}:${returnTo}`).toString("base64url");
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://pacepro.vercel.app";
   const redirectUri = `${appUrl}/api/integrations/strava/callback`;

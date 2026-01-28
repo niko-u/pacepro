@@ -4,8 +4,9 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { Suspense } from "react";
 
 // Race types - Running + Triathlon
 const raceTypes = [
@@ -79,11 +80,12 @@ const trainingDays = [
   { id: "sun", name: "Sun" },
 ];
 
-export default function OnboardingPage() {
+function OnboardingContent() {
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [generatingPlan, setGeneratingPlan] = useState(false);
   const [raceSearch, setRaceSearch] = useState("");
+  const searchParams = useSearchParams();
   const [formData, setFormData] = useState({
     raceType: "",
     selectedRace: null as typeof popularRaces[0] | null,
@@ -115,6 +117,37 @@ export default function OnboardingPage() {
   });
   const router = useRouter();
   
+  // Check for OAuth return and fetch real integration status
+  useEffect(() => {
+    const connected = searchParams.get("connected");
+    if (connected) {
+      // Returned from OAuth — go to integrations step
+      setStep(9);
+      // Clean URL
+      window.history.replaceState({}, "", "/onboarding");
+    }
+
+    // Fetch real integration status
+    async function checkIntegrations() {
+      try {
+        const res = await fetch("/api/integrations/status");
+        if (res.ok) {
+          const data = await res.json();
+          const providers = data.integrations || [];
+          setFormData(prev => ({
+            ...prev,
+            stravaConnected: providers.some((i: { provider: string }) => i.provider === "strava"),
+            whoopConnected: providers.some((i: { provider: string }) => i.provider === "whoop"),
+            garminConnected: providers.some((i: { provider: string }) => i.provider === "garmin"),
+          }));
+        }
+      } catch {
+        // Ignore — integrations API may not be available
+      }
+    }
+    checkIntegrations();
+  }, [searchParams]);
+
   const totalSteps = 10; // Intro, Race Type, Find Race, Goals, Experience, Schedule, Preferences, Personality, Current Fitness, Integrations
 
   const filteredRaces = popularRaces.filter(race => 
@@ -700,7 +733,7 @@ export default function OnboardingPage() {
                     Connect your apps
                   </h1>
                   <p className="text-zinc-400 mb-8">
-                    Sync your training data for smarter coaching. You can skip this and connect later.
+                    Sync your training data for smarter coaching. You can skip this and connect later in Settings.
                   </p>
                   
                   <div className="space-y-3">
@@ -709,21 +742,28 @@ export default function OnboardingPage() {
                       icon="🔶"
                       description="Sync workouts automatically"
                       connected={formData.stravaConnected}
-                      onConnect={() => setFormData({ ...formData, stravaConnected: true })}
+                      onConnect={() => {
+                        window.location.href = "/api/integrations/strava/connect?returnTo=/onboarding";
+                      }}
                     />
                     <IntegrationCard
                       name="WHOOP"
                       icon="⚫"
                       description="Recovery and strain data"
                       connected={formData.whoopConnected}
-                      onConnect={() => setFormData({ ...formData, whoopConnected: true })}
+                      onConnect={() => {
+                        window.location.href = "/api/integrations/whoop/connect?returnTo=/onboarding";
+                      }}
                     />
                     <IntegrationCard
                       name="Garmin"
                       icon="🔵"
                       description="Training status and metrics"
                       connected={formData.garminConnected}
-                      onConnect={() => setFormData({ ...formData, garminConnected: true })}
+                      onConnect={() => {
+                        // Garmin OAuth not yet available
+                        alert("Garmin integration coming soon!");
+                      }}
                     />
                   </div>
                 </StepWrapper>
@@ -871,5 +911,13 @@ function LoadingStep({ text, done = false, active = false }: { text: string; don
       )}
       <span>{text}</span>
     </div>
+  );
+}
+
+export default function OnboardingPage() {
+  return (
+    <Suspense>
+      <OnboardingContent />
+    </Suspense>
   );
 }

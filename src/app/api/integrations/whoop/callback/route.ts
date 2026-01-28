@@ -26,12 +26,17 @@ export async function GET(req: NextRequest) {
       return NextResponse.redirect(settingsUrl.toString());
     }
 
-    // Decode state to get user_id
+    // Decode state to get user_id and returnTo
     let userId: string;
+    let returnTo = "/settings";
     try {
       const decoded = Buffer.from(state, "base64url").toString("utf-8");
-      userId = decoded.split(":")[0];
+      const parts = decoded.split(":");
+      userId = parts[0];
       if (!userId) throw new Error("No user ID in state");
+      if (parts.length >= 3) {
+        returnTo = parts.slice(2).join(":");
+      }
     } catch {
       settingsUrl.searchParams.set("error", "whoop_invalid_state");
       return NextResponse.redirect(settingsUrl.toString());
@@ -125,8 +130,9 @@ export async function GET(req: NextRequest) {
     }
 
     console.log(`WHOOP connected for user ${userId}, whoop user ${whoopUserId}`);
-    settingsUrl.searchParams.set("connected", "whoop");
-    return NextResponse.redirect(settingsUrl.toString());
+    const redirectUrl = new URL(returnTo, appUrl);
+    redirectUrl.searchParams.set("connected", "whoop");
+    return NextResponse.redirect(redirectUrl.toString());
   } catch (err) {
     console.error("WHOOP callback error:", err);
     settingsUrl.searchParams.set("error", "whoop_unexpected");
