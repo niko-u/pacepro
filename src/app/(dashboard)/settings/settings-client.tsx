@@ -1,12 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { User } from "@supabase/supabase-js";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { ThemeToggle } from "@/components/theme-toggle";
+
+interface IntegrationStatus {
+  connected: boolean;
+  username: string;
+  connectedAt: string | null;
+  lastSync: string | null;
+}
 
 interface SettingsClientProps {
   user: User;
@@ -21,12 +29,74 @@ export default function SettingsClient({ user }: SettingsClientProps) {
     email: user.email || "",
   });
 
-  const [integrations, setIntegrations] = useState({
-    strava: { connected: true, username: "athlete_niko", lastSync: "2 hours ago" },
-    whoop: { connected: true, username: "niko@example.com", lastSync: "1 hour ago" },
-    garmin: { connected: false, username: "", lastSync: "" },
-    apple: { connected: false, username: "", lastSync: "" },
+  const searchParams = useSearchParams();
+  const connectedProvider = searchParams.get("connected");
+  const errorParam = searchParams.get("error");
+
+  const [integrations, setIntegrations] = useState<Record<string, IntegrationStatus>>({
+    strava: { connected: false, username: "", connectedAt: null, lastSync: null },
+    whoop: { connected: false, username: "", connectedAt: null, lastSync: null },
+    garmin: { connected: false, username: "", connectedAt: null, lastSync: null },
+    apple_health: { connected: false, username: "", connectedAt: null, lastSync: null },
   });
+  const [loadingIntegrations, setLoadingIntegrations] = useState(true);
+  const [toast, setToast] = useState<{ type: "success" | "error"; message: string } | null>(null);
+
+  // Fetch integration status
+  const fetchStatus = useCallback(async () => {
+    try {
+      const res = await fetch("/api/integrations/status");
+      if (res.ok) {
+        const data = await res.json();
+        setIntegrations((prev) => ({
+          ...prev,
+          ...Object.fromEntries(
+            Object.entries(data.integrations).map(([provider, status]) => [
+              provider,
+              status as IntegrationStatus,
+            ])
+          ),
+        }));
+      }
+    } catch (err) {
+      console.error("Failed to fetch integration status:", err);
+    } finally {
+      setLoadingIntegrations(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchStatus();
+  }, [fetchStatus]);
+
+  // Show toast for OAuth result
+  useEffect(() => {
+    if (connectedProvider) {
+      setActiveTab("integrations");
+      setToast({
+        type: "success",
+        message: `${connectedProvider.charAt(0).toUpperCase() + connectedProvider.slice(1)} connected successfully!`,
+      });
+      // Clean up URL params
+      window.history.replaceState({}, "", "/settings");
+    } else if (errorParam) {
+      setActiveTab("integrations");
+      const provider = errorParam.split("_")[0];
+      setToast({
+        type: "error",
+        message: `Failed to connect ${provider}. Please try again.`,
+      });
+      window.history.replaceState({}, "", "/settings");
+    }
+  }, [connectedProvider, errorParam]);
+
+  // Auto-dismiss toast
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
 
   const subscription = {
     plan: "Pro",
@@ -35,10 +105,49 @@ export default function SettingsClient({ user }: SettingsClientProps) {
     status: "active",
   };
 
+  const formatTimeAgo = (dateStr: string | null) => {
+    if (!dateStr) return "";
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.round(diffMs / 60000);
+    if (diffMins < 1) return "just now";
+    if (diffMins < 60) return `${diffMins}m ago`;
+    const diffHours = Math.round(diffMins / 60);
+    if (diffHours < 24) return `${diffHours}h ago`;
+    const diffDays = Math.round(diffHours / 24);
+    return `${diffDays}d ago`;
+  };
+
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black text-zinc-900 dark:text-white">
-      {/* Background - subtle in light, gradient in dark */}
+      {/* Background */}
       <div className="fixed inset-0 bg-zinc-50 dark:bg-gradient-to-br dark:from-orange-600/5 dark:via-black dark:to-red-900/5" />
+
+      {/* Toast notification */}
+      {toast && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-xl shadow-lg border ${
+            toast.type === "success"
+              ? "bg-green-50 dark:bg-green-950 border-green-300 dark:border-green-500/30 text-green-800 dark:text-green-300"
+              : "bg-red-50 dark:bg-red-950 border-red-300 dark:border-red-500/30 text-red-800 dark:text-red-300"
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            <span>{toast.type === "success" ? "✅" : "❌"}</span>
+            <span className="text-sm font-medium">{toast.message}</span>
+            <button
+              onClick={() => setToast(null)}
+              className="ml-2 opacity-60 hover:opacity-100"
+            >
+              ✕
+            </button>
+          </div>
+        </motion.div>
+      )}
 
       {/* Sidebar */}
       <aside className={`fixed left-0 top-0 h-full w-64 border-r border-zinc-200 dark:border-white/10 bg-white dark:bg-black/95 backdrop-blur-xl z-40 transition-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
@@ -182,50 +291,60 @@ export default function SettingsClient({ user }: SettingsClientProps) {
                   Connect your fitness apps to sync workouts and recovery data automatically.
                 </p>
 
-                <IntegrationCard
-                  name="Strava"
-                  icon="🔶"
-                  description="Sync completed workouts automatically"
-                  connected={integrations.strava.connected}
-                  username={integrations.strava.username}
-                  lastSync={integrations.strava.lastSync}
-                  onConnect={() => setIntegrations({ ...integrations, strava: { ...integrations.strava, connected: true } })}
-                  onDisconnect={() => setIntegrations({ ...integrations, strava: { ...integrations.strava, connected: false } })}
-                />
+                {loadingIntegrations ? (
+                  <div className="space-y-4">
+                    {[1, 2, 3, 4].map((i) => (
+                      <div
+                        key={i}
+                        className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 animate-pulse h-20"
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <>
+                    <IntegrationCard
+                      name="Strava"
+                      icon="🔶"
+                      description="Sync completed workouts automatically"
+                      connected={integrations.strava?.connected || false}
+                      username={integrations.strava?.username || ""}
+                      lastSync={formatTimeAgo(integrations.strava?.lastSync || integrations.strava?.connectedAt || null)}
+                      connectUrl="/api/integrations/strava/connect"
+                    />
 
-                <IntegrationCard
-                  name="WHOOP"
-                  icon="⚫"
-                  description="Recovery scores, HRV, and sleep data"
-                  connected={integrations.whoop.connected}
-                  username={integrations.whoop.username}
-                  lastSync={integrations.whoop.lastSync}
-                  onConnect={() => setIntegrations({ ...integrations, whoop: { ...integrations.whoop, connected: true } })}
-                  onDisconnect={() => setIntegrations({ ...integrations, whoop: { ...integrations.whoop, connected: false } })}
-                />
+                    <IntegrationCard
+                      name="WHOOP"
+                      icon="⚫"
+                      description="Recovery scores, HRV, and sleep data"
+                      connected={integrations.whoop?.connected || false}
+                      username={integrations.whoop?.username || ""}
+                      lastSync={formatTimeAgo(integrations.whoop?.lastSync || integrations.whoop?.connectedAt || null)}
+                      connectUrl="/api/integrations/whoop/connect"
+                    />
 
-                <IntegrationCard
-                  name="Garmin Connect"
-                  icon="🔵"
-                  description="Training status, body battery, and sleep"
-                  connected={integrations.garmin.connected}
-                  username={integrations.garmin.username}
-                  lastSync={integrations.garmin.lastSync}
-                  onConnect={() => setIntegrations({ ...integrations, garmin: { ...integrations.garmin, connected: true } })}
-                  onDisconnect={() => setIntegrations({ ...integrations, garmin: { ...integrations.garmin, connected: false } })}
-                />
+                    <IntegrationCard
+                      name="Garmin Connect"
+                      icon="🔵"
+                      description="Training status, body battery, and sleep"
+                      connected={integrations.garmin?.connected || false}
+                      username={integrations.garmin?.username || ""}
+                      lastSync={formatTimeAgo(integrations.garmin?.lastSync || integrations.garmin?.connectedAt || null)}
+                      note="Coming soon"
+                      disabled
+                    />
 
-                <IntegrationCard
-                  name="Apple Health"
-                  icon="❤️"
-                  description="Heart rate, workouts, and health data"
-                  connected={integrations.apple.connected}
-                  username={integrations.apple.username}
-                  lastSync={integrations.apple.lastSync}
-                  onConnect={() => setIntegrations({ ...integrations, apple: { ...integrations.apple, connected: true } })}
-                  onDisconnect={() => setIntegrations({ ...integrations, apple: { ...integrations.apple, connected: false } })}
-                  note="Available on iOS app only"
-                />
+                    <IntegrationCard
+                      name="Apple Health"
+                      icon="❤️"
+                      description="Heart rate, workouts, and health data"
+                      connected={integrations.apple_health?.connected || false}
+                      username={integrations.apple_health?.username || ""}
+                      lastSync={formatTimeAgo(integrations.apple_health?.lastSync || integrations.apple_health?.connectedAt || null)}
+                      note="Available on iOS app only"
+                      disabled
+                    />
+                  </>
+                )}
               </motion.div>
             )}
 
@@ -356,7 +475,7 @@ function NavItem({ href, icon, label, active = false }: { href: string; icon: st
 }
 
 function IntegrationCard({ 
-  name, icon, description, connected, username, lastSync, onConnect, onDisconnect, note 
+  name, icon, description, connected, username, lastSync, connectUrl, note, disabled 
 }: { 
   name: string; 
   icon: string; 
@@ -364,9 +483,9 @@ function IntegrationCard({
   connected: boolean;
   username: string;
   lastSync: string;
-  onConnect: () => void;
-  onDisconnect: () => void;
+  connectUrl?: string;
   note?: string;
+  disabled?: boolean;
 }) {
   return (
     <div className={`p-4 rounded-xl border transition-all ${
@@ -384,7 +503,7 @@ function IntegrationCard({
             <div className="text-sm text-zinc-500">{description}</div>
             {connected && (
               <div className="text-xs text-zinc-500 mt-1">
-                {username} • Last sync: {lastSync}
+                {username}{lastSync ? ` • Connected ${lastSync}` : ""}
               </div>
             )}
             {note && !connected && (
@@ -397,22 +516,20 @@ function IntegrationCard({
             <span className="px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 text-sm">
               Connected
             </span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onDisconnect}
-              className="border-zinc-300 dark:border-zinc-600 text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800"
-            >
-              Disconnect
-            </Button>
           </div>
         ) : (
-          <Button
-            onClick={onConnect}
-            className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 border-0 text-white"
-          >
-            Connect
-          </Button>
+          <a href={connectUrl || "#"}>
+            <Button
+              disabled={disabled}
+              className={
+                disabled
+                  ? "bg-zinc-200 dark:bg-zinc-700 text-zinc-500 cursor-not-allowed"
+                  : "bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 border-0 text-white"
+              }
+            >
+              Connect
+            </Button>
+          </a>
         )}
       </div>
     </div>
