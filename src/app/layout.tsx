@@ -19,11 +19,22 @@ export const metadata: Metadata = {
   },
   description: "An AI endurance coach that reads your recovery, analyzes your workouts, and adapts your training in real-time. For runners and triathletes training for 5K to Ironman.",
   keywords: ["running coach", "triathlon coach", "AI coach", "training plan", "marathon training", "ironman training"],
+  icons: {
+    icon: "/icon.svg",
+    apple: "/icon.svg",
+  },
   openGraph: {
     title: "PacePro - AI Coach for Runners & Triathletes",
     description: "An AI coach that actually knows you. Post-workout analysis, recovery intelligence, and real-time plan adaptation.",
     type: "website",
+    siteName: "PacePro",
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "PacePro - AI Coach for Runners & Triathletes",
+    description: "An AI coach that actually knows you. Post-workout analysis, recovery intelligence, and real-time plan adaptation.",
+  },
+  metadataBase: new URL("https://pacepro.vercel.app"),
 };
 
 export default function RootLayout({
