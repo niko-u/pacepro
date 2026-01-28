@@ -1,13 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import { buildCoachContext } from "@/lib/coach/context";
 import { analyzeWorkout } from "@/lib/coach/ai";
 
-// Use service role for webhook processing (no user auth)
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// Lazy init to avoid build-time errors
+let _supabase: SupabaseClient | null = null;
+function getSupabase() {
+  if (!_supabase) {
+    _supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+  }
+  return _supabase;
+}
 
 // Strava webhook verification (GET)
 export async function GET(req: NextRequest) {
@@ -33,6 +39,7 @@ export async function POST(req: NextRequest) {
     console.log("Strava webhook received:", event);
 
     // Log event for debugging
+    const supabase = getSupabase();
     await supabase.from("webhook_events").insert({
       provider: "strava",
       event_type: event.aspect_type,
@@ -55,6 +62,7 @@ export async function POST(req: NextRequest) {
 }
 
 async function processStravaActivity(activityId: number, stravaAthleteId: number) {
+  const supabase = getSupabase();
   try {
     // Find user by Strava athlete ID
     const { data: integration } = await supabase

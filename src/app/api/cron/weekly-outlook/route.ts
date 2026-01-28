@@ -1,13 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import { buildCoachContext } from "@/lib/coach/context";
 import { generateWeeklyOutlook } from "@/lib/coach/ai";
 
-// Use service role for cron jobs
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// Lazy init to avoid build-time errors
+let _supabase: SupabaseClient | null = null;
+function getSupabase() {
+  if (!_supabase) {
+    _supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+  }
+  return _supabase;
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -20,6 +26,7 @@ export async function POST(req: NextRequest) {
     console.log("Running weekly outlook cron job");
 
     // Get all active users with notifications enabled
+    const supabase = getSupabase();
     const { data: users, error } = await supabase
       .from("profiles")
       .select("id, full_name, notifications")
@@ -62,6 +69,8 @@ export async function POST(req: NextRequest) {
 }
 
 async function generateWeeklyOutlookForUser(userId: string) {
+  const supabase = getSupabase();
+  
   // Build context
   const context = await buildCoachContext(userId);
 

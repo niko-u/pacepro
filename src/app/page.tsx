@@ -90,14 +90,21 @@ export default function Home() {
             </div>
           </motion.div>
 
-          {/* Coach chat preview */}
+          {/* Coach chat preview - Angled like Linear */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.3 }}
-            className="mt-20 max-w-4xl"
+            className="mt-20 max-w-5xl mx-auto"
+            style={{ perspective: '1000px' }}
           >
-            <div className="rounded-2xl border border-white/10 bg-zinc-900/80 backdrop-blur-xl overflow-hidden shadow-2xl">
+            <div 
+              className="rounded-2xl border border-white/10 bg-zinc-900/80 backdrop-blur-xl overflow-hidden shadow-2xl shadow-orange-500/10"
+              style={{ 
+                transform: 'rotateX(8deg) rotateY(-8deg) rotateZ(2deg)',
+                transformOrigin: 'center center'
+              }}
+            >
               <div className="p-4 border-b border-white/5 flex items-center gap-3">
                 <div className="flex gap-1.5">
                   <div className="w-3 h-3 rounded-full bg-red-500" />
@@ -136,25 +143,56 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Social proof */}
-      <section className="relative py-12 px-6 border-y border-white/5 bg-white/[0.01]">
+      {/* Wearable Integrations */}
+      <section className="relative py-16 px-6 border-y border-white/5 bg-white/[0.01]">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16 text-zinc-500">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-white">5K</div>
-              <div className="text-sm">to Ultra</div>
+          <p className="text-center text-zinc-500 mb-8">Syncs with your favorite fitness wearables</p>
+          <div className="flex flex-wrap justify-center items-center gap-10 md:gap-16">
+            {/* WHOOP */}
+            <div className="flex flex-col items-center gap-2 opacity-70 hover:opacity-100 transition-opacity">
+              <div className="w-16 h-16 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
+                <svg viewBox="0 0 24 24" className="w-10 h-10 text-white" fill="currentColor">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
+                </svg>
+              </div>
+              <span className="text-sm font-medium">WHOOP</span>
             </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-white">Sprint</div>
-              <div className="text-sm">to Ironman</div>
+            {/* Garmin */}
+            <div className="flex flex-col items-center gap-2 opacity-70 hover:opacity-100 transition-opacity">
+              <div className="w-16 h-16 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
+                <svg viewBox="0 0 24 24" className="w-10 h-10 text-white" fill="currentColor">
+                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                </svg>
+              </div>
+              <span className="text-sm font-medium">Garmin</span>
             </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-white">24/7</div>
-              <div className="text-sm">Coach Access</div>
+            {/* Apple Health */}
+            <div className="flex flex-col items-center gap-2 opacity-70 hover:opacity-100 transition-opacity">
+              <div className="w-16 h-16 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
+                <svg viewBox="0 0 24 24" className="w-9 h-9 text-white" fill="currentColor">
+                  <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+                </svg>
+              </div>
+              <span className="text-sm font-medium">Apple Health</span>
             </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-white">Real-time</div>
-              <div className="text-sm">Adaptation</div>
+            {/* Strava */}
+            <div className="flex flex-col items-center gap-2 opacity-70 hover:opacity-100 transition-opacity">
+              <div className="w-16 h-16 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
+                <svg viewBox="0 0 24 24" className="w-8 h-8 text-[#FC4C02]" fill="currentColor">
+                  <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/>
+                </svg>
+              </div>
+              <span className="text-sm font-medium">Strava</span>
+            </div>
+            {/* Oura */}
+            <div className="flex flex-col items-center gap-2 opacity-70 hover:opacity-100 transition-opacity">
+              <div className="w-16 h-16 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
+                <svg viewBox="0 0 24 24" className="w-9 h-9 text-white" fill="currentColor">
+                  <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="2"/>
+                  <circle cx="12" cy="12" r="4"/>
+                </svg>
+              </div>
+              <span className="text-sm font-medium">Oura</span>
             </div>
           </div>
         </div>

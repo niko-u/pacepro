@@ -53,13 +53,13 @@ export default function AnalyticsClient({ user }: AnalyticsClientProps) {
   const maxVolume = Math.max(...weeklyVolume.map(w => w.total));
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black text-zinc-900 dark:text-white">
+    <div className="min-h-screen bg-zinc-50 dark:bg-black text-zinc-900 dark:text-white">
       {/* Background */}
-      <div className="fixed inset-0 bg-gradient-to-br from-orange-100 via-white to-red-100 dark:from-orange-600/5 dark:via-black dark:to-red-900/5" />
-      <div className="fixed inset-0 bg-[linear-gradient(rgba(255,255,255,.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.01)_1px,transparent_1px)] bg-[size:72px_72px]" />
+      <div className="fixed inset-0 bg-zinc-50 dark:bg-gradient-to-br dark:from-orange-600/5 dark:via-black dark:to-red-900/5" />
+      <div className="fixed inset-0 dark:bg-[linear-gradient(rgba(255,255,255,.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.01)_1px,transparent_1px)] dark:bg-[size:72px_72px]" />
 
       {/* Sidebar */}
-      <aside className={`fixed left-0 top-0 h-full w-64 border-r border-zinc-200 dark:border-white/5 bg-white/80 dark:bg-black/80 backdrop-blur-xl z-40 transition-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <aside className={`fixed left-0 top-0 h-full w-64 border-r border-zinc-200 dark:border-white/10 bg-white dark:bg-black/95 backdrop-blur-xl z-40 transition-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-6">
           <div className="flex items-center gap-3 mb-8">
             <div className="relative">
@@ -80,9 +80,9 @@ export default function AnalyticsClient({ user }: AnalyticsClientProps) {
           </nav>
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-zinc-200 dark:border-white/5">
+        <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-zinc-200 dark:border-white/10">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center font-medium">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center font-medium text-white">
               {user.email?.[0].toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">
@@ -96,12 +96,12 @@ export default function AnalyticsClient({ user }: AnalyticsClientProps) {
       {/* Main content */}
       <main className={`relative transition-all ${sidebarOpen ? 'ml-64' : 'ml-0'}`}>
         {/* Header */}
-        <header className="sticky top-0 z-30 bg-white/80 dark:bg-black/80 backdrop-blur-xl border-b border-zinc-200 dark:border-white/5">
+        <header className="sticky top-0 z-30 bg-white/80 dark:bg-black/90 backdrop-blur-xl border-b border-zinc-200 dark:border-white/10">
           <div className="px-6 h-16 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="p-2 rounded-lg hover:bg-white/5 transition-colors"
+                className="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-white/10 transition-colors"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -109,16 +109,23 @@ export default function AnalyticsClient({ user }: AnalyticsClientProps) {
               </button>
               <h1 className="text-lg font-semibold">Analytics</h1>
             </div>
-            <div className="flex rounded-lg bg-white/5 p-1">
-              {(['4w', '8w', '12w'] as const).map((range) => (
-                <button
-                  key={range}
-                  onClick={() => setTimeRange(range)}
-                  className={`px-3 py-1 rounded text-sm transition-all ${timeRange === range ? 'bg-white/10 text-white' : 'text-zinc-500'}`}
-                >
-                  {range}
-                </button>
-              ))}
+            <div className="flex items-center gap-3">
+              <div className="flex rounded-lg bg-zinc-100 dark:bg-zinc-800 p-1">
+                {(['4w', '8w', '12w'] as const).map((range) => (
+                  <button
+                    key={range}
+                    onClick={() => setTimeRange(range)}
+                    className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                      timeRange === range 
+                        ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm' 
+                        : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
+                    }`}
+                  >
+                    {range}
+                  </button>
+                ))}
+              </div>
+              <ThemeToggle />
             </div>
           </div>
         </header>
@@ -129,7 +136,7 @@ export default function AnalyticsClient({ user }: AnalyticsClientProps) {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="rounded-2xl border border-white/10 bg-gradient-to-br from-orange-500/10 to-red-500/10 p-6"
+              className="rounded-2xl border border-orange-200 dark:border-white/10 bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-500/10 dark:to-red-500/10 p-6"
             >
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
@@ -188,7 +195,7 @@ export default function AnalyticsClient({ user }: AnalyticsClientProps) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="rounded-2xl border border-white/10 bg-zinc-50 dark:bg-white/[0.02] p-6"
+              className="rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-black/80 p-6"
             >
               <div className="flex items-center justify-between mb-6">
                 <h3 className="font-semibold">Weekly Training Volume</h3>
@@ -219,12 +226,12 @@ export default function AnalyticsClient({ user }: AnalyticsClientProps) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="rounded-2xl border border-white/10 bg-zinc-50 dark:bg-white/[0.02] p-6"
+              className="rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-black/80 p-6"
             >
               <h3 className="font-semibold mb-4">Recent Workouts</h3>
               <div className="space-y-3">
                 {recentWorkouts.map((workout, i) => (
-                  <div key={i} className="flex items-center gap-4 p-3 rounded-xl bg-zinc-50 dark:bg-white/[0.02] hover:bg-white/[0.04] transition-colors">
+                  <div key={i} className="flex items-center gap-4 p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
                     <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg ${
                       workout.type === 'swim' ? 'bg-blue-500/20' :
                       workout.type === 'bike' ? 'bg-yellow-500/20' :
@@ -255,7 +262,7 @@ export default function AnalyticsClient({ user }: AnalyticsClientProps) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="rounded-2xl border border-white/10 bg-zinc-50 dark:bg-white/[0.02] p-6"
+              className="rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-black/80 p-6"
             >
               <h3 className="font-semibold mb-4">Coach Insights</h3>
               <div className="space-y-4">
@@ -289,8 +296,8 @@ function NavItem({ href, icon, label, active = false }: { href: string; icon: st
       href={href}
       className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
         active 
-          ? 'bg-gradient-to-r from-orange-500/10 to-red-500/10 text-white border border-orange-500/20' 
-          : 'text-zinc-400 hover:text-white hover:bg-white/5'
+          ? 'bg-orange-100 dark:bg-gradient-to-r dark:from-orange-500/10 dark:to-red-500/10 text-orange-700 dark:text-white border border-orange-200 dark:border-orange-500/20' 
+          : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/5'
       }`}
     >
       <span className="text-lg">{icon}</span>
@@ -301,10 +308,10 @@ function NavItem({ href, icon, label, active = false }: { href: string; icon: st
 
 function StatCard({ label, value, subtext, positive = false }: { label: string; value: string; subtext: string; positive?: boolean }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-zinc-50 dark:bg-white/[0.02] p-4">
+    <div className="rounded-xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-black/80 p-4">
       <p className="text-sm text-zinc-500 mb-1">{label}</p>
-      <p className={`text-2xl font-bold ${positive ? 'text-green-400' : ''}`}>{value}</p>
-      <p className="text-xs text-zinc-600">{subtext}</p>
+      <p className={`text-2xl font-bold ${positive ? 'text-green-600 dark:text-green-400' : ''}`}>{value}</p>
+      <p className="text-xs text-zinc-500">{subtext}</p>
     </div>
   );
 }

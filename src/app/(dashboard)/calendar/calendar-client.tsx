@@ -320,7 +320,7 @@ export default function CalendarClient({ user }: CalendarClientProps) {
                           ? "border-orange-400 dark:border-orange-500/50 bg-orange-50 dark:bg-orange-500/10"
                           : isCurrentMonth
                           ? "border-zinc-200 dark:border-white/10 bg-white dark:bg-black/80"
-                          : "border-zinc-100 dark:border-white/5 bg-zinc-50 dark:bg-black/80/30"
+                          : "border-zinc-100 dark:border-white/5 bg-zinc-100 dark:bg-black/30"
                       } ${isPast ? "opacity-50" : ""} ${!isCurrentMonth ? "opacity-40" : ""}`}
                     >
                       <div className={`text-sm font-medium mb-1 ${
