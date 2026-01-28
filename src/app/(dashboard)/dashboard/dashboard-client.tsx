@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { User } from "@supabase/supabase-js";
 import Link from "next/link";
+import WorkoutDetailModal from "@/components/workout-detail-modal";
 
 interface DashboardClientProps {
   user: User;
@@ -18,11 +19,20 @@ const todayWorkout = {
   duration: 45,
   distance: "7-8km",
   zone: "Zone 2",
+  warmup: "10 minutes easy jogging, gradually building to your easy run pace. Include 4-6 leg swings each side.",
+  cooldown: "5 minutes easy walking, then light stretching focusing on calves and hip flexors.",
   tips: [
     "If you can't hold a conversation, slow down",
     "Keep cadence around 170-180 spm",
     "Stay relaxed — loose shoulders, soft hands"
-  ]
+  ],
+  whyThisMatters: "Easy runs build your aerobic engine without adding stress. They also help clear metabolic waste from harder sessions. The adaptations happen during recovery — not during the run itself."
+};
+
+const coachInsight = {
+  title: "Your recovery looks good",
+  content: "Your WHOOP shows 78% recovery this morning, and your HRV is above your baseline. You're cleared for today's easy run. Just remember — easy means easy!",
+  type: "positive" as const,
 };
 
 const weekSchedule = [
@@ -43,6 +53,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
   const [chatInput, setChatInput] = useState("");
   const [messages, setMessages] = useState(recentChats);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [showWorkoutDetail, setShowWorkoutDetail] = useState(false);
 
   const handleSendMessage = () => {
     if (!chatInput.trim()) return;
@@ -77,11 +88,11 @@ export default function DashboardClient({ user }: DashboardClientProps) {
           </div>
 
           <nav className="space-y-1">
-            <NavItem icon="🏠" label="Dashboard" active />
-            <NavItem icon="📅" label="Calendar" />
-            <NavItem icon="📊" label="Analytics" />
-            <NavItem icon="🎯" label="Goals" />
-            <NavItem icon="⚙️" label="Settings" />
+            <NavItem href="/dashboard" icon="🏠" label="Dashboard" active />
+            <NavItem href="/calendar" icon="📅" label="Calendar" />
+            <NavItem href="/chat" icon="💬" label="Chat" />
+            <NavItem href="/analytics" icon="📊" label="Analytics" />
+            <NavItem href="/settings" icon="⚙️" label="Settings" />
           </nav>
         </div>
 
@@ -126,10 +137,38 @@ export default function DashboardClient({ user }: DashboardClientProps) {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-8"
+              className="mb-6"
             >
               <h2 className="text-2xl md:text-3xl font-bold mb-2">Good morning! 👋</h2>
               <p className="text-zinc-400">Here's your training for today.</p>
+            </motion.div>
+
+            {/* Coach Insight */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.05 }}
+              className={`mb-6 p-4 rounded-2xl border ${
+                coachInsight.type === 'positive' 
+                  ? 'border-green-500/20 bg-green-500/5' 
+                  : coachInsight.type === 'warning'
+                  ? 'border-yellow-500/20 bg-yellow-500/5'
+                  : 'border-blue-500/20 bg-blue-500/5'
+              }`}
+            >
+              <div className="flex gap-4">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                  coachInsight.type === 'positive' ? 'bg-green-500/20 text-green-400' :
+                  coachInsight.type === 'warning' ? 'bg-yellow-500/20 text-yellow-400' :
+                  'bg-blue-500/20 text-blue-400'
+                }`}>
+                  {coachInsight.type === 'positive' ? '✓' : coachInsight.type === 'warning' ? '!' : '→'}
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold mb-1">{coachInsight.title}</h3>
+                  <p className="text-sm text-zinc-400">{coachInsight.content}</p>
+                </div>
+              </div>
             </motion.div>
 
             <div className="grid lg:grid-cols-3 gap-6">
@@ -186,13 +225,22 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                       </ul>
                     </div>
 
-                    <Button className="w-full h-12 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 border-0 shadow-lg shadow-orange-500/20">
-                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      Start Workout
-                    </Button>
+                    <div className="flex gap-3">
+                      <Button 
+                        variant="outline"
+                        onClick={() => setShowWorkoutDetail(true)}
+                        className="flex-1 h-12 border-white/10 hover:bg-white/5"
+                      >
+                        View Details
+                      </Button>
+                      <Button className="flex-1 h-12 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 border-0 shadow-lg shadow-orange-500/20">
+                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Start Workout
+                      </Button>
+                    </div>
                   </div>
                 </motion.div>
 
@@ -275,19 +323,34 @@ export default function DashboardClient({ user }: DashboardClientProps) {
           </div>
         </div>
       </main>
+
+      {/* Workout Detail Modal */}
+      {showWorkoutDetail && (
+        <WorkoutDetailModal
+          workout={todayWorkout}
+          onClose={() => setShowWorkoutDetail(false)}
+          onStart={() => {
+            setShowWorkoutDetail(false);
+            // TODO: Start workout tracking
+          }}
+        />
+      )}
     </div>
   );
 }
 
-function NavItem({ icon, label, active = false }: { icon: string; label: string; active?: boolean }) {
+function NavItem({ href, icon, label, active = false }: { href: string; icon: string; label: string; active?: boolean }) {
   return (
-    <button className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
-      active 
-        ? 'bg-gradient-to-r from-orange-500/10 to-red-500/10 text-white border border-orange-500/20' 
-        : 'text-zinc-400 hover:text-white hover:bg-white/5'
-    }`}>
+    <Link
+      href={href}
+      className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+        active 
+          ? 'bg-gradient-to-r from-orange-500/10 to-red-500/10 text-white border border-orange-500/20' 
+          : 'text-zinc-400 hover:text-white hover:bg-white/5'
+      }`}
+    >
       <span className="text-lg">{icon}</span>
       {label}
-    </button>
+    </Link>
   );
 }
