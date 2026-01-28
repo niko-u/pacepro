@@ -1,5 +1,4 @@
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { requireOnboarding } from "@/lib/auth/require-onboarding";
 import AnalyticsClient from "./analytics-client";
 
 export const metadata = {
@@ -7,12 +6,6 @@ export const metadata = {
 };
 
 export default async function AnalyticsPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
+  const user = await requireOnboarding();
   return <AnalyticsClient user={user} />;
 }

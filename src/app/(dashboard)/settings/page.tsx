@@ -1,5 +1,4 @@
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { requireOnboarding } from "@/lib/auth/require-onboarding";
 import SettingsClient from "./settings-client";
 
 export const metadata = {
@@ -7,12 +6,6 @@ export const metadata = {
 };
 
 export default async function SettingsPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
+  const user = await requireOnboarding();
   return <SettingsClient user={user} />;
 }

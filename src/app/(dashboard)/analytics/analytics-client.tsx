@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { User } from "@supabase/supabase-js";
 import Link from "next/link";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 interface AnalyticsClientProps {
   user: User;
@@ -52,13 +53,13 @@ export default function AnalyticsClient({ user }: AnalyticsClientProps) {
   const maxVolume = Math.max(...weeklyVolume.map(w => w.total));
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-white dark:bg-black text-zinc-900 dark:text-white">
       {/* Background */}
-      <div className="fixed inset-0 bg-gradient-to-br from-orange-600/5 via-black to-red-900/5" />
+      <div className="fixed inset-0 bg-gradient-to-br from-orange-100 via-white to-red-100 dark:from-orange-600/5 dark:via-black dark:to-red-900/5" />
       <div className="fixed inset-0 bg-[linear-gradient(rgba(255,255,255,.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.01)_1px,transparent_1px)] bg-[size:72px_72px]" />
 
       {/* Sidebar */}
-      <aside className={`fixed left-0 top-0 h-full w-64 border-r border-white/5 bg-black/80 backdrop-blur-xl z-40 transition-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <aside className={`fixed left-0 top-0 h-full w-64 border-r border-zinc-200 dark:border-white/5 bg-white/80 dark:bg-black/80 backdrop-blur-xl z-40 transition-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-6">
           <div className="flex items-center gap-3 mb-8">
             <div className="relative">
@@ -79,7 +80,7 @@ export default function AnalyticsClient({ user }: AnalyticsClientProps) {
           </nav>
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-white/5">
+        <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-zinc-200 dark:border-white/5">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center font-medium">
               {user.email?.[0].toUpperCase()}
@@ -95,7 +96,7 @@ export default function AnalyticsClient({ user }: AnalyticsClientProps) {
       {/* Main content */}
       <main className={`relative transition-all ${sidebarOpen ? 'ml-64' : 'ml-0'}`}>
         {/* Header */}
-        <header className="sticky top-0 z-30 bg-black/80 backdrop-blur-xl border-b border-white/5">
+        <header className="sticky top-0 z-30 bg-white/80 dark:bg-black/80 backdrop-blur-xl border-b border-zinc-200 dark:border-white/5">
           <div className="px-6 h-16 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
@@ -187,7 +188,7 @@ export default function AnalyticsClient({ user }: AnalyticsClientProps) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="rounded-2xl border border-white/10 bg-white/[0.02] p-6"
+              className="rounded-2xl border border-white/10 bg-zinc-50 dark:bg-white/[0.02] p-6"
             >
               <div className="flex items-center justify-between mb-6">
                 <h3 className="font-semibold">Weekly Training Volume</h3>
@@ -218,12 +219,12 @@ export default function AnalyticsClient({ user }: AnalyticsClientProps) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="rounded-2xl border border-white/10 bg-white/[0.02] p-6"
+              className="rounded-2xl border border-white/10 bg-zinc-50 dark:bg-white/[0.02] p-6"
             >
               <h3 className="font-semibold mb-4">Recent Workouts</h3>
               <div className="space-y-3">
                 {recentWorkouts.map((workout, i) => (
-                  <div key={i} className="flex items-center gap-4 p-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.04] transition-colors">
+                  <div key={i} className="flex items-center gap-4 p-3 rounded-xl bg-zinc-50 dark:bg-white/[0.02] hover:bg-white/[0.04] transition-colors">
                     <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg ${
                       workout.type === 'swim' ? 'bg-blue-500/20' :
                       workout.type === 'bike' ? 'bg-yellow-500/20' :
@@ -254,7 +255,7 @@ export default function AnalyticsClient({ user }: AnalyticsClientProps) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="rounded-2xl border border-white/10 bg-white/[0.02] p-6"
+              className="rounded-2xl border border-white/10 bg-zinc-50 dark:bg-white/[0.02] p-6"
             >
               <h3 className="font-semibold mb-4">Coach Insights</h3>
               <div className="space-y-4">
@@ -300,7 +301,7 @@ function NavItem({ href, icon, label, active = false }: { href: string; icon: st
 
 function StatCard({ label, value, subtext, positive = false }: { label: string; value: string; subtext: string; positive?: boolean }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4">
+    <div className="rounded-xl border border-white/10 bg-zinc-50 dark:bg-white/[0.02] p-4">
       <p className="text-sm text-zinc-500 mb-1">{label}</p>
       <p className={`text-2xl font-bold ${positive ? 'text-green-400' : ''}`}>{value}</p>
       <p className="text-xs text-zinc-600">{subtext}</p>

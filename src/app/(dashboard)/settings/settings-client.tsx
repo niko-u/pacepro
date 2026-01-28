@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { User } from "@supabase/supabase-js";
 import Link from "next/link";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 interface SettingsClientProps {
   user: User;
@@ -36,13 +37,13 @@ export default function SettingsClient({ user }: SettingsClientProps) {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-white dark:bg-black text-zinc-900 dark:text-white">
       {/* Background */}
-      <div className="fixed inset-0 bg-gradient-to-br from-orange-600/5 via-black to-red-900/5" />
+      <div className="fixed inset-0 bg-gradient-to-br from-orange-100 via-white to-red-100 dark:from-orange-600/5 dark:via-black dark:to-red-900/5" />
       <div className="fixed inset-0 bg-[linear-gradient(rgba(255,255,255,.01)_1px,transparent_1px),linear_gradient(90deg,rgba(255,255,255,.01)_1px,transparent_1px)] bg-[size:72px_72px]" />
 
       {/* Sidebar */}
-      <aside className={`fixed left-0 top-0 h-full w-64 border-r border-white/5 bg-black/80 backdrop-blur-xl z-40 transition-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <aside className={`fixed left-0 top-0 h-full w-64 border-r border-zinc-200 dark:border-white/5 bg-white/80 dark:bg-black/80 backdrop-blur-xl z-40 transition-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-6">
           <div className="flex items-center gap-3 mb-8">
             <div className="relative">
@@ -63,7 +64,7 @@ export default function SettingsClient({ user }: SettingsClientProps) {
           </nav>
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-white/5">
+        <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-zinc-200 dark:border-white/5">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center font-medium">
               {user.email?.[0].toUpperCase()}
@@ -79,7 +80,7 @@ export default function SettingsClient({ user }: SettingsClientProps) {
       {/* Main content */}
       <main className={`relative transition-all ${sidebarOpen ? 'ml-64' : 'ml-0'}`}>
         {/* Header */}
-        <header className="sticky top-0 z-30 bg-black/80 backdrop-blur-xl border-b border-white/5">
+        <header className="sticky top-0 z-30 bg-white/80 dark:bg-black/80 backdrop-blur-xl border-b border-zinc-200 dark:border-white/5">
           <div className="px-6 h-16 flex items-center gap-4">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -125,7 +126,7 @@ export default function SettingsClient({ user }: SettingsClientProps) {
                 animate={{ opacity: 1, y: 0 }}
                 className="space-y-6"
               >
-                <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+                <div className="rounded-2xl border border-white/10 bg-zinc-50 dark:bg-white/[0.02] p-6">
                   <h3 className="font-semibold mb-6">Profile Information</h3>
                   <div className="space-y-4">
                     <div>
@@ -151,7 +152,7 @@ export default function SettingsClient({ user }: SettingsClientProps) {
                   </Button>
                 </div>
 
-                <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+                <div className="rounded-2xl border border-white/10 bg-zinc-50 dark:bg-white/[0.02] p-6">
                   <h3 className="font-semibold mb-4">Training Preferences</h3>
                   <p className="text-zinc-400 text-sm mb-4">Update your training preferences and goals.</p>
                   <Button variant="outline" className="border-white/10 hover:bg-white/5">
@@ -249,7 +250,7 @@ export default function SettingsClient({ user }: SettingsClientProps) {
                   </p>
                 </div>
 
-                <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+                <div className="rounded-2xl border border-white/10 bg-zinc-50 dark:bg-white/[0.02] p-6">
                   <h3 className="font-semibold mb-4">Plan Features</h3>
                   <ul className="space-y-3">
                     {[
@@ -271,7 +272,7 @@ export default function SettingsClient({ user }: SettingsClientProps) {
                   </ul>
                 </div>
 
-                <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+                <div className="rounded-2xl border border-white/10 bg-zinc-50 dark:bg-white/[0.02] p-6">
                   <h3 className="font-semibold mb-4">Billing</h3>
                   <div className="space-y-3">
                     <Button variant="outline" className="w-full justify-start border-white/10 hover:bg-white/5">
@@ -299,7 +300,7 @@ export default function SettingsClient({ user }: SettingsClientProps) {
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="rounded-2xl border border-white/10 bg-white/[0.02] p-6"
+                className="rounded-2xl border border-white/10 bg-zinc-50 dark:bg-white/[0.02] p-6"
               >
                 <h3 className="font-semibold mb-6">Notification Preferences</h3>
                 <div className="space-y-4">
@@ -368,7 +369,7 @@ function IntegrationCard({
 }) {
   return (
     <div className={`p-4 rounded-xl border transition-all ${
-      connected ? 'border-green-500/30 bg-green-500/5' : 'border-white/10 bg-white/[0.02]'
+      connected ? 'border-green-500/30 bg-green-500/5' : 'border-white/10 bg-zinc-50 dark:bg-white/[0.02]'
     }`}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -419,7 +420,7 @@ function NotificationToggle({ label, description, defaultChecked = false }: { la
   const [checked, setChecked] = useState(defaultChecked);
   
   return (
-    <div className="flex items-center justify-between py-3 border-b border-white/5 last:border-0">
+    <div className="flex items-center justify-between py-3 border-b border-zinc-200 dark:border-white/5 last:border-0">
       <div>
         <div className="font-medium">{label}</div>
         <div className="text-sm text-zinc-500">{description}</div>

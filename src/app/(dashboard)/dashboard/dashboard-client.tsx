@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { User } from "@supabase/supabase-js";
 import Link from "next/link";
 import WorkoutDetailModal from "@/components/workout-detail-modal";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 interface DashboardClientProps {
   user: User;
@@ -69,13 +70,13 @@ export default function DashboardClient({ user }: DashboardClientProps) {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-white dark:bg-black text-zinc-900 dark:text-white">
       {/* Background effects */}
-      <div className="fixed inset-0 bg-gradient-to-br from-orange-600/5 via-black to-red-900/5" />
+      <div className="fixed inset-0 bg-gradient-to-br from-orange-100 via-white to-red-100 dark:from-orange-600/5 dark:via-black dark:to-red-900/5" />
       <div className="fixed inset-0 bg-[linear-gradient(rgba(255,255,255,.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.01)_1px,transparent_1px)] bg-[size:72px_72px]" />
 
       {/* Sidebar */}
-      <aside className={`fixed left-0 top-0 h-full w-64 border-r border-white/5 bg-black/80 backdrop-blur-xl z-40 transition-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <aside className={`fixed left-0 top-0 h-full w-64 border-r border-zinc-200 dark:border-white/5 bg-white/80 dark:bg-black/80 backdrop-blur-xl z-40 transition-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-6">
           <div className="flex items-center gap-3 mb-8">
             <div className="relative">
@@ -96,14 +97,14 @@ export default function DashboardClient({ user }: DashboardClientProps) {
           </nav>
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-white/5">
+        <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-zinc-200 dark:border-white/5">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center font-medium">
               {user.email?.[0].toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-sm font-medium truncate">{user.email}</div>
-              <div className="text-xs text-zinc-500">Pro Plan</div>
+              <div className="text-xs text-zinc-600 dark:text-zinc-500">Pro Plan</div>
             </div>
           </div>
         </div>
@@ -112,12 +113,12 @@ export default function DashboardClient({ user }: DashboardClientProps) {
       {/* Main content */}
       <main className={`relative transition-all ${sidebarOpen ? 'ml-64' : 'ml-0'}`}>
         {/* Header */}
-        <header className="sticky top-0 z-30 bg-black/80 backdrop-blur-xl border-b border-white/5">
+        <header className="sticky top-0 z-30 bg-white/80 dark:bg-black/80 backdrop-blur-xl border-b border-zinc-200 dark:border-white/5">
           <div className="px-6 h-16 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="p-2 rounded-lg hover:bg-white/5 transition-colors"
+                className="p-2 rounded-lg hover:bg-zinc-100 dark:bg-white/5 transition-colors"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -126,7 +127,8 @@ export default function DashboardClient({ user }: DashboardClientProps) {
               <h1 className="text-lg font-semibold">Dashboard</h1>
             </div>
             <div className="flex items-center gap-4">
-              <span className="text-sm text-zinc-400">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</span>
+              <span className="text-sm text-zinc-600 dark:text-zinc-400">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</span>
+              <ThemeToggle />
             </div>
           </div>
         </header>
@@ -140,7 +142,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
               className="mb-6"
             >
               <h2 className="text-2xl md:text-3xl font-bold mb-2">Good morning! 👋</h2>
-              <p className="text-zinc-400">Here's your training for today.</p>
+              <p className="text-zinc-600 dark:text-zinc-500 dark:text-zinc-400">Here's your training for today.</p>
             </motion.div>
 
             {/* Coach Insight */}
@@ -166,7 +168,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold mb-1">{coachInsight.title}</h3>
-                  <p className="text-sm text-zinc-400">{coachInsight.content}</p>
+                  <p className="text-sm text-zinc-600 dark:text-zinc-500 dark:text-zinc-400">{coachInsight.content}</p>
                 </div>
               </div>
             </motion.div>
@@ -179,7 +181,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 }}
-                  className="rounded-2xl border border-white/10 bg-white/[0.02] overflow-hidden"
+                  className="rounded-2xl border border-white/10 bg-zinc-50 dark:bg-white/[0.02] overflow-hidden"
                 >
                   <div className="p-6">
                     <div className="flex items-center justify-between mb-6">
@@ -188,7 +190,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                           🏃
                         </div>
                         <div>
-                          <div className="text-sm text-zinc-500">Today's Workout</div>
+                          <div className="text-sm text-zinc-600 dark:text-zinc-500">Today's Workout</div>
                           <div className="text-xl font-semibold">{todayWorkout.title}</div>
                         </div>
                       </div>
@@ -197,28 +199,28 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                       </span>
                     </div>
 
-                    <p className="text-zinc-400 mb-6 leading-relaxed">
+                    <p className="text-zinc-600 dark:text-zinc-500 dark:text-zinc-400 mb-6 leading-relaxed">
                       {todayWorkout.description}
                     </p>
 
                     <div className="grid grid-cols-3 gap-4 mb-6">
-                      <div className="p-4 rounded-xl bg-white/5 text-center">
+                      <div className="p-4 rounded-xl bg-zinc-100 dark:bg-white/5 text-center">
                         <div className="text-2xl font-bold">{todayWorkout.duration}</div>
-                        <div className="text-xs text-zinc-500">minutes</div>
+                        <div className="text-xs text-zinc-600 dark:text-zinc-500">minutes</div>
                       </div>
-                      <div className="p-4 rounded-xl bg-white/5 text-center">
+                      <div className="p-4 rounded-xl bg-zinc-100 dark:bg-white/5 text-center">
                         <div className="text-2xl font-bold">{todayWorkout.zone}</div>
-                        <div className="text-xs text-zinc-500">target</div>
+                        <div className="text-xs text-zinc-600 dark:text-zinc-500">target</div>
                       </div>
-                      <div className="p-4 rounded-xl bg-white/5 text-center">
+                      <div className="p-4 rounded-xl bg-zinc-100 dark:bg-white/5 text-center">
                         <div className="text-2xl font-bold">{todayWorkout.distance}</div>
-                        <div className="text-xs text-zinc-500">distance</div>
+                        <div className="text-xs text-zinc-600 dark:text-zinc-500">distance</div>
                       </div>
                     </div>
 
                     <div className="p-4 rounded-xl bg-orange-500/5 border border-orange-500/10 mb-6">
                       <div className="text-sm font-medium text-orange-400 mb-2">💡 Coach tips</div>
-                      <ul className="space-y-1 text-sm text-zinc-400">
+                      <ul className="space-y-1 text-sm text-zinc-600 dark:text-zinc-500 dark:text-zinc-400">
                         {todayWorkout.tips.map((tip, i) => (
                           <li key={i}>• {tip}</li>
                         ))}
@@ -229,7 +231,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                       <Button 
                         variant="outline"
                         onClick={() => setShowWorkoutDetail(true)}
-                        className="flex-1 h-12 border-white/10 hover:bg-white/5"
+                        className="flex-1 h-12 border-white/10 hover:bg-zinc-100 dark:bg-white/5"
                       >
                         View Details
                       </Button>
@@ -249,17 +251,17 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
-                  className="rounded-2xl border border-white/10 bg-white/[0.02] p-6"
+                  className="rounded-2xl border border-white/10 bg-zinc-50 dark:bg-white/[0.02] p-6"
                 >
                   <h3 className="font-semibold mb-4">This Week</h3>
                   <div className="grid grid-cols-7 gap-2">
                     {weekSchedule.map((day) => (
                       <div key={day.day} className="text-center">
-                        <div className="text-xs text-zinc-500 mb-2">{day.day}</div>
+                        <div className="text-xs text-zinc-600 dark:text-zinc-500 mb-2">{day.day}</div>
                         <div className={`w-full aspect-square rounded-xl flex items-center justify-center text-xl transition-all ${
                           day.today 
                             ? "bg-gradient-to-br from-orange-500/20 to-red-500/20 border-2 border-orange-500/50" 
-                            : "bg-white/5 border border-white/5"
+                            : "bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/5"
                         }`}>
                           {day.emoji}
                         </div>
@@ -274,9 +276,9 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="rounded-2xl border border-white/10 bg-white/[0.02] flex flex-col h-[600px]"
+                className="rounded-2xl border border-white/10 bg-zinc-50 dark:bg-white/[0.02] flex flex-col h-[600px]"
               >
-                <div className="p-4 border-b border-white/5">
+                <div className="p-4 border-b border-zinc-200 dark:border-white/5">
                   <h3 className="font-semibold flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                     Chat with Coach
@@ -289,7 +291,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                       <div className={`max-w-[85%] p-3 rounded-2xl text-sm ${
                         msg.role === 'user'
                           ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white'
-                          : 'bg-white/5 text-zinc-300'
+                          : 'bg-zinc-100 dark:bg-white/5 text-zinc-300'
                       }`}>
                         {msg.content}
                       </div>
@@ -297,7 +299,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                   ))}
                 </div>
 
-                <div className="p-4 border-t border-white/5">
+                <div className="p-4 border-t border-zinc-200 dark:border-white/5">
                   <div className="flex gap-2">
                     <input
                       type="text"
@@ -305,7 +307,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                       value={chatInput}
                       onChange={(e) => setChatInput(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                      className="flex-1 h-10 px-4 rounded-xl bg-white/5 border border-white/10 text-sm focus:outline-none focus:border-orange-500/50 placeholder:text-zinc-600"
+                      className="flex-1 h-10 px-4 rounded-xl bg-zinc-100 dark:bg-white/5 border border-white/10 text-sm focus:outline-none focus:border-orange-500/50 placeholder:text-zinc-600"
                     />
                     <Button
                       onClick={handleSendMessage}
@@ -346,7 +348,7 @@ function NavItem({ href, icon, label, active = false }: { href: string; icon: st
       className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
         active 
           ? 'bg-gradient-to-r from-orange-500/10 to-red-500/10 text-white border border-orange-500/20' 
-          : 'text-zinc-400 hover:text-white hover:bg-white/5'
+          : 'text-zinc-600 dark:text-zinc-500 dark:text-zinc-400 hover:text-white hover:bg-zinc-100 dark:bg-white/5'
       }`}
     >
       <span className="text-lg">{icon}</span>
