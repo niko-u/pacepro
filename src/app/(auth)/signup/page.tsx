@@ -69,7 +69,7 @@ export default function SignupPage() {
           <div className="mb-8">
             <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-sm text-green-400">
               <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-              14-day free trial
+              7-day free trial
             </span>
           </div>
           <h2 className="text-4xl font-bold tracking-tight mb-6">
@@ -126,7 +126,7 @@ export default function SignupPage() {
           </Link>
 
           <h1 className="text-3xl font-bold tracking-tight mb-2">Create your account</h1>
-          <p className="text-zinc-400 mb-8">Start your 14-day free trial</p>
+          <p className="text-zinc-400 mb-8">Start your 7-day free trial</p>
 
           {/* Google OAuth */}
           <Button

@@ -1,16 +1,22 @@
-# IronCoach AI - Product Requirements Document
+# PacePro - Product Requirements Document
 
 ## Vision
-A premium AI triathlon coach that delivers personalized, adaptive training plans through natural conversation. Users pay $50/month for a coach that actually understands their context, adjusts to their life, and evolves with their fitness.
+An AI endurance coach that feels like having a real coach in your pocket. Not just training plans — a coach that **talks to you**, analyzes your workouts, reads your recovery data, and adapts your training in real-time.
 
-**Core differentiator:** Not just a training plan generator—a conversational coach that reads your data, understands your constraints, and adapts in real-time.
+**Core differentiator:** The conversational experience. Your coach checks in after workouts, notices when your HRV is down, adjusts tomorrow's session before you wake up, and actually *knows* you.
+
+---
+
+## Sports Supported
+- **Running:** 5K, 10K, Half Marathon, Marathon, Ultramarathon
+- **Triathlon:** Sprint, Olympic, Ironman 70.3, Ironman
 
 ---
 
 ## Target User
-- Triathletes training for Ironman, 70.3, Olympic, or Sprint distances
-- Age group athletes (25-55) with $50/month discretionary income
-- Time-constrained professionals who need efficient, smart training
+- Runners and triathletes training for a specific goal race
+- Age group athletes (25-55) willing to invest in quality coaching
+- Time-constrained professionals who need smart, efficient training
 - Athletes who want coaching intelligence without the $300+/month human coach cost
 
 ---
@@ -18,7 +24,43 @@ A premium AI triathlon coach that delivers personalized, adaptive training plans
 ## Pricing
 - **$50/month** subscription
 - 7-day free trial
-- Annual option: $480/year (2 months free)
+- Annual option: $500/year (2 months free)
+
+---
+
+## The Coach Experience (Core Value Prop)
+
+This is what makes PacePro different. The AI coach is **proactive**, not reactive:
+
+### Daily Check-ins
+- "Good morning! You've got intervals today. Your WHOOP shows 85% recovery — you're ready to push it."
+- "I noticed your HR was elevated on yesterday's easy run. How are you feeling? We can adjust today if needed."
+
+### Post-Workout Analysis
+- Automatic sync from Strava
+- "Nice tempo run! You held 7:15 pace for the main set — that's 10 seconds faster than last month."
+- "Your HR drifted in the last 2 miles. Could be heat, could be fatigue. Let's keep tomorrow easy."
+- Compares prescribed vs. actual performance
+- Flags anomalies and patterns
+
+### Recovery Intelligence
+- Reads WHOOP/Garmin/Apple Health data
+- "Your HRV has been trending down this week. I'm swapping tomorrow's long run for an easy spin."
+- Adjusts training load based on sleep, stress, recovery scores
+- Warns before overtraining happens
+
+### Conversational Modifications
+- "Can I do today's workout harder?" → Coach explains tradeoffs and adjusts
+- "I only have 30 minutes" → Coach gives a condensed version
+- "I'm feeling tired" → Coach reassesses and modifies
+- "What should I eat before my long run?" → Personalized nutrition guidance
+
+### Weekly Summaries
+- Every Sunday/Monday: "Here's your week in review"
+- Training load analysis
+- Wins and areas to watch
+- Preview of next week's focus
+- Proactive plan adjustments explained
 
 ---
 
@@ -35,24 +77,25 @@ A premium AI triathlon coach that delivers personalized, adaptive training plans
 Capture everything needed to build a personalized plan:
 
 **Race Information**
-- Race name, date, distance (full/70.3/olympic/sprint)
+- Race type (running or triathlon)
+- Specific event search or manual entry
+- Race date and location
 - Course profile (flat, hilly, mountainous) if known
 - Priority level (A-race, B-race, tune-up)
-- Multiple races supported
 
 **Athlete Goals**
-- Primary goal: Finish, PR, specific time, podium, qualify for Worlds
+- Primary goal: Finish, PR, specific time, podium, qualify
 - Secondary goals: Build base, improve weakness, stay healthy
 
 **Schedule & Constraints**
-- Work hours and patterns
-- Family commitments
-- Preferred training days/times
+- Weekly hours available
+- Preferred training days
+- Work patterns and family commitments
 - Travel or blackout dates
-- Available equipment (pool access, bike trainer, gym)
+- Equipment access (pool, trainer, gym)
 
 **Training Preferences**
-- Preferred workout types (intervals, long steady, bricks, strength)
+- Workout types: intervals, tempo, long steady, hills, strength
 - Favorite sessions vs. dreaded sessions
 - Indoor vs. outdoor preferences
 - Group workout availability
@@ -60,324 +103,143 @@ Capture everything needed to build a personalized plan:
 **Training Personality**
 - Push tolerance: Conservative ↔ Aggressive
 - Recovery needs: High ↔ Low
-- Schedule style: Strict plan ↔ Flexible/adaptive
-- Feedback preference: Data-heavy ↔ Simple guidance
+- Schedule style: Strict ↔ Flexible
+- Feedback style: Simple ↔ Data-heavy
 
 **Current Fitness**
 - Recent race results
 - Current weekly volume
 - Injury history
-- Known benchmarks (FTP, threshold pace, CSS)
+- Known benchmarks (threshold pace, FTP, etc.)
 
 ### 2. Plan Generation
-After onboarding, generate a complete training plan:
+AI generates a complete periodized plan:
 
 **Macro Structure**
-- Periodization phases: Base → Build → Peak → Taper
+- Phases: Base → Build → Peak → Taper
 - Weekly volume progression
 - Key workout placement
 - Recovery week scheduling
 
-**Micro Structure (Weekly)**
+**Micro Structure**
 - Day-by-day workout schedule
-- Specific sessions with targets (pace, power, HR zones)
-- Flexibility options (swap days, alternate workouts)
+- Specific sessions with targets
+- Flexibility options
 
-**Plan Presentation**
-- Show rough plan first for feedback
-- Refine based on user input
-- Lock in detailed schedule
-- Always explain the "why" behind the structure
-
-### 3. Daily Coaching Experience
-
-**Today's Workout**
-- Clear workout prescription
-- Warm-up and cool-down guidance
-- Target metrics (pace, power, HR, RPE)
-- Execution tips and focus points
-- "Why this matters" context
-
-**Conversational Interface**
-- Ask questions: "Can I do this harder?" "What if I only have 45 min?"
-- Get modifications on the fly
-- Report how it went
-- Discuss upcoming schedule
-
-**Post-Workout Analysis**
-- Automatic sync from Strava
-- Compare prescribed vs. actual
-- Insight generation: "You negative split perfectly" or "HR drifted—might be fatigue"
-- Adjustments to future workouts if needed
+### 3. The Calendar
+- Week and month views
+- Workout cards with full details
+- Drag to reschedule
+- Phase indicators
+- Volume visualization
 
 ### 4. Adaptive Planning
-The plan is alive—it evolves based on:
+The plan evolves based on:
+- Completed workouts (Strava sync)
+- Recovery metrics (WHOOP, Garmin, Apple Health)
+- User-reported fatigue and feedback
+- Missed workouts and life disruptions
 
-**Data Inputs**
-- Strava activities (actual vs. planned)
-- Wearable recovery metrics (WHOOP, Garmin, Apple Health)
-- User-reported fatigue, stress, sleep
-- Missed workouts or life disruptions
-
-**Adaptation Logic**
-- Missed workout → Reschedule or absorb?
-- Low recovery score → Reduce intensity or rest day?
-- Crushed a workout → Ready for more stimulus?
-- Travel week → Condensed plan with key sessions only
-
-**Plan Versioning**
-- Track every change
-- Show "what changed and why"
-- Build trust through transparency
+Every change is explained: "I moved your long run to Sunday because your recovery score was low Friday."
 
 ### 5. Integrations
 
 **Strava** (Critical)
 - OAuth connection
-- Sync all activities
-- Read workout details (laps, power, HR, pace)
-- Track weekly volume
+- Auto-sync all activities
+- Workout analysis and comparison
 
 **WHOOP** (High Value)
-- Recovery score
-- HRV, RHR, sleep metrics
+- Recovery score, HRV, sleep
 - Strain tracking
-- Inform intensity decisions
+- Informs daily adjustments
 
 **Garmin Connect** (High Value)
-- Training status, load, recovery
-- Body battery
-- Sleep tracking
-- Activity sync (alternative to Strava)
+- Training status and load
+- Body battery, sleep
+- Activity sync
 
 **Apple Health** (iOS)
-- Heart rate, HRV
-- Sleep
+- Heart rate, HRV, sleep
 - Workout data
-- Steps, activity
-
-**TrainingPeaks** (Future)
-- Export workouts
-- Sync planned vs. completed
-
-### 6. Weekly Coach Check-in
-Automated summary every Sunday/Monday:
-
-- This week's training load vs. target
-- Key wins and concerns
-- Recovery trend
-- Next week's focus
-- Any plan adjustments made
-
-### 7. Special Flows
-
-**"Explain This Workout"**
-- Deep dive on any session
-- Why it's programmed here
-- How to execute optimally
-- Common mistakes to avoid
-
-**"What If I Missed Yesterday?"**
-- Assess impact
-- Options: Skip, reschedule, combine, modify
-- Updated plan with rationale
-
-**"I'm Feeling [X]"**
-- Report fatigue, soreness, motivation
-- Get immediate guidance
-- Plan adjustment if needed
-
-**"Race Week Mode"**
-- Taper guidance
-- Day-by-day instructions
-- Nutrition and logistics reminders
-- Mental prep
-
-### 8. Injury Prevention Layer
-Lightweight safety system:
-
-- Flag high-risk patterns (volume spikes, no rest days)
-- Suggest modifications before problems occur
-- Track recurring issues
-- Prompt for discomfort reports
-
----
-
-## Technical Architecture
-
-### Frontend
-- **Web:** Next.js 14 (App Router) + TypeScript
-- **iOS:** React Native (shared logic) or SwiftUI (native performance)
-- **UI:** Tailwind CSS + shadcn/ui components
-- **State:** React Query + Zustand
-- **Design:** v0.dev for component generation
-
-### Backend
-- **API:** Next.js API routes (serverless) or separate Node.js service
-- **Database:** Supabase (Postgres + Auth + Realtime)
-- **AI:** OpenAI GPT-4 or Claude API
-- **Queue:** Inngest or Trigger.dev for background jobs
-
-### Infrastructure
-- **Hosting:** Vercel (web + API)
-- **Database:** Supabase
-- **Auth:** Supabase Auth (email, Google, Apple)
-- **Payments:** Stripe (subscriptions)
-- **Monitoring:** Vercel Analytics + Sentry
-
-### Integrations
-- Strava API (OAuth)
-- WHOOP API (OAuth)
-- Garmin Connect API (OAuth)
-- Apple HealthKit (iOS native)
-
----
-
-## Database Schema (High-Level)
-
-```
-users
-  - id, email, name, created_at
-  - subscription_status, stripe_customer_id
-  - onboarding_complete
-
-athlete_profiles
-  - user_id, goals, constraints, preferences
-  - training_personality, injury_history
-  - current_benchmarks (FTP, threshold_pace, CSS)
-
-races
-  - user_id, name, date, distance, priority
-  - course_profile, goal_time
-
-training_plans
-  - user_id, race_id, version
-  - macro_structure (JSON)
-  - created_at, active
-
-weekly_plans
-  - plan_id, week_number, focus
-  - target_volume, key_sessions
-
-workouts
-  - weekly_plan_id, day, type
-  - prescription (JSON)
-  - status (planned/completed/skipped)
-  - actual_data (from Strava)
-
-conversations
-  - user_id, messages (JSON)
-  - context_snapshot
-
-integrations
-  - user_id, provider, access_token, refresh_token
-  - last_sync, status
-
-activities (synced from Strava/Garmin)
-  - user_id, external_id, provider
-  - date, type, duration, distance
-  - metrics (power, HR, pace, etc.)
-  - analysis (JSON)
-
-recovery_metrics (from WHOOP/Garmin)
-  - user_id, date
-  - recovery_score, hrv, rhr, sleep_hours
-  - source
-```
 
 ---
 
 ## UI/UX Principles
 
 ### Design Philosophy
-- **Clean, not cluttered** — Focus on what matters today
-- **Conversational, not transactional** — Feel like talking to a coach
-- **Data-informed, not data-overwhelming** — Insights > numbers
-- **Mobile-first** — Most athletes check on their phone
-- **Dark mode default** — Easier on eyes, modern feel
+- **Coach-first** — Chat is prominent, not buried
+- **Proactive** — Coach reaches out, doesn't wait to be asked
+- **Clean** — Focus on what matters today
+- **Data-informed** — Insights over raw numbers
+- **Dark mode** — Modern, easy on eyes
 
 ### Key Screens
 
-**1. Dashboard (Home)**
+**1. Dashboard**
 - Today's workout (hero)
-- Quick stats: This week's progress, next race countdown
-- Coach message/insight of the day
-- Quick actions: Chat, Log workout, View plan
+- Recent coach message
+- Quick stats and race countdown
+- One-tap access to chat
 
 **2. Chat Interface**
-- Clean conversation UI
+- Full conversation history
 - Suggested prompts
-- Workout cards inline
+- Inline workout cards
 - Voice input option
 
-**3. Training Plan View**
-- Calendar view (week/month)
-- Workout cards with drag-to-reschedule
-- Phase indicators
-- Volume chart overlay
+**3. Calendar**
+- Week/month views
+- Workout cards with details
+- Phase and volume indicators
 
 **4. Workout Detail**
 - Clear prescription
 - Execution guidance
-- Post-workout: Actual vs. planned comparison
+- Post-workout: actual vs. planned
 
-**5. Progress/Analytics**
+**5. Analytics**
 - Weekly summaries
-- Trend charts (volume, intensity, recovery)
-- Race countdown with readiness indicator
-
-**6. Settings/Integrations**
-- Connected services
-- Subscription management
-- Profile/preferences
+- Trend charts
+- Race readiness indicator
 
 ---
 
-## Development Phases
+## Technical Architecture
 
-### Phase 1: Foundation (Weeks 1-2)
-- [ ] Project setup: Next.js + Supabase + Vercel
-- [ ] Database schema
-- [ ] Auth flow (email + Google)
-- [ ] Basic UI shell with navigation
-- [ ] Stripe subscription integration
+### Frontend
+- Next.js 14 (App Router) + TypeScript
+- Tailwind CSS + shadcn/ui
+- Framer Motion for animations
 
-### Phase 2: Onboarding (Weeks 3-4)
-- [ ] Multi-step onboarding flow
-- [ ] Profile storage
-- [ ] Race setup
-- [ ] Preference capture
+### Backend
+- Next.js API routes
+- Supabase (Postgres + Auth)
+- OpenAI GPT-4 for coaching
 
-### Phase 3: Plan Generation (Weeks 5-6)
-- [ ] AI prompt engineering for plan generation
-- [ ] Macro structure generation
-- [ ] Weekly plan breakdown
-- [ ] Plan display UI
+### Infrastructure
+- Vercel (hosting)
+- Supabase (database, auth)
+- Stripe (payments)
 
-### Phase 4: Daily Coaching (Weeks 7-8)
-- [ ] Chat interface
-- [ ] Today's workout display
-- [ ] Conversational AI integration
-- [ ] Context management
+### Integrations
+- Strava API (OAuth)
+- WHOOP API (OAuth)
+- Garmin Connect API (OAuth)
+- Apple HealthKit (iOS)
 
-### Phase 5: Integrations (Weeks 9-10)
-- [ ] Strava OAuth + sync
-- [ ] Activity import and analysis
-- [ ] WHOOP integration
-- [ ] Recovery data ingestion
+---
 
-### Phase 6: Adaptive Planning (Weeks 11-12)
-- [ ] Plan adjustment logic
-- [ ] Version tracking
-- [ ] Weekly check-in generation
-- [ ] Missed workout handling
+## Competitive Positioning
 
-### Phase 7: Polish & Launch (Weeks 13-14)
-- [ ] UI polish pass
-- [ ] Performance optimization
-- [ ] Error handling
-- [ ] Beta testing
-- [ ] Launch prep
+| Product | Price | Our Advantage |
+|---------|-------|---------------|
+| TrainingPeaks | $20-120/mo | We're conversational, they're transactional |
+| TrainerRoad | $25/mo | We do running + tri, they're cycling-focused |
+| Humango | $15-30/mo | We read your recovery data and adapt |
+| Human Coach | $150-400/mo | We're instant, affordable, always available |
+
+**Our position:** The AI coach that actually feels like a coach — proactive, conversational, and deeply personalized.
 
 ---
 
@@ -387,46 +249,11 @@ recovery_metrics (from WHOOP/Garmin)
 - Monthly Active Subscribers
 
 ### Leading Indicators
-- Onboarding completion rate
+- Chat messages per user per week
+- Post-workout analysis engagement
 - Integration connection rate
-- Weekly chat engagement
 - Workout completion rate
-- Plan adjustment acceptance rate
 
 ### Health Metrics
 - Churn rate (target: <5%/month)
 - NPS score (target: >50)
-- Support ticket volume
-
----
-
-## Open Questions
-
-1. **Pricing validation:** Is $50/month the right price point? Should we test $39 or $69?
-2. **AI model:** OpenAI GPT-4 vs. Claude? Cost vs. quality tradeoff
-3. **iOS timeline:** Build native Swift or React Native? When to prioritize?
-4. **Coach personality:** Should users be able to customize coach tone/style?
-5. **Community features:** Should athletes be able to share/compare? Or keep it 1:1?
-
----
-
-## Competitive Landscape
-
-| Product | Price | Strength | Weakness |
-|---------|-------|----------|----------|
-| TrainingPeaks | $20-120/mo | Industry standard, coach marketplace | Complex, not AI-native |
-| TrainerRoad | $25/mo | Adaptive training, great for cycling | Weak on swim/run, not conversational |
-| Humango | $15-30/mo | AI-generated plans | Generic, not truly adaptive |
-| EnduranceAI | $20/mo | Budget AI option | Limited integrations |
-| Human Coach | $150-400/mo | True personalization | Expensive, slow response |
-
-**Our positioning:** Premium AI coaching that combines human-coach-level personalization with instant availability and data-driven adaptation.
-
----
-
-## Next Steps
-
-1. Validate this PRD — any gaps or changes?
-2. Finalize tech stack decisions
-3. Set up GitHub repo and CI/CD
-4. Begin Phase 1 implementation

@@ -7,16 +7,19 @@ import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
-// Race types from 5k to Ironman
+// Race types - Running + Triathlon
 const raceTypes = [
-  { id: "ironman", name: "Ironman", distance: "3.8km / 180km / 42.2km", icon: "🦾", category: "triathlon" },
-  { id: "half-ironman", name: "Ironman 70.3", distance: "1.9km / 90km / 21.1km", icon: "🔥", category: "triathlon" },
-  { id: "olympic-tri", name: "Olympic Triathlon", distance: "1.5km / 40km / 10km", icon: "🥇", category: "triathlon" },
-  { id: "sprint-tri", name: "Sprint Triathlon", distance: "750m / 20km / 5km", icon: "⚡", category: "triathlon" },
-  { id: "marathon", name: "Marathon", distance: "42.2km", icon: "🏃", category: "running" },
-  { id: "half-marathon", name: "Half Marathon", distance: "21.1km", icon: "🎯", category: "running" },
-  { id: "10k", name: "10K", distance: "10km", icon: "🏃‍♂️", category: "running" },
+  // Running
   { id: "5k", name: "5K", distance: "5km", icon: "💨", category: "running" },
+  { id: "10k", name: "10K", distance: "10km", icon: "🏃‍♂️", category: "running" },
+  { id: "half-marathon", name: "Half Marathon", distance: "21.1km", icon: "🎯", category: "running" },
+  { id: "marathon", name: "Marathon", distance: "42.2km", icon: "🏃", category: "running" },
+  { id: "ultra", name: "Ultramarathon", distance: "50K+", icon: "🏔️", category: "running" },
+  // Triathlon  
+  { id: "sprint-tri", name: "Sprint Triathlon", distance: "750m / 20km / 5km", icon: "⚡", category: "triathlon" },
+  { id: "olympic-tri", name: "Olympic Triathlon", distance: "1.5km / 40km / 10km", icon: "🥇", category: "triathlon" },
+  { id: "half-ironman", name: "Ironman 70.3", distance: "1.9km / 90km / 21.1km", icon: "🔥", category: "triathlon" },
+  { id: "ironman", name: "Ironman", distance: "3.8km / 180km / 42.2km", icon: "🦾", category: "triathlon" },
 ];
 
 // Mock race database (would be real API in production)
