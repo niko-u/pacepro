@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { getApiUser } from "@/lib/auth/get-api-user";
 import { buildCoachContext } from "@/lib/coach/context";
 import { coachChat, extractPreferences } from "@/lib/coach/ai";
 import { mergePreferences } from "@/lib/coach/preferences";
@@ -9,13 +9,12 @@ import { detectAndExecutePlanModification } from "@/lib/coach/chat-plan-modifier
 
 export async function POST(req: NextRequest) {
   try {
-    const supabase = await createClient();
-    
-    // Get authenticated user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
+    // Authenticate via Bearer token (mobile) or cookies (web)
+    const auth = await getApiUser(req);
+    if (!auth) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    const { user, supabase } = auth;
 
     const { message } = await req.json();
     if (!message || typeof message !== "string") {
@@ -109,12 +108,11 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   try {
-    const supabase = await createClient();
-    
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
+    const auth = await getApiUser(req);
+    if (!auth) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    const { user, supabase } = auth;
 
     const url = new URL(req.url);
     const limit = parseInt(url.searchParams.get("limit") || "50");
