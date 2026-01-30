@@ -5,6 +5,7 @@ import { coachChat, extractPreferences } from "@/lib/coach/ai";
 import { mergePreferences } from "@/lib/coach/preferences";
 import { checkAndCompressConversation } from "@/lib/coach/memory";
 import { extractAndCreateWorkout } from "@/lib/coach/workout-creator";
+import { detectAndExecutePlanModification } from "@/lib/coach/chat-plan-modifier";
 
 export async function POST(req: NextRequest) {
   try {
@@ -81,6 +82,20 @@ export async function POST(req: NextRequest) {
         }
       })
       .catch((err) => console.error("Workout extraction error:", err));
+
+    // 4. Detect and execute plan modifications from chat (non-blocking)
+    detectAndExecutePlanModification(supabase, user.id, message, response, context)
+      .then(async (result) => {
+        if (result.modified) {
+          await supabase.from("chat_messages").insert({
+            user_id: user.id,
+            role: "assistant",
+            content: `📋 Plan updated: ${result.description}`,
+            message_type: "plan_adjustment",
+          });
+        }
+      })
+      .catch((err) => console.error("Plan modification error:", err));
 
     return NextResponse.json({ response, reply: response });
   } catch (error) {
