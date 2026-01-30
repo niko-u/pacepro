@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import { buildCoachContext } from "@/lib/coach/context";
 import { generateDailyCheckin } from "@/lib/coach/ai";
+import {
+  handleMissedWorkouts,
+  executeAdaptationActions,
+} from "@/lib/coach/adaptation";
 
 // Lazy init to avoid build-time errors
 let _supabase: SupabaseClient | null = null;
@@ -38,6 +42,7 @@ export async function POST(req: NextRequest) {
     const now = new Date();
     const results = {
       processed: 0,
+      missed_workouts_handled: 0,
       skipped: 0,
       errors: 0,
     };
@@ -69,6 +74,23 @@ export async function POST(req: NextRequest) {
         if (count && count > 0) {
           results.skipped++;
           continue;
+        }
+
+        // Handle missed workouts from yesterday before generating today's check-in
+        try {
+          const missedResult = await handleMissedWorkouts(supabase, user.id);
+          if (missedResult.actions.length > 0 || missedResult.message) {
+            await executeAdaptationActions(supabase, user.id, missedResult);
+            results.missed_workouts_handled++;
+            console.log(
+              `Missed workout adaptation: ${missedResult.actions.length} actions for user ${user.id}`
+            );
+          }
+        } catch (missedErr) {
+          console.error(
+            `Missed workout handling error for user ${user.id}:`,
+            missedErr
+          );
         }
 
         // Build context and generate check-in

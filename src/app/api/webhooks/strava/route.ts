@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import { buildCoachContext } from "@/lib/coach/context";
 import { analyzeWorkout } from "@/lib/coach/ai";
+import {
+  adaptAfterWorkout,
+  executeAdaptationActions,
+} from "@/lib/coach/adaptation";
 
 // Lazy init to avoid build-time errors
 let _supabase: SupabaseClient | null = null;
@@ -173,6 +177,29 @@ async function processStravaActivity(activityId: number, stravaAthleteId: number
       message_type: "workout_analysis",
       metadata: { strava_activity_id: activityId },
     });
+
+    // Run adaptation engine — compare actual vs prescribed and adjust future workouts
+    try {
+      const adaptResult = await adaptAfterWorkout(
+        supabase,
+        integration.user_id,
+        scheduledWorkout,
+        actualData
+      );
+
+      if (adaptResult.actions.length > 0 || adaptResult.message) {
+        await executeAdaptationActions(
+          supabase,
+          integration.user_id,
+          adaptResult
+        );
+        console.log(
+          `Adaptation after workout: ${adaptResult.actions.length} actions for user ${integration.user_id}`
+        );
+      }
+    } catch (adaptError) {
+      console.error("Post-workout adaptation error:", adaptError);
+    }
 
     // Mark webhook event as processed
     await supabase

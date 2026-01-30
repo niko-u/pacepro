@@ -6,6 +6,7 @@ export interface AthleteProfile {
   email: string;
   full_name: string;
   experience_level: string;
+  primary_sport?: string;
   goal_race_type: string;
   goal_race_date: string;
   weekly_hours_available: number;
@@ -16,6 +17,9 @@ export interface AthleteProfile {
     recovery_needs: number;
     flexibility: number;
     feedback_style: string;
+    response_length?: string;
+    focus_areas?: string[];
+    [key: string]: unknown;
   };
   learned_preferences: {
     schedule_constraints: string[];

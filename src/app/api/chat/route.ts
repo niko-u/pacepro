@@ -4,6 +4,7 @@ import { buildCoachContext } from "@/lib/coach/context";
 import { coachChat, extractPreferences } from "@/lib/coach/ai";
 import { mergePreferences } from "@/lib/coach/preferences";
 import { checkAndCompressConversation } from "@/lib/coach/memory";
+import { extractAndCreateWorkout } from "@/lib/coach/workout-creator";
 
 export async function POST(req: NextRequest) {
   try {
@@ -55,7 +56,7 @@ export async function POST(req: NextRequest) {
       message_type: "chat",
     });
 
-    // Background tasks: preference extraction + memory compression (don't block response)
+    // Background tasks: preference extraction + memory compression + workout creation (don't block response)
     // 1. Extract and merge preferences
     extractPreferences(message, response).then(async (prefs) => {
       if (Object.keys(prefs).length > 0) {
@@ -71,6 +72,15 @@ export async function POST(req: NextRequest) {
         }
       })
       .catch((err) => console.error("Conversation compression error:", err));
+
+    // 3. Check if coach response contains a workout prescription → create it
+    extractAndCreateWorkout(supabase, user.id, response, message)
+      .then((result) => {
+        if (result.created) {
+          console.log(`Created workout ${result.workoutId} from chat for user ${user.id}`);
+        }
+      })
+      .catch((err) => console.error("Workout extraction error:", err));
 
     return NextResponse.json({ response, reply: response });
   } catch (error) {

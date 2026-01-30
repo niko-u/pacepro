@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import { buildCoachContext } from "@/lib/coach/context";
 import { generateRecoveryAlert } from "@/lib/coach/ai";
+import {
+  adaptForRecovery,
+  executeAdaptationActions,
+} from "@/lib/coach/adaptation";
 
 // Lazy init to avoid build-time errors
 let _supabase: SupabaseClient | null = null;
@@ -44,13 +48,48 @@ export async function POST(req: NextRequest) {
     const results = {
       processed: 0,
       alerts_sent: 0,
+      adaptations_run: 0,
       skipped: 0,
       errors: 0,
     };
 
     for (const userId of uniqueUserIds) {
       try {
-        // Check notification preferences
+        // Get today's recovery data first (needed for both adaptation and alerts)
+        const { data: todayRecovery } = await supabase
+          .from("recovery_data")
+          .select("*")
+          .eq("user_id", userId)
+          .eq("date", today)
+          .order("synced_at", { ascending: false })
+          .limit(1)
+          .single();
+
+        if (!todayRecovery) {
+          results.skipped++;
+          continue;
+        }
+
+        // Run adaptation engine based on recovery data (always, regardless of notification prefs)
+        try {
+          const adaptResult = await adaptForRecovery(supabase, userId, {
+            recovery_score: todayRecovery.recovery_score,
+            hrv_ms: todayRecovery.hrv_ms,
+            sleep_hours: todayRecovery.sleep_hours,
+          });
+
+          if (adaptResult.actions.length > 0 || adaptResult.message) {
+            await executeAdaptationActions(supabase, userId, adaptResult);
+            results.adaptations_run++;
+            console.log(
+              `Recovery adaptation: ${adaptResult.actions.length} actions for user ${userId}`
+            );
+          }
+        } catch (adaptErr) {
+          console.error(`Recovery adaptation error for user ${userId}:`, adaptErr);
+        }
+
+        // Check notification preferences (for alerts only)
         const { data: profile } = await supabase
           .from("profiles")
           .select("notifications")
@@ -58,7 +97,7 @@ export async function POST(req: NextRequest) {
           .single();
 
         if (profile?.notifications?.recovery_alerts === false) {
-          results.skipped++;
+          results.processed++;
           continue;
         }
 
@@ -72,22 +111,7 @@ export async function POST(req: NextRequest) {
           .gte("created_at", twelveHoursAgo);
 
         if (recentAlerts && recentAlerts > 0) {
-          results.skipped++;
-          continue;
-        }
-
-        // Get today's recovery data
-        const { data: todayRecovery } = await supabase
-          .from("recovery_data")
-          .select("*")
-          .eq("user_id", userId)
-          .eq("date", today)
-          .order("synced_at", { ascending: false })
-          .limit(1)
-          .single();
-
-        if (!todayRecovery) {
-          results.skipped++;
+          results.processed++;
           continue;
         }
 

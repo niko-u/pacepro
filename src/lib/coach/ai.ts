@@ -6,6 +6,7 @@ import {
   PREFERENCE_EXTRACTION_PROMPT,
   DAILY_CHECKIN_PROMPT,
   RECOVERY_ALERT_PROMPT,
+  buildCoachSystemPrompt,
 } from "./prompts";
 import { CoachContext, formatContextForAI } from "./context";
 
@@ -26,6 +27,18 @@ export interface ChatMessage {
 }
 
 /**
+ * Build the dynamic system prompt from athlete context.
+ * Extracts preferences, sport, and goals from the context to personalize the prompt.
+ */
+function buildDynamicPrompt(context: CoachContext): string {
+  return buildCoachSystemPrompt({
+    ...(context.athlete.preferences || {}),
+    sport: context.athlete.primary_sport,
+    goals: context.athlete.goal_race_type,
+  });
+}
+
+/**
  * Main chat completion with coach persona
  */
 export async function coachChat(
@@ -34,13 +47,14 @@ export async function coachChat(
   userMessage: string
 ): Promise<string> {
   const contextSummary = formatContextForAI(context);
+  const systemPrompt = buildDynamicPrompt(context);
 
   const response = await getOpenAI().chat.completions.create({
     model: "gpt-4-turbo-preview",
     messages: [
       {
         role: "system",
-        content: `${COACH_SYSTEM_PROMPT}\n\n--- ATHLETE CONTEXT ---\n${contextSummary}`,
+        content: `${systemPrompt}\n\n--- ATHLETE CONTEXT ---\n${contextSummary}`,
       },
       // Include recent conversation history
       ...messages.slice(-10).map((m) => ({
@@ -68,13 +82,14 @@ export async function analyzeWorkout(
   actual: Record<string, unknown>
 ): Promise<string> {
   const contextSummary = formatContextForAI(context);
+  const systemPrompt = buildDynamicPrompt(context);
 
   const response = await getOpenAI().chat.completions.create({
     model: "gpt-4-turbo-preview",
     messages: [
       {
         role: "system",
-        content: `${COACH_SYSTEM_PROMPT}\n\n${WORKOUT_ANALYSIS_PROMPT}\n\n--- ATHLETE CONTEXT ---\n${contextSummary}`,
+        content: `${systemPrompt}\n\n${WORKOUT_ANALYSIS_PROMPT}\n\n--- ATHLETE CONTEXT ---\n${contextSummary}`,
       },
       {
         role: "user",
@@ -97,13 +112,14 @@ export async function generateWeeklyOutlook(
   thisWeekPlan: unknown[]
 ): Promise<string> {
   const contextSummary = formatContextForAI(context);
+  const systemPrompt = buildDynamicPrompt(context);
 
   const response = await getOpenAI().chat.completions.create({
     model: "gpt-4-turbo-preview",
     messages: [
       {
         role: "system",
-        content: `${COACH_SYSTEM_PROMPT}\n\n${WEEKLY_OUTLOOK_PROMPT}\n\n--- ATHLETE CONTEXT ---\n${contextSummary}`,
+        content: `${systemPrompt}\n\n${WEEKLY_OUTLOOK_PROMPT}\n\n--- ATHLETE CONTEXT ---\n${contextSummary}`,
       },
       {
         role: "user",
@@ -159,13 +175,14 @@ export async function generateDailyCheckin(
   context: CoachContext
 ): Promise<string> {
   const contextSummary = formatContextForAI(context);
+  const systemPrompt = buildDynamicPrompt(context);
 
   const response = await getOpenAI().chat.completions.create({
     model: "gpt-4-turbo-preview",
     messages: [
       {
         role: "system",
-        content: `${COACH_SYSTEM_PROMPT}\n\n${DAILY_CHECKIN_PROMPT}\n\n--- ATHLETE CONTEXT ---\n${contextSummary}`,
+        content: `${systemPrompt}\n\n${DAILY_CHECKIN_PROMPT}\n\n--- ATHLETE CONTEXT ---\n${contextSummary}`,
       },
       {
         role: "user",
@@ -196,13 +213,14 @@ export async function generateRecoveryAlert(
   }
 ): Promise<string> {
   const contextSummary = formatContextForAI(context);
+  const systemPrompt = buildDynamicPrompt(context);
 
   const response = await getOpenAI().chat.completions.create({
     model: "gpt-4-turbo-preview",
     messages: [
       {
         role: "system",
-        content: `${COACH_SYSTEM_PROMPT}\n\n${RECOVERY_ALERT_PROMPT}\n\n--- ATHLETE CONTEXT ---\n${contextSummary}`,
+        content: `${systemPrompt}\n\n${RECOVERY_ALERT_PROMPT}\n\n--- ATHLETE CONTEXT ---\n${contextSummary}`,
       },
       {
         role: "user",
@@ -224,13 +242,14 @@ export async function quickCoachResponse(
   prompt: string
 ): Promise<string> {
   const contextSummary = formatContextForAI(context);
+  const systemPrompt = buildDynamicPrompt(context);
 
   const response = await getOpenAI().chat.completions.create({
     model: "gpt-4-turbo-preview",
     messages: [
       {
         role: "system",
-        content: `${COACH_SYSTEM_PROMPT}\n\n--- ATHLETE CONTEXT ---\n${contextSummary}`,
+        content: `${systemPrompt}\n\n--- ATHLETE CONTEXT ---\n${contextSummary}`,
       },
       {
         role: "user",
