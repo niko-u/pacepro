@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
       })
       .catch((err) => console.error("Conversation compression error:", err));
 
-    return NextResponse.json({ response });
+    return NextResponse.json({ response, reply: response });
   } catch (error) {
     console.error("Chat API error:", error);
     return NextResponse.json(
