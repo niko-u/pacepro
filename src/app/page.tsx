@@ -1,23 +1,20 @@
 "use client";
 
-import Link from "next/link";
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-black text-white overflow-hidden">
-      {/* Gradient background */}
-      <div className="fixed inset-0 bg-gradient-to-br from-orange-600/20 via-black to-red-900/20" />
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-orange-500/10 via-transparent to-transparent" />
-      <div className="fixed inset-0 bg-[linear-gradient(rgba(255,255,255,.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.02)_1px,transparent_1px)] bg-[size:72px_72px]" />
+      {/* Subtle gradient background */}
+      <div className="fixed inset-0 bg-gradient-to-b from-orange-600/8 via-black to-black" />
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-orange-500/5 via-transparent to-transparent" />
 
       {/* Nav */}
-      <nav className="fixed top-0 w-full z-50 border-b border-white/5 bg-black/50 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <nav className="fixed top-0 w-full z-50 bg-black/60 backdrop-blur-xl border-b border-white/5">
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl blur-lg opacity-50" />
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl blur-lg opacity-40" />
               <div className="relative w-9 h-9 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center font-bold text-sm">
                 P
               </div>
@@ -29,357 +26,231 @@ export default function Home() {
             <a href="#how-it-works" className="hover:text-white transition-colors">How It Works</a>
             <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
           </div>
-          <div className="flex items-center gap-3">
-            <Link href="/login">
-              <Button variant="ghost" className="text-zinc-400 hover:text-white hover:bg-white/5">
-                Log in
-              </Button>
-            </Link>
-            <Link href="/signup">
-              <Button className="bg-white text-black hover:bg-zinc-200 font-medium">
-                Start Free Trial
-              </Button>
-            </Link>
-          </div>
+          <a
+            href="#download"
+            className="px-5 py-2 rounded-full bg-white text-black text-sm font-medium hover:bg-zinc-200 transition-colors"
+          >
+            Get the App
+          </a>
         </div>
       </nav>
 
-      {/* Hero */}
-      <section className="relative pt-32 pb-24 px-6">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="max-w-4xl"
-          >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-sm text-zinc-400 mb-8">
-              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-              AI coaching for runners & triathletes
-            </div>
-            
-            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.9] mb-8">
-              A coach that
-              <br />
-              <span className="bg-gradient-to-r from-orange-400 via-red-500 to-orange-600 bg-clip-text text-transparent">
-                actually knows you.
-              </span>
-            </h1>
-            
-            <p className="text-xl md:text-2xl text-zinc-400 max-w-2xl leading-relaxed mb-12">
-              Not just training plans — an AI coach that reads your recovery, analyzes your workouts, 
-              and adjusts your training before you even ask.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Link href="/signup">
-                <Button size="lg" className="h-14 px-8 text-lg bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 border-0 shadow-lg shadow-orange-500/25">
-                  Start 7-day free trial
-                  <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                  </svg>
-                </Button>
-              </Link>
-              <Button size="lg" variant="outline" className="h-14 px-8 text-lg border-white/10 bg-white/5 hover:bg-white/10 backdrop-blur">
-                <svg className="mr-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                See it in action
-              </Button>
-            </div>
-          </motion.div>
-
-          {/* Coach chat preview - Angled like Linear */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.3 }}
-            className="mt-20 max-w-5xl mx-auto"
-            style={{ perspective: '1000px' }}
-          >
-            <div 
-              className="rounded-2xl border border-white/10 bg-zinc-900/80 backdrop-blur-xl overflow-hidden shadow-2xl shadow-orange-500/10"
-              style={{ 
-                transform: 'rotateX(8deg) rotateY(-8deg) rotateZ(2deg)',
-                transformOrigin: 'center center'
-              }}
+      {/* ─── HERO ─── */}
+      <section className="relative pt-32 md:pt-40 pb-20 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+            {/* Left: Copy */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="flex-1 text-center lg:text-left"
             >
-              <div className="p-4 border-b border-white/5 flex items-center gap-3">
-                <div className="flex gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-red-500" />
-                  <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                  <div className="w-3 h-3 rounded-full bg-green-500" />
-                </div>
-                <span className="text-sm text-zinc-400">Chat with Coach</span>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-sm text-zinc-400 mb-8">
+                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                AI coaching for runners &amp; triathletes
               </div>
-              <div className="p-6 space-y-4">
-                <div className="flex gap-3">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-xs font-bold flex-shrink-0">
-                    P
-                  </div>
-                  <div className="bg-white/5 rounded-2xl rounded-tl-none p-4 max-w-lg">
-                    <p className="text-zinc-300">Good morning! 👋 I saw your tempo run from yesterday — nice work holding 7:15 pace for the main set. That's 12 seconds faster than your last tempo.</p>
-                    <p className="text-zinc-300 mt-2">Your WHOOP shows 78% recovery today. You're cleared for intervals, but I'd suggest keeping the rest periods a bit longer. Sound good?</p>
-                  </div>
-                </div>
-                <div className="flex gap-3 justify-end">
-                  <div className="bg-gradient-to-r from-orange-500 to-red-600 rounded-2xl rounded-tr-none p-4 max-w-lg">
-                    <p>Actually I'm feeling a bit tired today. Can we do something easier?</p>
-                  </div>
-                </div>
-                <div className="flex gap-3">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-xs font-bold flex-shrink-0">
-                    P
-                  </div>
-                  <div className="bg-white/5 rounded-2xl rounded-tl-none p-4 max-w-lg">
-                    <p className="text-zinc-300">Absolutely. Smart call — your HRV has actually been trending down this week. Let's swap today for an easy 40-minute run in Zone 2. I'll move intervals to Thursday when you should be more recovered.</p>
-                    <p className="text-zinc-300 mt-2">Updated your plan. Take it easy today! 🏃♂️</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
 
-      {/* Wearable Integrations */}
-      <section className="relative py-16 px-6 border-y border-white/5 bg-white/[0.01]">
-        <div className="max-w-7xl mx-auto">
-          <p className="text-center text-zinc-500 mb-8">Syncs with your favorite fitness wearables</p>
-          <div className="flex flex-wrap justify-center items-center gap-10 md:gap-16">
-            {/* WHOOP */}
-            <div className="flex flex-col items-center gap-2 opacity-70 hover:opacity-100 transition-opacity">
-              <div className="w-16 h-16 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
-                <svg viewBox="0 0 24 24" className="w-10 h-10 text-white" fill="currentColor">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
-                </svg>
+              <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight leading-[0.95] mb-6">
+                Your coach.
+                <br />
+                <span className="bg-gradient-to-r from-orange-400 via-red-500 to-orange-600 bg-clip-text text-transparent">
+                  Always on.
+                </span>
+              </h1>
+
+              <p className="text-lg md:text-xl text-zinc-400 max-w-xl leading-relaxed mb-10">
+                An AI endurance coach that reads your recovery, analyzes every workout,
+                and adapts your training in real time. Like texting your coach — except it actually knows your data.
+              </p>
+
+              <div className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
+                <a href="#download">
+                  <AppleStoreButton />
+                </a>
+                <p className="text-sm text-zinc-500">Free 7-day trial · $50/mo</p>
               </div>
-              <span className="text-sm font-medium">WHOOP</span>
-            </div>
-            {/* Garmin */}
-            <div className="flex flex-col items-center gap-2 opacity-70 hover:opacity-100 transition-opacity">
-              <div className="w-16 h-16 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
-                <svg viewBox="0 0 24 24" className="w-10 h-10 text-white" fill="currentColor">
-                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                </svg>
-              </div>
-              <span className="text-sm font-medium">Garmin</span>
-            </div>
-            {/* Apple Health */}
-            <div className="flex flex-col items-center gap-2 opacity-70 hover:opacity-100 transition-opacity">
-              <div className="w-16 h-16 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
-                <svg viewBox="0 0 24 24" className="w-9 h-9 text-white" fill="currentColor">
-                  <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-                </svg>
-              </div>
-              <span className="text-sm font-medium">Apple Health</span>
-            </div>
-            {/* Strava */}
-            <div className="flex flex-col items-center gap-2 opacity-70 hover:opacity-100 transition-opacity">
-              <div className="w-16 h-16 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
-                <svg viewBox="0 0 24 24" className="w-8 h-8 text-[#FC4C02]" fill="currentColor">
-                  <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/>
-                </svg>
-              </div>
-              <span className="text-sm font-medium">Strava</span>
-            </div>
-            {/* Oura */}
-            <div className="flex flex-col items-center gap-2 opacity-70 hover:opacity-100 transition-opacity">
-              <div className="w-16 h-16 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
-                <svg viewBox="0 0 24 24" className="w-9 h-9 text-white" fill="currentColor">
-                  <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="2"/>
-                  <circle cx="12" cy="12" r="4"/>
-                </svg>
-              </div>
-              <span className="text-sm font-medium">Oura</span>
-            </div>
+            </motion.div>
+
+            {/* Right: iPhone Mockup with Chat */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.2 }}
+              className="flex-shrink-0"
+            >
+              <IPhoneMockup />
+            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* How it works */}
-      <section id="how-it-works" className="relative py-32 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="max-w-2xl mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">
-              More than plans.
-              <br />
-              <span className="text-zinc-500">Real coaching.</span>
-            </h2>
-            <p className="text-lg text-zinc-400">
-              Your AI coach doesn't just generate a plan and disappear. It watches, learns, and adapts — just like a real coach would.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="relative">
-              <div className="text-6xl font-bold text-white/5 absolute -top-4 -left-2">1</div>
-              <div className="relative p-6 rounded-2xl border border-white/10 bg-white/[0.02]">
-                <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-2xl mb-4">
-                  💬
-                </div>
-                <h3 className="text-xl font-semibold mb-3">Talk to your coach</h3>
-                <p className="text-zinc-400">
-                  Ask questions, request changes, report how you're feeling. Your coach responds instantly with personalized guidance.
-                </p>
-              </div>
-            </div>
-
-            <div className="relative">
-              <div className="text-6xl font-bold text-white/5 absolute -top-4 -left-2">2</div>
-              <div className="relative p-6 rounded-2xl border border-white/10 bg-white/[0.02]">
-                <div className="w-12 h-12 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center justify-center text-2xl mb-4">
-                  📊
-                </div>
-                <h3 className="text-xl font-semibold mb-3">Get post-workout analysis</h3>
-                <p className="text-zinc-400">
-                  After every run, your coach analyzes the data: pace, heart rate, effort. You get insights, not just numbers.
-                </p>
-              </div>
-            </div>
-
-            <div className="relative">
-              <div className="text-6xl font-bold text-white/5 absolute -top-4 -left-2">3</div>
-              <div className="relative p-6 rounded-2xl border border-white/10 bg-white/[0.02]">
-                <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-2xl mb-4">
-                  🔄
-                </div>
-                <h3 className="text-xl font-semibold mb-3">Watch it adapt</h3>
-                <p className="text-zinc-400">
-                  Low recovery score? Missed a workout? Your plan adjusts automatically — and your coach tells you why.
-                </p>
-              </div>
-            </div>
+      {/* ─── SOCIAL PROOF BAR ─── */}
+      <section className="relative py-12 px-6 border-y border-white/5">
+        <div className="max-w-6xl mx-auto">
+          <p className="text-center text-zinc-500 text-sm mb-6">Syncs with your wearables</p>
+          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-14">
+            <WearableLogo name="Strava" />
+            <WearableLogo name="WHOOP" />
+            <WearableLogo name="Garmin" />
+            <WearableLogo name="Apple Health" />
           </div>
         </div>
       </section>
 
-      {/* Features */}
-      <section id="features" className="relative py-32 px-6 border-t border-white/5">
-        <div className="max-w-7xl mx-auto">
+      {/* ─── FEATURES ─── */}
+      <section id="features" className="relative py-28 px-6">
+        <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
               Everything a great coach does
             </h2>
             <p className="text-lg text-zinc-400 max-w-2xl mx-auto">
-              Except available 24/7, for a fraction of the cost.
+              Available 24/7. For a fraction of the cost.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
             <FeatureCard
-              icon="🗣️"
-              title="Conversational Coaching"
-              description="Chat anytime. Ask questions, get modifications, discuss strategy. Your coach knows your entire history."
-              highlight
+              icon={<ChatIcon />}
+              title="Chat with Your Coach"
+              description="Ask questions, request changes, report injuries. Your coach responds instantly with personalized guidance."
+              accent="orange"
             />
             <FeatureCard
-              icon="📈"
+              icon={<ChartIcon />}
               title="Post-Workout Analysis"
-              description="Every workout gets analyzed. Your coach tells you what went well, what to watch, and how it fits the bigger picture."
-              highlight
+              description="Every session gets analyzed. Pace, heart rate, effort — you get insights, not just numbers."
+              accent="green"
             />
             <FeatureCard
-              icon="❤️"
+              icon={<HeartIcon />}
               title="Recovery Intelligence"
-              description="Connects to WHOOP, Garmin, Apple Health. Your coach sees your HRV, sleep, and recovery — and adjusts accordingly."
-              highlight
+              description="Connects to WHOOP, Garmin, Apple Health. Your plan adapts to your HRV, sleep, and recovery score."
+              accent="red"
             />
             <FeatureCard
-              icon="🎯"
-              title="Personalized Plans"
-              description="Not templates. Plans built for YOUR schedule, YOUR goals, YOUR body. From 5K to Ironman."
+              icon={<CalendarIcon />}
+              title="Adaptive Training Plans"
+              description="Plans built for your schedule, goals, and body. Base → Build → Peak → Taper, periodized automatically."
+              accent="blue"
             />
             <FeatureCard
-              icon="🔄"
+              icon={<SwapIcon />}
               title="Real-time Adaptation"
-              description="Life happens. Miss a workout, get sick, travel — your plan adjusts automatically with full transparency."
+              description="Miss a workout, get injured, or travel — your plan adjusts automatically. Just tell your coach."
+              accent="purple"
             />
             <FeatureCard
-              icon="📅"
+              icon={<FlagIcon />}
               title="Race-Day Ready"
-              description="Taper protocols, pacing strategy, and mental prep. Your coach ensures you peak when it matters."
+              description="From 5K to Ironman. Taper protocols, pacing strategy, and mental prep to peak when it matters."
+              accent="orange"
             />
           </div>
         </div>
       </section>
 
-      {/* Pricing */}
-      <section id="pricing" className="relative py-32 px-6 border-t border-white/5">
-        <div className="max-w-7xl mx-auto">
+      {/* ─── HOW IT WORKS ─── */}
+      <section id="how-it-works" className="relative py-28 px-6 border-t border-white/5">
+        <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">
-              Real coaching, fair price
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
+              Three steps. That&apos;s it.
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            <StepCard
+              number="01"
+              title="Tell us about yourself"
+              description="Sport, race goals, schedule, experience. A 2-minute setup builds your athlete profile."
+            />
+            <StepCard
+              number="02"
+              title="Get your plan"
+              description="Your AI coach generates a periodized plan tailored to your fitness, availability, and race date."
+            />
+            <StepCard
+              number="03"
+              title="Train and talk"
+              description="Chat anytime. Your coach watches every workout, reads your recovery, and adapts the plan as you go."
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* ─── PRICING ─── */}
+      <section id="pricing" className="relative py-28 px-6 border-t border-white/5">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
+              Real coaching. Fair price.
             </h2>
             <p className="text-lg text-zinc-400">
-              A human coach costs $200-400/month. PacePro delivers the same personalization for a fraction of that.
+              A human coach costs $200–400/month. PacePro delivers the same personalization for a fraction.
             </p>
           </div>
 
-          <div className="max-w-lg mx-auto">
+          <div className="max-w-md mx-auto">
             <div className="relative group">
-              <div className="absolute -inset-px bg-gradient-to-br from-orange-500 to-red-600 rounded-3xl opacity-75 blur-sm group-hover:opacity-100 transition-opacity" />
-              <div className="relative p-8 rounded-3xl border border-orange-500/50 bg-black">
+              <div className="absolute -inset-px bg-gradient-to-br from-orange-500 to-red-600 rounded-3xl opacity-60 blur-sm group-hover:opacity-80 transition-opacity" />
+              <div className="relative p-8 rounded-3xl border border-orange-500/40 bg-black">
                 <div className="text-center mb-8">
-                  <h3 className="text-2xl font-semibold mb-2">PacePro Coach</h3>
+                  <h3 className="text-xl font-semibold mb-3">PacePro Coach</h3>
                   <div className="flex items-baseline justify-center gap-1">
                     <span className="text-6xl font-bold">$50</span>
                     <span className="text-zinc-500">/month</span>
                   </div>
-                  <p className="text-sm text-zinc-500 mt-2">7-day free trial • Cancel anytime</p>
+                  <p className="text-sm text-zinc-500 mt-2">7-day free trial · Cancel anytime</p>
                 </div>
 
-                <ul className="space-y-4 mb-8">
-                  <PricingFeature text="Unlimited coach chat" />
-                  <PricingFeature text="Post-workout analysis on every session" />
-                  <PricingFeature text="Recovery-based plan adjustments" />
-                  <PricingFeature text="Personalized periodized training plan" />
-                  <PricingFeature text="Strava, WHOOP, Garmin integration" />
-                  <PricingFeature text="Race-day protocols and taper" />
-                  <PricingFeature text="Weekly progress summaries" />
+                <ul className="space-y-3 mb-8">
+                  <PricingLine text="Unlimited coach chat" />
+                  <PricingLine text="Post-workout analysis on every session" />
+                  <PricingLine text="Recovery-based plan adjustments" />
+                  <PricingLine text="Personalized periodized training plan" />
+                  <PricingLine text="Strava, WHOOP, Garmin integration" />
+                  <PricingLine text="Race-day protocols and taper" />
+                  <PricingLine text="Weekly progress reports" />
                 </ul>
 
-                <Link href="/signup">
-                  <Button className="w-full h-14 text-lg bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 border-0 shadow-lg shadow-orange-500/25">
-                    Start your free trial
-                  </Button>
-                </Link>
+                <a
+                  href="#download"
+                  className="block w-full py-4 rounded-xl text-center text-lg font-semibold bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 transition-colors shadow-lg shadow-orange-500/20"
+                >
+                  Start your free trial
+                </a>
               </div>
             </div>
-
-            <p className="text-center text-zinc-500 text-sm mt-6">
-              Annual plan available: $500/year (save 2 months)
+            <p className="text-center text-zinc-500 text-sm mt-5">
+              Annual plan: $500/year (save 2 months)
             </p>
           </div>
         </div>
       </section>
 
-      {/* Final CTA */}
-      <section className="relative py-32 px-6 border-t border-white/5">
-        <div className="max-w-4xl mx-auto text-center">
+      {/* ─── DOWNLOAD CTA ─── */}
+      <section id="download" className="relative py-28 px-6 border-t border-white/5">
+        <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
-            Ready for a coach that
-            <br />
-            actually coaches?
+            Ready to train smarter?
           </h2>
           <p className="text-xl text-zinc-400 mb-10">
-            Start your 7-day free trial. No credit card required.
+            Download PacePro and meet your AI coach today.
           </p>
-          <Link href="/signup">
-            <Button size="lg" className="h-14 px-10 text-lg bg-white text-black hover:bg-zinc-200 font-medium">
-              Get started free
-              <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </Button>
-          </Link>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <AppleStoreButton large />
+          </div>
+          <p className="text-sm text-zinc-600 mt-6">
+            Available on iOS · Android coming soon
+          </p>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="relative py-12 px-6 border-t border-white/5">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+      {/* ─── FOOTER ─── */}
+      <footer className="relative py-10 px-6 border-t border-white/5">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg flex items-center justify-center font-bold text-sm">
               P
@@ -387,12 +258,12 @@ export default function Home() {
             <span className="font-semibold">PacePro</span>
           </div>
           <div className="flex items-center gap-8 text-sm text-zinc-500">
+            <a href="mailto:support@pacepro.coach" className="hover:text-white transition-colors">Contact</a>
             <a href="#" className="hover:text-white transition-colors">Privacy</a>
             <a href="#" className="hover:text-white transition-colors">Terms</a>
-            <a href="#" className="hover:text-white transition-colors">Contact</a>
           </div>
           <p className="text-sm text-zinc-600">
-            © 2025 PacePro. All rights reserved.
+            © {new Date().getFullYear()} PacePro. All rights reserved.
           </p>
         </div>
       </footer>
@@ -400,32 +271,243 @@ export default function Home() {
   );
 }
 
-function FeatureCard({ icon, title, description, highlight = false }: { 
-  icon: string; 
-  title: string; 
+/* ═══════════════════════════════════════════
+   iPhone Mockup with Chat UI
+   ═══════════════════════════════════════════ */
+
+function IPhoneMockup() {
+  return (
+    <div className="relative w-[300px] md:w-[340px]">
+      {/* Glow behind phone */}
+      <div className="absolute inset-8 bg-gradient-to-br from-orange-500/20 to-red-600/20 rounded-[40px] blur-3xl" />
+
+      {/* Phone frame */}
+      <div className="relative bg-zinc-900 rounded-[48px] border-[3px] border-zinc-700 p-3 shadow-2xl shadow-black/50">
+        {/* Screen */}
+        <div className="bg-zinc-950 rounded-[40px] overflow-hidden">
+          {/* Status bar */}
+          <div className="flex items-center justify-between px-8 pt-4 pb-2">
+            <span className="text-xs text-white font-medium">9:41</span>
+            <div className="w-28 h-7 bg-black rounded-full" /> {/* Dynamic Island */}
+            <div className="flex items-center gap-1">
+              <div className="w-4 h-2.5 border border-white/60 rounded-sm relative">
+                <div className="absolute inset-0.5 bg-white/60 rounded-[1px]" style={{ width: "70%" }} />
+              </div>
+            </div>
+          </div>
+
+          {/* Chat header */}
+          <div className="px-5 py-3 border-b border-zinc-800 flex items-center gap-2">
+            <span className="text-white font-medium text-[15px]">Coach</span>
+            <span className="w-2 h-2 bg-green-500 rounded-full" />
+          </div>
+
+          {/* Chat messages */}
+          <div className="px-4 py-4 space-y-3 min-h-[380px]">
+            {/* Coach message */}
+            <div className="flex gap-2.5">
+              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">
+                P
+              </div>
+              <div className="bg-zinc-800 rounded-2xl rounded-tl-md px-3.5 py-2.5 max-w-[230px]">
+                <p className="text-[13px] text-zinc-200 leading-relaxed">
+                  Good morning! 👋 Your tempo run yesterday was solid — 7:15 pace, 12 sec faster than last week.
+                </p>
+                <p className="text-[13px] text-zinc-200 leading-relaxed mt-1.5">
+                  WHOOP shows 78% recovery. You&apos;re cleared for intervals today.
+                </p>
+              </div>
+            </div>
+
+            {/* User message */}
+            <div className="flex justify-end">
+              <div className="bg-gradient-to-r from-orange-500 to-red-600 rounded-2xl rounded-tr-md px-3.5 py-2.5 max-w-[210px]">
+                <p className="text-[13px] text-white leading-relaxed">
+                  I&apos;m a bit tired today. Can we do something easier?
+                </p>
+              </div>
+            </div>
+
+            {/* Coach response */}
+            <div className="flex gap-2.5">
+              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">
+                P
+              </div>
+              <div className="bg-zinc-800 rounded-2xl rounded-tl-md px-3.5 py-2.5 max-w-[230px]">
+                <p className="text-[13px] text-zinc-200 leading-relaxed">
+                  Smart call — your HRV has been trending down. Let&apos;s swap for an easy 40-min Zone 2 run. I&apos;ll move intervals to Thursday.
+                </p>
+                <p className="text-[13px] text-zinc-200 leading-relaxed mt-1.5">
+                  📋 Plan updated. Take it easy today!
+                </p>
+              </div>
+            </div>
+
+            {/* Plan update card */}
+            <div className="ml-9 bg-zinc-800/50 border border-zinc-700 rounded-xl px-3 py-2.5">
+              <div className="flex items-center gap-2 mb-1.5">
+                <div className="w-2 h-2 rounded-full bg-green-500" />
+                <span className="text-[11px] text-zinc-400 font-medium">TODAY — UPDATED</span>
+              </div>
+              <p className="text-[13px] text-white font-medium">Easy Run · 40 min</p>
+              <p className="text-[11px] text-zinc-500">Zone 2 · Conversational pace</p>
+            </div>
+          </div>
+
+          {/* Chat input */}
+          <div className="px-4 pb-6 pt-2 border-t border-zinc-800">
+            <div className="flex items-center gap-2 bg-zinc-800 rounded-full px-4 py-2.5">
+              <span className="text-[13px] text-zinc-500 flex-1">Ask your coach anything...</span>
+              <div className="w-7 h-7 rounded-full bg-gradient-to-r from-orange-500 to-red-600 flex items-center justify-center">
+                <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   Sub-components
+   ═══════════════════════════════════════════ */
+
+function AppleStoreButton({ large = false }: { large?: boolean }) {
+  const h = large ? "h-16" : "h-14";
+  return (
+    <div
+      className={`${h} px-6 rounded-xl bg-white text-black flex items-center gap-3 cursor-pointer hover:bg-zinc-200 transition-colors`}
+    >
+      <svg viewBox="0 0 24 24" className="w-7 h-7" fill="currentColor">
+        <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
+      </svg>
+      <div className="leading-tight">
+        <div className="text-[10px] opacity-60">Download on the</div>
+        <div className={`${large ? "text-xl" : "text-lg"} font-semibold -mt-0.5`}>App Store</div>
+      </div>
+    </div>
+  );
+}
+
+function WearableLogo({ name }: { name: string }) {
+  return (
+    <div className="flex items-center gap-2 opacity-50 hover:opacity-80 transition-opacity">
+      <span className="text-sm font-medium text-zinc-300">{name}</span>
+    </div>
+  );
+}
+
+const accentMap: Record<string, string> = {
+  orange: "from-orange-500/10 border-orange-500/20",
+  green: "from-green-500/10 border-green-500/20",
+  red: "from-red-500/10 border-red-500/20",
+  blue: "from-blue-500/10 border-blue-500/20",
+  purple: "from-purple-500/10 border-purple-500/20",
+};
+
+function FeatureCard({
+  icon,
+  title,
+  description,
+  accent,
+}: {
+  icon: React.ReactNode;
+  title: string;
   description: string;
-  highlight?: boolean;
+  accent: string;
+}) {
+  const colors = accentMap[accent] || accentMap.orange;
+  return (
+    <div
+      className={`p-6 rounded-2xl border bg-gradient-to-br ${colors} to-transparent hover:scale-[1.02] transition-transform`}
+    >
+      <div className="mb-4">{icon}</div>
+      <h3 className="text-lg font-semibold mb-2">{title}</h3>
+      <p className="text-zinc-400 text-sm leading-relaxed">{description}</p>
+    </div>
+  );
+}
+
+function StepCard({
+  number,
+  title,
+  description,
+}: {
+  number: string;
+  title: string;
+  description: string;
 }) {
   return (
-    <div className={`relative p-6 rounded-2xl border transition-colors h-full ${
-      highlight 
-        ? "border-orange-500/30 bg-gradient-to-br from-orange-500/5 to-red-500/5" 
-        : "border-white/10 bg-white/[0.02] hover:bg-white/[0.04]"
-    }`}>
-      <div className="text-3xl mb-4">{icon}</div>
-      <h3 className="text-lg font-semibold mb-2">{title}</h3>
+    <div className="text-center">
+      <div className="text-5xl font-bold bg-gradient-to-b from-orange-500 to-red-600 bg-clip-text text-transparent mb-4">
+        {number}
+      </div>
+      <h3 className="text-xl font-semibold mb-3">{title}</h3>
       <p className="text-zinc-400 leading-relaxed">{description}</p>
     </div>
   );
 }
 
-function PricingFeature({ text }: { text: string }) {
+function PricingLine({ text }: { text: string }) {
   return (
-    <li className="flex items-center gap-3 text-zinc-300">
-      <svg className="w-5 h-5 text-orange-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+    <li className="flex items-center gap-3 text-zinc-300 text-sm">
+      <svg className="w-4 h-4 text-orange-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
       </svg>
       {text}
     </li>
+  );
+}
+
+/* ─── Icon Components ─── */
+
+function ChatIcon() {
+  return (
+    <svg className="w-8 h-8 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
+    </svg>
+  );
+}
+
+function ChartIcon() {
+  return (
+    <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+    </svg>
+  );
+}
+
+function HeartIcon() {
+  return (
+    <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+    </svg>
+  );
+}
+
+function CalendarIcon() {
+  return (
+    <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+    </svg>
+  );
+}
+
+function SwapIcon() {
+  return (
+    <svg className="w-8 h-8 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182M21.015 4.356v4.992" />
+    </svg>
+  );
+}
+
+function FlagIcon() {
+  return (
+    <svg className="w-8 h-8 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3 3v1.5M3 21v-6m0 0l2.77-.693a9 9 0 016.208.682l.108.054a9 9 0 006.086.71l3.114-.732a48.524 48.524 0 01-.005-10.499l-3.11.732a9 9 0 01-6.085-.711l-.108-.054a9 9 0 00-6.208-.682L3 4.5M3 15V4.5" />
+    </svg>
   );
 }
