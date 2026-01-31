@@ -1455,6 +1455,8 @@ export async function generatePlan(
     ? `${athlete.goal_race_type} Training Plan`
     : `${sport.charAt(0).toUpperCase() + sport.slice(1)} Training Plan`;
 
+  const firstPhase = weekSchedule[0]?.phaseName || "base";
+
   const { data: plan, error: planError } = await supabase
     .from("training_plans")
     .insert({
@@ -1468,6 +1470,9 @@ export async function generatePlan(
       plan_config: planConfig,
       starts_at: toISODate(startDate),
       ends_at: toISODate(endDate),
+      total_weeks: totalWeeks,
+      current_week: 1,
+      current_phase: firstPhase,
     })
     .select("id")
     .single();

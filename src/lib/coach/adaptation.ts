@@ -679,7 +679,7 @@ async function findRescheduleSlot(
 
     const { data: existing } = await supabase
       .from("workouts")
-      .select("id")
+      .select("id, title, workout_type, duration_minutes")
       .eq("user_id", userId)
       .eq("scheduled_date", candidate)
       .eq("status", "scheduled");

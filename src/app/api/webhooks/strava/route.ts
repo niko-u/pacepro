@@ -42,19 +42,31 @@ export async function POST(req: NextRequest) {
     
     console.log("Strava webhook received:", event);
 
-    // Log event for debugging
+    // Log event with upsert to handle retries gracefully
     const supabase = getSupabase();
     const eventId = `${event.object_id}-${event.event_time}`;
-    await supabase.from("webhook_events").insert({
-      provider: "strava",
-      event_type: event.aspect_type,
-      event_id: eventId,
-      payload: event,
-    });
+    const { data: inserted } = await supabase
+      .from("webhook_events")
+      .upsert(
+        {
+          provider: "strava",
+          event_type: event.aspect_type,
+          event_id: eventId,
+          payload: event,
+        },
+        { onConflict: "provider,event_id", ignoreDuplicates: true }
+      )
+      .select("id, processed")
+      .maybeSingle();
+
+    // If no row returned (duplicate ignored) or already processed, skip
+    if (!inserted || inserted.processed) {
+      console.log(`Event ${eventId} already handled, skipping`);
+      return NextResponse.json({ received: true });
+    }
 
     // Only process new activities
     if (event.aspect_type === "create" && event.object_type === "activity") {
-      // Queue for async processing
       await processStravaActivity(event.object_id, event.owner_id, eventId);
     }
 
@@ -73,12 +85,17 @@ export async function POST(req: NextRequest) {
  */
 async function getValidStravaToken(
   supabase: SupabaseClient,
-  integration: { id: string; user_id: string; access_token: string; refresh_token: string; token_expires_at: number }
+  integration: { id: string; user_id: string; access_token: string; refresh_token: string; token_expires_at: string | number }
 ): Promise<string> {
   const now = Math.floor(Date.now() / 1000);
 
+  // Parse token_expires_at — could be ISO string (TIMESTAMPTZ) or epoch number
+  const expiresAt = typeof integration.token_expires_at === 'number'
+    ? integration.token_expires_at
+    : Math.floor(new Date(integration.token_expires_at).getTime() / 1000);
+
   // If token is still valid (with 60s buffer), return it as-is
-  if (integration.token_expires_at && integration.token_expires_at > now + 60) {
+  if (expiresAt && !isNaN(expiresAt) && expiresAt > now + 60) {
     return integration.access_token;
   }
 
@@ -108,7 +125,7 @@ async function getValidStravaToken(
     .update({
       access_token: data.access_token,
       refresh_token: data.refresh_token,
-      token_expires_at: data.expires_at,
+      token_expires_at: new Date(data.expires_at * 1000).toISOString(),
     })
     .eq("id", integration.id);
 
@@ -294,12 +311,12 @@ async function processStravaActivity(activityId: number, stravaAthleteId: number
   } catch (error) {
     console.error("Error processing Strava activity:", error);
     
-    // Log error
+    // Log error using the consistent eventId
     await supabase
       .from("webhook_events")
       .update({ error: String(error) })
       .eq("provider", "strava")
-      .eq("payload->object_id", activityId);
+      .eq("event_id", eventId);
   }
 }
 
