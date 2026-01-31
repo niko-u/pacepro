@@ -6,6 +6,14 @@ import {
   adaptAfterWorkout,
   executeAdaptationActions,
 } from "@/lib/coach/adaptation";
+import {
+  fetchStravaStreams,
+  analyzeWorkoutStreams,
+  getUserZonesFromProfile,
+  updateTrainingLoad,
+  detectZoneBreakthroughs,
+} from "@/lib/analytics";
+import type { WorkoutAnalytics, StravaStream } from "@/lib/analytics";
 
 // Lazy init to avoid build-time errors
 let _supabase: SupabaseClient | null = null;
@@ -184,6 +192,14 @@ async function processStravaActivity(activityId: number, stravaAthleteId: number
     const activity = await fetchStravaActivity(activityId, accessToken);
     if (!activity) return;
 
+    // Fetch activity streams (heart rate, pace, power, cadence, altitude)
+    let streams: StravaStream | null = null;
+    try {
+      streams = await fetchStravaStreams(activityId, accessToken);
+    } catch (streamError) {
+      console.warn("Failed to fetch streams, continuing with summary-only analysis:", streamError);
+    }
+
     // Find matching scheduled workout
     const activityDate = new Date(activity.start_date).toISOString().split("T")[0];
     const workoutType = mapStravaType(activity.type);
@@ -196,6 +212,44 @@ async function processStravaActivity(activityId: number, stravaAthleteId: number
       .eq("workout_type", workoutType)
       .eq("status", "scheduled")
       .single();
+
+    // Fetch user profile for zone calculations
+    const { data: userProfile } = await supabase
+      .from("profiles")
+      .select("run_pace_per_km, bike_ftp, swim_pace_per_100m, experience_level")
+      .eq("id", integration.user_id)
+      .single();
+
+    // Fetch plan config for zone data
+    const { data: activePlan } = await supabase
+      .from("training_plans")
+      .select("plan_config")
+      .eq("user_id", integration.user_id)
+      .eq("status", "active")
+      .maybeSingle();
+
+    // Calculate user zones from profile and plan
+    const userZones = getUserZonesFromProfile(
+      userProfile || {},
+      activePlan?.plan_config as Record<string, unknown> | null
+    );
+
+    // Run analytics engine
+    let workoutAnalytics: WorkoutAnalytics | null = null;
+    try {
+      workoutAnalytics = analyzeWorkoutStreams(
+        workoutType,
+        streams,
+        activity,
+        userZones,
+        scheduledWorkout ? {
+          intensity: scheduledWorkout.intensity,
+          target_zones: scheduledWorkout.target_zones,
+        } : undefined
+      );
+    } catch (analyticsError) {
+      console.error("Analytics engine error:", analyticsError);
+    }
 
     // Build actual data from Strava
     const actualData = {
@@ -212,7 +266,7 @@ async function processStravaActivity(activityId: number, stravaAthleteId: number
     // Build context for analysis
     const context = await buildCoachContext(integration.user_id);
 
-    // Generate AI analysis
+    // Generate AI analysis with analytics data
     const analysis = await analyzeWorkout(
       context,
       scheduledWorkout ? {
@@ -220,8 +274,10 @@ async function processStravaActivity(activityId: number, stravaAthleteId: number
         duration_minutes: scheduledWorkout.duration_minutes,
         distance_meters: scheduledWorkout.distance_meters,
         zones: scheduledWorkout.target_zones,
+        intensity: scheduledWorkout.intensity,
       } : {},
-      actualData
+      actualData,
+      workoutAnalytics as unknown as Record<string, unknown> | null
     );
 
     if (scheduledWorkout) {
@@ -268,13 +324,107 @@ async function processStravaActivity(activityId: number, stravaAthleteId: number
       });
     }
 
+    // Store workout analytics in dedicated table
+    const workoutId = scheduledWorkout?.id || null;
+    if (workoutAnalytics) {
+      try {
+        // Get the workout ID (either existing or newly created)
+        let analyticsWorkoutId = workoutId;
+        if (!analyticsWorkoutId) {
+          const { data: newWorkout } = await supabase
+            .from("workouts")
+            .select("id")
+            .eq("strava_activity_id", activityId)
+            .maybeSingle();
+          analyticsWorkoutId = newWorkout?.id || null;
+        }
+
+        if (analyticsWorkoutId) {
+          await supabase.from("workout_analytics").insert({
+            workout_id: analyticsWorkoutId,
+            user_id: integration.user_id,
+            hr_zones: workoutAnalytics.hrZones || {},
+            pace_zones: workoutAnalytics.paceZones || {},
+            power_zones: workoutAnalytics.powerZones || {},
+            training_stress_score: workoutAnalytics.trainingStressScore,
+            intensity_factor: workoutAnalytics.intensityFactor,
+            normalized_power: workoutAnalytics.normalizedPower,
+            normalized_graded_pace: workoutAnalytics.normalizedGradedPace,
+            variability_index: workoutAnalytics.variabilityIndex,
+            efficiency_factor: workoutAnalytics.efficiencyFactor,
+            aerobic_decoupling: workoutAnalytics.aerobicDecoupling,
+            splits: workoutAnalytics.splits,
+            zone_compliance_score: workoutAnalytics.zoneComplianceScore,
+            zone_compliance_details: workoutAnalytics.zoneComplianceDetails,
+            avg_cadence: workoutAnalytics.avgCadence,
+            cadence_variability: workoutAnalytics.cadenceVariability,
+            total_ascent: workoutAnalytics.totalAscent,
+            total_descent: workoutAnalytics.totalDescent,
+            grade_adjusted_pace: workoutAnalytics.gradeAdjustedPace,
+            trimp: workoutAnalytics.trimp,
+          });
+
+          // Update training load (ATL/CTL/TSB)
+          if (workoutAnalytics.trainingStressScore) {
+            await updateTrainingLoad(
+              integration.user_id,
+              activityDate,
+              workoutAnalytics.trainingStressScore,
+              supabase
+            );
+          }
+        }
+      } catch (analyticsStoreError) {
+        console.error("Failed to store workout analytics:", analyticsStoreError);
+      }
+    }
+
+    // Check for zone breakthroughs (FTP, pace, CSS changes)
+    let breakthroughMessages: string[] = [];
+    try {
+      const breakthroughWorkoutId = workoutId || (
+        await supabase
+          .from("workouts")
+          .select("id")
+          .eq("strava_activity_id", activityId)
+          .maybeSingle()
+      ).data?.id;
+
+      if (breakthroughWorkoutId) {
+        const breakthroughs = await detectZoneBreakthroughs(
+          integration.user_id,
+          breakthroughWorkoutId,
+          activityDate,
+          workoutType,
+          streams,
+          activity,
+          userProfile || {},
+          supabase
+        );
+
+        breakthroughMessages = breakthroughs
+          .filter((b) => b.message)
+          .map((b) => b.message);
+      }
+    } catch (zoneError) {
+      console.error("Zone detection error:", zoneError);
+    }
+
     // Send coach message with analysis
+    const fullAnalysis = breakthroughMessages.length > 0
+      ? `${analysis}\n\n${breakthroughMessages.join("\n\n")}`
+      : analysis;
+
     await supabase.from("chat_messages").insert({
       user_id: integration.user_id,
       role: "assistant",
-      content: analysis,
+      content: fullAnalysis,
       message_type: "workout_analysis",
-      metadata: { strava_activity_id: activityId },
+      metadata: {
+        strava_activity_id: activityId,
+        has_analytics: !!workoutAnalytics,
+        has_streams: !!streams,
+      },
     });
 
     // Run adaptation engine — compare actual vs prescribed and adjust future workouts
@@ -283,7 +433,8 @@ async function processStravaActivity(activityId: number, stravaAthleteId: number
         supabase,
         integration.user_id,
         scheduledWorkout,
-        actualData
+        actualData,
+        workoutAnalytics as unknown as Record<string, unknown> | null
       );
 
       if (adaptResult.actions.length > 0 || adaptResult.message) {

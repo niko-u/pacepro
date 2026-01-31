@@ -132,12 +132,14 @@ function getMondayOfWeek(dateStr: string): string {
 /**
  * Called after a Strava activity is processed.
  * Compares actual vs prescribed and decides if future workouts need adjustment.
+ * Now accepts optional structured analytics from the analytics engine.
  */
 export async function adaptAfterWorkout(
   supabase: SupabaseClient,
   userId: string,
   completedWorkout: WorkoutRow | null,
-  actualData: Record<string, unknown>
+  actualData: Record<string, unknown>,
+  analytics?: Record<string, unknown> | null
 ): Promise<AdaptationResult> {
   const actions: AdaptationAction[] = [];
   const messageParts: string[] = [];
@@ -156,6 +158,15 @@ export async function adaptAfterWorkout(
       .single();
 
     const style = getCoachingStyle(profile?.preferences);
+
+    // Check zone compliance from analytics
+    if (analytics?.zoneComplianceScore != null) {
+      const complianceScore = analytics.zoneComplianceScore as number;
+      if (complianceScore < 40) {
+        // Very poor zone compliance — note it
+        messageParts.push(buildZoneComplianceNote(style, complianceScore));
+      }
+    }
 
     // Fetch upcoming workouts (next 3 days)
     const today = getToday();
@@ -791,5 +802,20 @@ function buildOverperformanceNote(
     case "balanced":
     default:
       return `I've noticed you've been consistently exceeding your ${typeLabel} targets — great work! 📈 I've bumped up your next ${typeLabel} workout by ${increasePct}% to keep the challenge appropriate. You're ready for it.`;
+  }
+}
+
+function buildZoneComplianceNote(
+  style: CoachingStyle,
+  complianceScore: number
+): string {
+  switch (style) {
+    case "supportive":
+      return `I noticed your effort zones were quite different from what I prescribed today (compliance: ${complianceScore}%). No judgment — just something to be aware of! Staying in the right zones helps maximize the training benefit. Let me know if the prescribed zones feel off, and I can adjust them.`;
+    case "push":
+      return `Zone compliance was ${complianceScore}% today. The zones are there for a reason — easy days should be easy, hard days should be hard. If you go hard on an easy day, you won't have the legs when it matters. Trust the plan.`;
+    case "balanced":
+    default:
+      return `Your zone compliance was ${complianceScore}% today — the actual effort was different from what was prescribed. This matters because each workout targets a specific adaptation. If the zones feel unrealistic, let me know and I'll adjust them for you.`;
   }
 }

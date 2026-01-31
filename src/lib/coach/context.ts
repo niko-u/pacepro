@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { SupabaseClient } from "@supabase/supabase-js";
+import { getTrainingLoadHistory, analyzeFitnessTrend } from "@/lib/analytics/trends";
+import type { FitnessTrend } from "@/lib/analytics/trends";
 
 export interface AthleteProfile {
   id: string;
@@ -77,6 +79,8 @@ export interface TrainingPlan {
   status: string;
 }
 
+export interface TrainingLoadContext extends FitnessTrend {}
+
 export interface CoachContext {
   athlete: AthleteProfile;
   plan: TrainingPlan | null;
@@ -85,6 +89,7 @@ export interface CoachContext {
   upcomingWorkouts: Workout[];
   recovery: RecoverySnapshot[];
   conversation: ChatMessage[];
+  trainingLoad: TrainingLoadContext | null;
   stats: {
     completionRate: number;
     weeklyVolume: number;
@@ -177,6 +182,17 @@ export async function buildCoachContext(
     ? Math.ceil((new Date(plan.goal_race_date).getTime() - Date.now()) / (24 * 60 * 60 * 1000))
     : 0;
 
+  // Fetch training load for fitness trend context
+  let trainingLoad: TrainingLoadContext | null = null;
+  try {
+    const loadHistory = await getTrainingLoadHistory(userId, 42, supabase);
+    if (loadHistory.length > 0) {
+      trainingLoad = analyzeFitnessTrend(loadHistory);
+    }
+  } catch (loadError) {
+    console.warn("Failed to fetch training load:", loadError);
+  }
+
   return {
     athlete: profile as AthleteProfile,
     plan: plan as TrainingPlan | null,
@@ -185,6 +201,7 @@ export async function buildCoachContext(
     upcomingWorkouts: upcomingWorkouts as Workout[],
     recovery: (recovery || []) as RecoverySnapshot[],
     conversation: (messages || []).reverse() as ChatMessage[],
+    trainingLoad,
     stats: {
       completionRate,
       weeklyVolume,
@@ -247,6 +264,18 @@ export function formatContextForAI(context: CoachContext): string {
   const latestRecovery = recovery[0];
   if (latestRecovery) {
     parts.push(`\nRECOVERY (today): Score ${latestRecovery.recovery_score}%, HRV ${latestRecovery.hrv_ms}ms, Sleep ${latestRecovery.sleep_hours}h`);
+  }
+
+  // Training load / fitness metrics (from analytics engine)
+  if (context.trainingLoad) {
+    const tl = context.trainingLoad;
+    parts.push(`\nTRAINING LOAD:`);
+    parts.push(`  Fitness (CTL): ${tl.ctlValue} ${tl.ctlTrend ? `(${tl.ctlTrend})` : ""}`);
+    parts.push(`  Fatigue (ATL): ${tl.atlValue} ${tl.atlTrend ? `(${tl.atlTrend})` : ""}`);
+    parts.push(`  Form (TSB): ${tl.tsbValue} ${tl.form ? `(${tl.form})` : ""}`);
+    if (tl.weeklyVolumeTrend) {
+      parts.push(`  Weekly volume trend: ${tl.weeklyVolumeTrend}`);
+    }
   }
 
   // Life context / constraints
