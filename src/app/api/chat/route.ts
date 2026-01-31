@@ -29,8 +29,8 @@ export async function POST(req: NextRequest) {
       message_type: "chat",
     });
 
-    // Build context for AI
-    const context = await buildCoachContext(user.id);
+    // Build context for AI (pass authenticated supabase client for mobile Bearer auth)
+    const context = await buildCoachContext(user.id, supabase);
 
     // Get recent messages for conversation history
     const { data: recentMessages } = await supabase
