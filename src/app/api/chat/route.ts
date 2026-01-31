@@ -21,18 +21,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Message required" }, { status: 400 });
     }
 
-    // Store user message
-    await supabase.from("chat_messages").insert({
-      user_id: user.id,
-      role: "user",
-      content: message,
-      message_type: "chat",
-    });
-
     // Build context for AI (pass authenticated supabase client for mobile Bearer auth)
     const context = await buildCoachContext(user.id, supabase);
 
-    // Get recent messages for conversation history
+    // Get recent messages for conversation history BEFORE inserting the new user message
+    // to avoid the user message appearing twice (once in history, once as the explicit parameter)
     const { data: recentMessages } = await supabase
       .from("chat_messages")
       .select("role, content")
@@ -44,6 +37,14 @@ export async function POST(req: NextRequest) {
       role: m.role as "user" | "assistant",
       content: m.content,
     }));
+
+    // Store user message (after fetching history to prevent dedup)
+    await supabase.from("chat_messages").insert({
+      user_id: user.id,
+      role: "user",
+      content: message,
+      message_type: "chat",
+    });
 
     // Generate coach response
     const response = await coachChat(context, history, message);

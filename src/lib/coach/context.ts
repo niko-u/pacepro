@@ -153,6 +153,11 @@ export async function buildCoachContext(
       .limit(20),
   ]);
 
+  // Guard against missing profile
+  if (!profile) {
+    throw new Error(`Profile not found for user ${userId}`);
+  }
+
   // Split workouts
   const todayWorkout = workouts?.find((w) => w.scheduled_date === today) || null;
   const recentWorkouts = workouts?.filter((w) => w.scheduled_date < today) || [];
@@ -192,7 +197,7 @@ export async function buildCoachContext(
  * Format context for AI prompt (reduces token usage)
  */
 export function formatContextForAI(context: CoachContext): string {
-  const { athlete, plan, todayWorkout, recentWorkouts, recovery, stats } = context;
+  const { athlete, plan, todayWorkout, recentWorkouts, upcomingWorkouts, recovery, stats } = context;
 
   const parts: string[] = [];
 
@@ -229,6 +234,14 @@ export function formatContextForAI(context: CoachContext): string {
 
   parts.push(`Completion rate: ${stats.completionRate}%`);
   parts.push(`Weekly volume: ${stats.weeklyVolume} minutes`);
+
+  // Upcoming workouts
+  if (upcomingWorkouts.length > 0) {
+    parts.push(`\nUPCOMING WORKOUTS (next 7 days):`);
+    upcomingWorkouts.forEach((w) => {
+      parts.push(`- ${w.scheduled_date}: ${w.title} (${w.workout_type}, ${w.duration_minutes}min)`);
+    });
+  }
 
   // Recovery
   const latestRecovery = recovery[0];
