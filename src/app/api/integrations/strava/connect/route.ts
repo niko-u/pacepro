@@ -37,5 +37,15 @@ export async function GET(req: NextRequest) {
 
   const stravaAuthUrl = `https://www.strava.com/oauth/authorize?${params.toString()}`;
 
-  return NextResponse.redirect(stravaAuthUrl);
+  // Store nonce in an httpOnly cookie for CSRF verification in the callback
+  const response = NextResponse.redirect(stravaAuthUrl);
+  response.cookies.set("oauth_state_nonce", nonce, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 600, // 10 minutes
+    path: "/",
+  });
+
+  return response;
 }

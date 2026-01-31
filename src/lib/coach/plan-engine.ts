@@ -172,6 +172,29 @@ function getWeekStart(date: Date): Date {
   return d;
 }
 
+/**
+ * Get today's date (YYYY-MM-DD) in the user's timezone.
+ * Falls back to UTC if timezone is not provided or invalid.
+ */
+function getUserToday(timezone?: string | null): string {
+  if (!timezone) {
+    return new Date().toISOString().split("T")[0];
+  }
+  try {
+    const formatter = new Intl.DateTimeFormat("en-CA", {
+      timeZone: timezone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+    // en-CA locale formats as YYYY-MM-DD
+    return formatter.format(new Date());
+  } catch {
+    // Invalid timezone — fall back to UTC
+    return new Date().toISOString().split("T")[0];
+  }
+}
+
 // ─── Pace / Zone Helpers ──────────────────────────────────────────────────────
 
 function calculateRunPaceZones(easyPaceSec: number): PaceZones {
@@ -1343,7 +1366,10 @@ export async function generatePlan(
   }
 
   const athlete = profile as AthleteProfile;
-  const startDate = new Date();
+  // Use the user's timezone (if set) to determine "today" for scheduling
+  const userTimezone = (profile as Record<string, unknown>).timezone as string | undefined;
+  const todayStr = getUserToday(userTimezone);
+  const startDate = new Date(todayStr + "T00:00:00Z");
   const raceDate = athlete.goal_race_date ? new Date(athlete.goal_race_date) : null;
   const sport = (athlete.primary_sport || "running") as "running" | "triathlon" | "cycling";
   const experience = athlete.experience_level || "intermediate";
@@ -1578,9 +1604,12 @@ export async function extendPlan(
     .order("scheduled_date", { ascending: false })
     .limit(1);
 
+  // Use the user's timezone for date calculations
+  const userTimezone = (profile as Record<string, unknown>).timezone as string | undefined;
+  const todayStr = getUserToday(userTimezone);
   const lastDate = lastWorkouts?.[0]?.scheduled_date
     ? new Date(lastWorkouts[0].scheduled_date as string)
-    : new Date();
+    : new Date(todayStr + "T00:00:00Z");
 
   const nextWeekStart = addDays(getWeekStart(lastDate), 7);
 

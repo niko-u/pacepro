@@ -6,6 +6,7 @@ import { mergePreferences } from "@/lib/coach/preferences";
 import { checkAndCompressConversation } from "@/lib/coach/memory";
 import { extractAndCreateWorkout } from "@/lib/coach/workout-creator";
 import { detectAndExecutePlanModification } from "@/lib/coach/chat-plan-modifier";
+import { checkChatRateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,6 +16,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     const { user, supabase } = auth;
+
+    // Rate limit: 30 messages per minute per user
+    const rateLimit = checkChatRateLimit(user.id);
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { error: "Rate limit exceeded. Please try again shortly." },
+        { status: 429 }
+      );
+    }
 
     const { message } = await req.json();
     if (!message || typeof message !== "string") {

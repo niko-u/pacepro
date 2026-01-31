@@ -36,5 +36,15 @@ export async function GET(req: NextRequest) {
 
   const whoopAuthUrl = `https://api.prod.whoop.com/oauth/oauth2/auth?${params.toString()}`;
 
-  return NextResponse.redirect(whoopAuthUrl);
+  // Store nonce in an httpOnly cookie for CSRF verification in the callback
+  const response = NextResponse.redirect(whoopAuthUrl);
+  response.cookies.set("oauth_state_nonce", nonce, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 600, // 10 minutes
+    path: "/",
+  });
+
+  return response;
 }

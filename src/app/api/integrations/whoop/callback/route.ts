@@ -26,19 +26,29 @@ export async function GET(req: NextRequest) {
       return NextResponse.redirect(settingsUrl.toString());
     }
 
-    // Decode state to get user_id and returnTo
+    // Decode state to get user_id, nonce, and returnTo
     let userId: string;
+    let nonce: string;
     let returnTo = "/settings";
     try {
       const decoded = Buffer.from(state, "base64url").toString("utf-8");
       const parts = decoded.split(":");
       userId = parts[0];
-      if (!userId) throw new Error("No user ID in state");
+      nonce = parts[1];
+      if (!userId || !nonce) throw new Error("Missing user ID or nonce in state");
       if (parts.length >= 3) {
         returnTo = parts.slice(2).join(":");
       }
     } catch {
       settingsUrl.searchParams.set("error", "whoop_invalid_state");
+      return NextResponse.redirect(settingsUrl.toString());
+    }
+
+    // Verify CSRF nonce against cookie
+    const cookieNonce = req.cookies.get("oauth_state_nonce")?.value;
+    if (!cookieNonce || cookieNonce !== nonce) {
+      console.error("WHOOP OAuth CSRF validation failed: nonce mismatch");
+      settingsUrl.searchParams.set("error", "whoop_csrf_failed");
       return NextResponse.redirect(settingsUrl.toString());
     }
 
@@ -130,9 +140,19 @@ export async function GET(req: NextRequest) {
     }
 
     console.log(`WHOOP connected for user ${userId}, whoop user ${whoopUserId}`);
+
+    // Clear the CSRF cookie
     const redirectUrl = new URL(returnTo, appUrl);
     redirectUrl.searchParams.set("connected", "whoop");
-    return NextResponse.redirect(redirectUrl.toString());
+    const response = NextResponse.redirect(redirectUrl.toString());
+    response.cookies.set("oauth_state_nonce", "", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 0,
+      path: "/",
+    });
+    return response;
   } catch (err) {
     console.error("WHOOP callback error:", err);
     settingsUrl.searchParams.set("error", "whoop_unexpected");

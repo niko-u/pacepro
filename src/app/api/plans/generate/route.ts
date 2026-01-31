@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import { getApiUser } from "@/lib/auth/get-api-user";
 import { generatePlan } from "@/lib/coach/plan-engine";
+import { checkPlanGenerationRateLimit } from "@/lib/rate-limit";
 
 // Lazy-init service role client for system triggers
 let _serviceClient: SupabaseClient | null = null;
@@ -44,6 +45,16 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
       }
       userId = auth.user.id;
+
+      // Rate limit: 3 plan generations per hour per user
+      const rateLimit = checkPlanGenerationRateLimit(userId);
+      if (!rateLimit.allowed) {
+        return NextResponse.json(
+          { error: "Rate limit exceeded. Please try again shortly." },
+          { status: 429 }
+        );
+      }
+
       // Use service client for plan generation (bypasses RLS)
       supabase = getServiceClient();
     }
