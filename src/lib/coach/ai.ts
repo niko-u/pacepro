@@ -68,7 +68,7 @@ export async function coachChat(
   const systemPrompt = buildDynamicPrompt(context);
 
   const response = await getOpenAI().chat.completions.create({
-    model: "gpt-4-turbo-preview",
+    model: "gpt-4o",
     messages: [
       {
         role: "system",
@@ -105,7 +105,7 @@ export async function analyzeWorkout(
   const systemPrompt = buildDynamicPrompt(context);
 
   const response = await getOpenAI().chat.completions.create({
-    model: "gpt-4-turbo-preview",
+    model: "gpt-4o",
     messages: [
       {
         role: "system",
@@ -137,7 +137,7 @@ export async function generateWeeklyOutlook(
   const systemPrompt = buildDynamicPrompt(context);
 
   const response = await getOpenAI().chat.completions.create({
-    model: "gpt-4-turbo-preview",
+    model: "gpt-4o",
     messages: [
       {
         role: "system",
@@ -169,7 +169,7 @@ export async function extractPreferences(
   userId?: string
 ): Promise<Record<string, string[]>> {
   const response = await getOpenAI().chat.completions.create({
-    model: "gpt-4-turbo-preview",
+    model: "gpt-4o",
     messages: [
       {
         role: "system",
@@ -205,7 +205,7 @@ export async function generateDailyCheckin(
   const systemPrompt = buildDynamicPrompt(context);
 
   const response = await getOpenAI().chat.completions.create({
-    model: "gpt-4-turbo-preview",
+    model: "gpt-4o",
     messages: [
       {
         role: "system",
@@ -245,7 +245,7 @@ export async function generateRecoveryAlert(
   const systemPrompt = buildDynamicPrompt(context);
 
   const response = await getOpenAI().chat.completions.create({
-    model: "gpt-4-turbo-preview",
+    model: "gpt-4o",
     messages: [
       {
         role: "system",
@@ -276,7 +276,7 @@ export async function quickCoachResponse(
   const systemPrompt = buildDynamicPrompt(context);
 
   const response = await getOpenAI().chat.completions.create({
-    model: "gpt-4-turbo-preview",
+    model: "gpt-4o",
     messages: [
       {
         role: "system",
