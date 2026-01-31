@@ -9,6 +9,7 @@ import {
   buildCoachSystemPrompt,
 } from "./prompts";
 import { CoachContext, formatContextForAI } from "./context";
+import { trackAiUsage, AiCallType } from "./usage";
 
 // Lazy-load OpenAI client to avoid build-time errors
 let _openai: OpenAI | null = null;
@@ -36,6 +37,23 @@ function buildDynamicPrompt(context: CoachContext): string {
     sport: context.athlete.primary_sport,
     goals: context.athlete.goal_race_type,
   });
+}
+
+/** Helper to log usage from an OpenAI response */
+function logUsage(
+  userId: string,
+  callType: AiCallType,
+  response: OpenAI.Chat.Completions.ChatCompletion
+): void {
+  if (response.usage) {
+    trackAiUsage({
+      userId,
+      callType,
+      model: response.model,
+      inputTokens: response.usage.prompt_tokens,
+      outputTokens: response.usage.completion_tokens,
+    });
+  }
 }
 
 /**
@@ -70,6 +88,8 @@ export async function coachChat(
     max_tokens: 500,
   });
 
+  logUsage(context.athlete.id, "chat", response);
+
   return response.choices[0]?.message?.content || "I'm here to help! What's on your mind?";
 }
 
@@ -99,6 +119,8 @@ export async function analyzeWorkout(
     temperature: 0.7,
     max_tokens: 300,
   });
+
+  logUsage(context.athlete.id, "workout_analysis", response);
 
   return response.choices[0]?.message?.content || "Great work on completing your workout!";
 }
@@ -133,6 +155,8 @@ export async function generateWeeklyOutlook(
     max_tokens: 300,
   });
 
+  logUsage(context.athlete.id, "weekly_outlook", response);
+
   return response.choices[0]?.message?.content || "Let's have a great week of training!";
 }
 
@@ -141,7 +165,8 @@ export async function generateWeeklyOutlook(
  */
 export async function extractPreferences(
   userMessage: string,
-  coachResponse: string
+  coachResponse: string,
+  userId?: string
 ): Promise<Record<string, string[]>> {
   const response = await getOpenAI().chat.completions.create({
     model: "gpt-4-turbo-preview",
@@ -159,6 +184,8 @@ export async function extractPreferences(
     max_tokens: 500,
     response_format: { type: "json_object" },
   });
+
+  if (userId) logUsage(userId, "preference_extraction", response);
 
   try {
     const content = response.choices[0]?.message?.content || "{}";
@@ -192,6 +219,8 @@ export async function generateDailyCheckin(
     temperature: 0.7,
     max_tokens: 200,
   });
+
+  logUsage(context.athlete.id, "daily_checkin", response);
 
   return response.choices[0]?.message?.content || "Good morning! Ready for today?";
 }
@@ -231,6 +260,8 @@ export async function generateRecoveryAlert(
     max_tokens: 250,
   });
 
+  logUsage(context.athlete.id, "recovery_alert", response);
+
   return response.choices[0]?.message?.content || "Hey, your recovery numbers look a bit low. Take it easy today.";
 }
 
@@ -259,6 +290,8 @@ export async function quickCoachResponse(
     temperature: 0.7,
     max_tokens: 200,
   });
+
+  logUsage(context.athlete.id, "chat", response);
 
   return response.choices[0]?.message?.content || "";
 }
