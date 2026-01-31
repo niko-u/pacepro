@@ -253,7 +253,7 @@ async function findAIContradictions(
       .replace("{new_pref}", newPref);
 
     const response = await getOpenAI().chat.completions.create({
-      model: "gpt-4-turbo-preview",
+      model: "gpt-4o-mini",
       messages: [
         { role: "system", content: "You detect contradictions in user preferences." },
         { role: "user", content: prompt },

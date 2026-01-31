@@ -148,7 +148,7 @@ export async function checkAndCompressConversation(
 async function summarizeConversation(conversationText: string): Promise<string | null> {
   try {
     const response = await getOpenAI().chat.completions.create({
-      model: "gpt-4-turbo-preview",
+      model: "gpt-4o-mini",
       messages: [
         { role: "system", content: CONVERSATION_SUMMARY_PROMPT },
         { role: "user", content: conversationText },
@@ -177,7 +177,7 @@ async function mergeSummaries(
       .replace("{new}", newSummary);
 
     const response = await getOpenAI().chat.completions.create({
-      model: "gpt-4-turbo-preview",
+      model: "gpt-4o-mini",
       messages: [
         { role: "system", content: "You merge conversation summaries accurately." },
         { role: "user", content: prompt },

@@ -86,7 +86,7 @@ export async function extractAndCreateWorkout(
     const prompt = WORKOUT_EXTRACTION_PROMPT.replace("{today}", today);
 
     const response = await getOpenAI().chat.completions.create({
-      model: "gpt-4-turbo-preview",
+      model: "gpt-4o-mini",
       messages: [
         { role: "system", content: prompt },
         {

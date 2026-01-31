@@ -1272,7 +1272,7 @@ For each workout, write 1-2 sentences of personalized coaching notes. Include:
 Return a JSON array of strings, one note per workout, in the same order. Only the JSON array, no other text.`;
 
     const response = await getOpenAI().chat.completions.create({
-      model: "gpt-4-turbo-preview",
+      model: "gpt-4o-mini",
       messages: [{ role: "user", content: prompt }],
       temperature: 0.7,
       max_tokens: 1000,

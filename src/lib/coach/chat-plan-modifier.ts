@@ -174,7 +174,7 @@ export async function detectAndExecutePlanModification(
       .replace("{context}", contextSummary);
 
     const response = await getOpenAI().chat.completions.create({
-      model: "gpt-4-turbo-preview",
+      model: "gpt-4o-mini",
       messages: [
         { role: "system", content: prompt },
         {

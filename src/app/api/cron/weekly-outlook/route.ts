@@ -30,7 +30,6 @@ export async function POST(req: NextRequest) {
     const { data: users, error } = await supabase
       .from("profiles")
       .select("id, full_name, notifications")
-      .eq("subscription_status", "active")
       .not("id", "is", null);
 
     if (error) throw error;
