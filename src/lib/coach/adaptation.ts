@@ -501,15 +501,15 @@ export async function handleMissedWorkouts(
     const monday = getMondayOfWeek(today);
     const { data: weekWorkouts } = await supabase
       .from("workouts")
-      .select("status")
+      .select("status, scheduled_date")
       .eq("user_id", userId)
       .gte("scheduled_date", monday)
       .lte("scheduled_date", today);
 
-    const weekScheduled = (weekWorkouts || []).filter(
-      (w) => w.status === "scheduled" || w.status === "skipped"
+    const weekMissed = (weekWorkouts || []).filter(
+      (w) => (w.status === "scheduled" && (w as any).scheduled_date < today) || w.status === "skipped"
     );
-    const weeklyMissCount = weekScheduled.length;
+    const weeklyMissCount = weekMissed.length;
 
     // Mark missed workouts
     for (const workout of missed) {

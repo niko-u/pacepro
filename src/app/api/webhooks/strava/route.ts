@@ -348,8 +348,8 @@ function mapStravaType(stravaType: string): string {
     Swim: "swim",
     WeightTraining: "strength",
     Workout: "strength",
-    Walk: "run", // Treat as easy run
-    Hike: "run",
+    Walk: "rest", // Don't match walks to scheduled runs
+    Hike: "rest",
     VirtualRun: "run",
     VirtualRide: "bike",
   };

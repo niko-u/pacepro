@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import { getWhoopAccessToken } from "@/lib/integrations/whoop";
+import { adaptForRecovery, executeAdaptationActions } from "@/lib/coach/adaptation";
 
 const WHOOP_RECOVERY_URL = "https://api.prod.whoop.com/developer/v1/recovery";
 const WHOOP_SLEEP_URL = "https://api.prod.whoop.com/developer/v1/activity/sleep";
@@ -259,6 +260,24 @@ export async function POST(req: NextRequest) {
           `WHOOP sync for user ${userId}: recovery=${recoveryScore}, HRV=${hrvMs}ms, ` +
             `sleep=${sleepHours}h, quality=${sleepQuality}%`
         );
+
+        // Trigger recovery-based adaptation if we have a recovery score
+        if (recoveryScore !== null) {
+          try {
+            const adaptResult = await adaptForRecovery(supabase, userId, {
+              recovery_score: recoveryScore,
+              hrv_ms: hrvMs ?? undefined,
+              sleep_hours: sleepHours ?? undefined,
+            } as any);
+            if (adaptResult.actions.length > 0 || adaptResult.message) {
+              await executeAdaptationActions(supabase, userId, adaptResult);
+              console.log(`WHOOP adaptation triggered for user ${userId}: ${adaptResult.actions.length} actions`);
+            }
+          } catch (adaptErr) {
+            console.error(`WHOOP adaptation error for user ${userId}:`, adaptErr);
+          }
+        }
+
         results.synced++;
       } catch (err) {
         console.error(`WHOOP sync error for user ${userId}:`, err);

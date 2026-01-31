@@ -1646,6 +1646,21 @@ export async function extendPlan(
 
   const nextWeekStart = addDays(getWeekStart(lastDate), 7);
 
+  // Guard against duplicate workouts on retry — check if this week already has workouts
+  const nextWeekEnd = addDays(nextWeekStart, 6);
+  const { data: existingNextWeek } = await supabase
+    .from("workouts")
+    .select("id")
+    .eq("plan_id", plan.id)
+    .gte("scheduled_date", toISODate(nextWeekStart))
+    .lte("scheduled_date", toISODate(nextWeekEnd))
+    .limit(1);
+
+  if (existingNextWeek && existingNextWeek.length > 0) {
+    console.log(`Plan ${plan.id} already has workouts for week starting ${toISODate(nextWeekStart)}, skipping`);
+    return { workoutsCreated: 0 };
+  }
+
   // 4. Determine which week of the plan this is
   const planStart = new Date(plan.starts_at as string);
   let weeksSinceStart = weeksBetween(planStart, nextWeekStart);

@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
 
     // Background tasks: preference extraction + memory compression + workout creation (don't block response)
     // 1. Extract and merge preferences
-    extractPreferences(message, response).then(async (prefs) => {
+    extractPreferences(message, response, user.id).then(async (prefs) => {
       if (Object.keys(prefs).length > 0) {
         await mergePreferences(supabase, user.id, prefs);
       }
