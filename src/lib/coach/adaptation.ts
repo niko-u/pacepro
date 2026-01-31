@@ -226,7 +226,87 @@ export async function adaptAfterWorkout(
       }
     }
 
-    // Case 3: Wrong workout type — flexible approach, just log it
+    // Case 3: Overperformance detection — increase load if consistently beating targets
+    // Only check if we're not already reducing load (avoid conflicting adaptations)
+    if (actions.length === 0) {
+      const sevenDaysAgo = addDays(today, -7);
+      const { data: recentCompleted } = await supabase
+        .from("workouts")
+        .select("*")
+        .eq("user_id", userId)
+        .eq("status", "completed")
+        .gte("scheduled_date", sevenDaysAgo)
+        .lte("scheduled_date", today);
+
+      const completedRecent = (recentCompleted || []) as WorkoutRow[];
+
+      // Count workouts where actual exceeded prescribed by >10%
+      let overperformCount = 0;
+      for (const w of completedRecent) {
+        if (!w.duration_minutes || !w.actual_duration_minutes) continue;
+        const ratio =
+          (w.actual_duration_minutes - w.duration_minutes) / w.duration_minutes;
+        if (ratio > 0.1) {
+          overperformCount++;
+        }
+      }
+
+      if (overperformCount >= 3) {
+        // Style-aware increase percentage
+        const increaseMap: Record<CoachingStyle, number> = {
+          push: 10,
+          balanced: 7,
+          supportive: 5,
+        };
+        const increasePct = increaseMap[style];
+        const factor = 1 + increasePct / 100;
+
+        // Find next upcoming workout of the same type
+        const { data: nextSimilar } = await supabase
+          .from("workouts")
+          .select("*")
+          .eq("user_id", userId)
+          .eq("status", "scheduled")
+          .eq("workout_type", completedWorkout.workout_type)
+          .gte("scheduled_date", today)
+          .order("scheduled_date", { ascending: true })
+          .limit(1);
+
+        const nextWorkout = (nextSimilar || [])[0] as WorkoutRow | undefined;
+
+        if (nextWorkout) {
+          const changes: Record<string, unknown> = {};
+          if (nextWorkout.duration_minutes) {
+            changes.duration_minutes = Math.round(
+              nextWorkout.duration_minutes * factor
+            );
+          }
+          if (nextWorkout.distance_meters) {
+            changes.distance_meters = Math.round(
+              nextWorkout.distance_meters * factor
+            );
+          }
+          changes.coach_notes = `Increased prescription by ${increasePct}% — you've been consistently exceeding targets. Time to raise the bar! 📈`;
+
+          actions.push({
+            type: "modify_workout",
+            workoutId: nextWorkout.id,
+            changes,
+            reason: `Overperformance (${overperformCount} workouts exceeded targets in last 7 days) → increase next ${completedWorkout.workout_type} by ${increasePct}%`,
+          });
+
+          messageParts.push(
+            buildOverperformanceNote(
+              style,
+              completedWorkout.workout_type,
+              increasePct
+            )
+          );
+        }
+      }
+    }
+
+    // Case 4: Wrong workout type — flexible approach, just log it
     // (The webhook already handles unmatched types by creating a new workout entry,
     //  so no action needed here)
 
@@ -694,5 +774,22 @@ function buildMultipleMissedNote(
     case "balanced":
     default:
       return `You've missed ${missedCount} sessions this week. I've reduced next week's volume by 20% to make it more manageable. Let's regroup and get back on track — a lighter week done consistently beats a big week half-completed.`;
+  }
+}
+
+function buildOverperformanceNote(
+  style: CoachingStyle,
+  workoutType: string,
+  increasePct: number
+): string {
+  const typeLabel = workoutType === "run" ? "running" : workoutType === "bike" ? "cycling" : workoutType;
+  switch (style) {
+    case "supportive":
+      return `You've been crushing it lately! 🔥 Your ${typeLabel} sessions have consistently exceeded what I prescribed, so I've bumped up your next ${typeLabel} workout by ${increasePct}%. You've earned this — keep up the amazing work!`;
+    case "push":
+      return `Numbers don't lie — you've been outperforming your prescriptions on ${typeLabel}. I've increased your next ${typeLabel} session by ${increasePct}%. The old targets were too easy. Let's see what you're really made of. 🚀`;
+    case "balanced":
+    default:
+      return `I've noticed you've been consistently exceeding your ${typeLabel} targets — great work! 📈 I've bumped up your next ${typeLabel} workout by ${increasePct}% to keep the challenge appropriate. You're ready for it.`;
   }
 }

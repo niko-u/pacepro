@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
-import { extendPlan } from "@/lib/coach/plan-engine";
+import { extendPlan, updatePlanPhase } from "@/lib/coach/plan-engine";
 
 // Lazy init to avoid build-time errors
 let _supabase: SupabaseClient | null = null;
@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
     // Fetch all users with active training plans
     const { data: activePlans, error } = await supabase
       .from("training_plans")
-      .select("user_id")
+      .select("id, user_id")
       .eq("status", "active");
 
     if (error) throw error;
@@ -42,6 +42,8 @@ export async function POST(req: NextRequest) {
 
     for (const plan of activePlans || []) {
       try {
+        // Update phase tracking before extending
+        await updatePlanPhase(supabase, plan.id);
         const result = await extendPlan(supabase, plan.user_id);
         results.processed++;
         if (result.workoutsCreated > 0) {

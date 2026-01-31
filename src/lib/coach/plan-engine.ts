@@ -317,6 +317,28 @@ function buildWeekSchedule(phases: Phase[]): WeekMeta[] {
   return weeks;
 }
 
+// ─── Progressive Overload ─────────────────────────────────────────────────────
+
+/**
+ * Calculate progressive overload multiplier for a week within its phase.
+ * Base & build phases get ~5% weekly volume increase within each 4-week load block.
+ * Deload, peak, and taper weeks are unaffected (multiplier = 1.0).
+ *
+ * Example for build phase: week 1 = 1.0x, week 2 = 1.05x, week 3 = 1.10x, week 4 (deload) = unchanged.
+ */
+function getWeekProgressionMultiplier(weekMeta: WeekMeta): number {
+  // Deload weeks keep their existing reduction — no additional scaling
+  if (weekMeta.isDeload) return 1.0;
+
+  // Only apply progressive overload in base and build phases
+  if (weekMeta.phaseName !== "base" && weekMeta.phaseName !== "build") return 1.0;
+
+  // Within each 4-week block: weeks 0, 1, 2 are load weeks (posInBlock via weekInPhase % 4)
+  // ~5% increase per load week within the cycle
+  const posInBlock = weekMeta.weekInPhase % 4;
+  return 1.0 + posInBlock * 0.05;
+}
+
 // ─── Template Builder Helpers ─────────────────────────────────────────────────
 
 function normalizeAvailableDays(days: string[]): string[] {
@@ -1460,6 +1482,7 @@ export async function generatePlan(
   const allWorkoutRows: Array<Record<string, unknown>> = [];
   const allWorkoutSummaries: WorkoutSummary[] = [];
   const weekMetasUsed: WeekMeta[] = [];
+  const weekTemplateCounts: number[] = [];
 
   for (let weekIdx = 0; weekIdx < 2 && weekIdx < weekSchedule.length; weekIdx++) {
     const weekMeta = weekSchedule[weekIdx];
@@ -1480,6 +1503,15 @@ export async function generatePlan(
       const scheduledDate = toISODate(addDays(weekStart, dayOffset));
 
       const prescribed = prescribeWorkout(tmpl, prescriptionCtx, weekMeta);
+
+      // Apply progressive overload multiplier within the phase
+      const weekProgressionMultiplier = getWeekProgressionMultiplier(weekMeta);
+      if (weekProgressionMultiplier !== 1.0) {
+        prescribed.duration_minutes = Math.round(prescribed.duration_minutes * weekProgressionMultiplier);
+        if (prescribed.distance_meters) {
+          prescribed.distance_meters = Math.round(prescribed.distance_meters * weekProgressionMultiplier);
+        }
+      }
 
       allWorkoutRows.push({
         plan_id: planId,
@@ -1508,27 +1540,23 @@ export async function generatePlan(
     }
 
     weekMetasUsed.push(weekMeta);
+    weekTemplateCounts.push(templates.length);
   }
 
   // 8. Generate AI coach notes (batch)
-  // Split summaries by week for better context
+  // Split summaries by week using tracked per-week template counts
   let summaryOffset = 0;
-  for (const weekMeta of weekMetasUsed) {
-    const weekTemplateCount = allWorkoutSummaries.filter(
-      (_s, i) => i >= summaryOffset
-    ).length;
-    // Roughly split: each week gets its templates
-    const weekSummaries = allWorkoutSummaries.slice(
-      summaryOffset,
-      summaryOffset + Math.ceil(weekTemplateCount / weekMetasUsed.length)
-    );
+  for (let weekIdx = 0; weekIdx < weekMetasUsed.length; weekIdx++) {
+    const weekMeta = weekMetasUsed[weekIdx];
+    const count = weekTemplateCounts[weekIdx];
+    const weekSummaries = allWorkoutSummaries.slice(summaryOffset, summaryOffset + count);
     if (weekSummaries.length > 0) {
       const notes = await generateCoachNotesBatch(athlete, weekMeta, weekSummaries);
       for (let i = 0; i < notes.length && summaryOffset + i < allWorkoutRows.length; i++) {
         allWorkoutRows[summaryOffset + i].coach_notes = notes[i];
       }
     }
-    summaryOffset += weekSummaries.length;
+    summaryOffset += count;
   }
 
   // 9. Insert all workouts
@@ -1667,6 +1695,15 @@ export async function extendPlan(
 
     const prescribed = prescribeWorkout(tmpl, prescriptionCtx, weekMeta);
 
+    // Apply progressive overload multiplier within the phase
+    const weekProgressionMultiplier = getWeekProgressionMultiplier(weekMeta);
+    if (weekProgressionMultiplier !== 1.0) {
+      prescribed.duration_minutes = Math.round(prescribed.duration_minutes * weekProgressionMultiplier);
+      if (prescribed.distance_meters) {
+        prescribed.distance_meters = Math.round(prescribed.distance_meters * weekProgressionMultiplier);
+      }
+    }
+
     workoutRows.push({
       plan_id: plan.id,
       user_id: userId,
@@ -1717,4 +1754,55 @@ export async function extendPlan(
   );
 
   return { workoutsCreated: workoutRows.length };
+}
+
+// ─── Phase Tracking ───────────────────────────────────────────────────────────
+
+/**
+ * Update `current_week` and `current_phase` on a training plan.
+ * Calculates the current position based on `starts_at` and today's date,
+ * then determines which phase the athlete is in from the stored plan config.
+ */
+export async function updatePlanPhase(
+  supabase: SupabaseClient,
+  planId: string
+): Promise<void> {
+  const { data: plan, error } = await supabase
+    .from("training_plans")
+    .select("plan_config, starts_at")
+    .eq("id", planId)
+    .single();
+
+  if (error || !plan) {
+    console.log(`updatePlanPhase: plan ${planId} not found`);
+    return;
+  }
+
+  const planConfig = plan.plan_config as PlanConfig | null;
+  if (!planConfig?.phases || planConfig.phases.length === 0) {
+    console.log(`updatePlanPhase: plan ${planId} has no phase config`);
+    return;
+  }
+
+  const startsAt = new Date(plan.starts_at as string);
+  const now = new Date();
+  const currentWeek = Math.max(0, weeksBetween(startsAt, now));
+
+  // Determine current phase from week number and phase boundaries
+  let currentPhase: string = planConfig.phases[planConfig.phases.length - 1].name;
+  for (const phase of planConfig.phases) {
+    if (currentWeek >= phase.startWeek && currentWeek < phase.startWeek + phase.weeks) {
+      currentPhase = phase.name;
+      break;
+    }
+  }
+
+  await supabase
+    .from("training_plans")
+    .update({ current_week: currentWeek, current_phase: currentPhase })
+    .eq("id", planId);
+
+  console.log(
+    `updatePlanPhase: plan ${planId} → week ${currentWeek}, phase ${currentPhase}`
+  );
 }
