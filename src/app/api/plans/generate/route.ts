@@ -59,6 +59,30 @@ export async function POST(req: NextRequest) {
       supabase = getServiceClient();
     }
 
+    // Check for recently created plans (prevent double-tap race condition)
+    const { data: recentPlans } = await supabase
+      .from("training_plans")
+      .select("id, created_at")
+      .eq("user_id", userId)
+      .eq("status", "active")
+      .order("created_at", { ascending: false })
+      .limit(1);
+
+    if (recentPlans && recentPlans.length > 0) {
+      const created = new Date(recentPlans[0].created_at).getTime();
+      const ageSeconds = (Date.now() - created) / 1000;
+      // If a plan was created in the last 30 seconds, skip (race condition guard)
+      if (ageSeconds < 30) {
+        console.log(`Plan for user ${userId} was just created ${ageSeconds}s ago, skipping duplicate`);
+        return NextResponse.json({
+          planId: recentPlans[0].id,
+          workoutsCreated: 0,
+          phases: [],
+          skipped: true,
+        });
+      }
+    }
+
     // Delete any existing active plan for this user (replace)
     const { error: deleteError } = await supabase
       .from("training_plans")
