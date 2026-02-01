@@ -32,11 +32,18 @@ export interface ChatMessage {
  * Extracts preferences, sport, and goals from the context to personalize the prompt.
  */
 function buildDynamicPrompt(context: CoachContext): string {
-  return buildCoachSystemPrompt({
-    ...(context.athlete.preferences || {}),
-    sport: context.athlete.primary_sport,
-    goals: context.athlete.goal_race_type,
-  });
+  return buildCoachSystemPrompt(
+    {
+      ...(context.athlete.preferences || {}),
+      sport: context.athlete.primary_sport,
+      goals: context.athlete.goal_race_type,
+    },
+    {
+      stravaConnected: context.stravaConnected,
+      whoopConnected: context.whoopConnected,
+      conversationLength: context.conversation?.length ?? 0,
+    }
+  );
 }
 
 /** Helper to log usage from an OpenAI response */

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
+import { fetchAndAnalyzeStravaBaseline } from "@/lib/integrations/strava-baseline";
 
 const STRAVA_TOKEN_URL = "https://www.strava.com/oauth/token";
 
@@ -127,6 +128,12 @@ export async function GET(req: NextRequest) {
     }
 
     console.log(`Strava connected for user ${userId}, athlete ${athlete.id}`);
+
+    // Fire-and-forget: fetch baseline from Strava activity history
+    // Don't await — we don't want to block the redirect
+    fetchAndAnalyzeStravaBaseline(userId).catch((err) => {
+      console.error("Background baseline fetch failed:", err);
+    });
 
     // Clear the CSRF cookie
     const redirectUrl = new URL(returnTo, appUrl);

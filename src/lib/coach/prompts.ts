@@ -123,8 +123,18 @@ SPORT EMPHASIS: Swimming
 /**
  * Build a dynamic system prompt tailored to the athlete's preferences.
  * Falls back to the balanced coaching style when no preference is set.
+ *
+ * @param preferences - Athlete's coaching preferences
+ * @param options - Additional context flags for dynamic prompt sections
  */
-export function buildCoachSystemPrompt(preferences: CoachPromptPreferences): string {
+export function buildCoachSystemPrompt(
+  preferences: CoachPromptPreferences,
+  options?: {
+    stravaConnected?: boolean;
+    whoopConnected?: boolean;
+    conversationLength?: number;
+  }
+): string {
   const parts: string[] = [];
 
   // Base prompt (personality, knowledge, guidelines, never)
@@ -180,6 +190,25 @@ FOCUS AREAS: ${preferences.focus_areas.join(", ")}
 ATHLETE GOAL: ${preferences.goals}
 - Keep this goal front-of-mind in all advice
 - Connect daily training to this bigger picture`);
+  }
+
+  // Strava linking prompt — only in early conversations when not connected
+  if (options && !options.stravaConnected && (options.conversationLength ?? 0) < 3) {
+    parts.push(`
+STRAVA NOT CONNECTED:
+The athlete hasn't connected Strava yet. In your first response, naturally suggest they link it.
+Something like: "I notice you haven't connected Strava yet. Linking it lets me see your workout history and give you more precise training zones. You can connect it in Settings > Connected Apps."
+Only mention this once — don't nag about it in subsequent messages.`);
+  }
+
+  // WHOOP linking prompt — similar logic
+  if (options && !options.whoopConnected && (options.conversationLength ?? 0) < 3) {
+    // Only suggest WHOOP if Strava IS connected (don't overwhelm with two suggestions)
+    if (options.stravaConnected) {
+      parts.push(`
+WHOOP NOT CONNECTED:
+The athlete hasn't connected WHOOP. If recovery comes up in conversation, you can mention that connecting WHOOP in Settings > Connected Apps would give you daily recovery data to personalize their training. Don't force it — only mention if relevant.`);
+    }
   }
 
   return parts.join("\n");

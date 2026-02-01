@@ -90,6 +90,8 @@ export interface CoachContext {
   recovery: RecoverySnapshot[];
   conversation: ChatMessage[];
   trainingLoad: TrainingLoadContext | null;
+  stravaConnected: boolean;
+  whoopConnected: boolean;
   stats: {
     completionRate: number;
     weeklyVolume: number;
@@ -116,6 +118,7 @@ export async function buildCoachContext(
     { data: workouts },
     { data: recovery },
     { data: messages },
+    { data: integrations },
   ] = await Promise.all([
     // Profile
     supabase
@@ -156,6 +159,12 @@ export async function buildCoachContext(
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .limit(20),
+
+    // Connected integrations (Strava, WHOOP, etc.)
+    supabase
+      .from("integrations")
+      .select("provider")
+      .eq("user_id", userId),
   ]);
 
   // Guard against missing profile
@@ -182,6 +191,13 @@ export async function buildCoachContext(
     ? Math.ceil((new Date(plan.goal_race_date).getTime() - Date.now()) / (24 * 60 * 60 * 1000))
     : 0;
 
+  // Check connected integrations
+  const connectedProviders = new Set(
+    (integrations || []).map((i: { provider: string }) => i.provider)
+  );
+  const stravaConnected = connectedProviders.has("strava");
+  const whoopConnected = connectedProviders.has("whoop");
+
   // Fetch training load for fitness trend context
   let trainingLoad: TrainingLoadContext | null = null;
   try {
@@ -202,6 +218,8 @@ export async function buildCoachContext(
     recovery: (recovery || []) as RecoverySnapshot[],
     conversation: (messages || []).reverse() as ChatMessage[],
     trainingLoad,
+    stravaConnected,
+    whoopConnected,
     stats: {
       completionRate,
       weeklyVolume,
@@ -276,6 +294,16 @@ export function formatContextForAI(context: CoachContext): string {
     if (tl.weeklyVolumeTrend) {
       parts.push(`  Weekly volume trend: ${tl.weeklyVolumeTrend}`);
     }
+  }
+
+  // Connected integrations
+  const connectedApps: string[] = [];
+  if (context.stravaConnected) connectedApps.push("Strava");
+  if (context.whoopConnected) connectedApps.push("WHOOP");
+  if (connectedApps.length > 0) {
+    parts.push(`\nCONNECTED APPS: ${connectedApps.join(", ")}`);
+  } else {
+    parts.push(`\nCONNECTED APPS: None`);
   }
 
   // Life context / constraints
