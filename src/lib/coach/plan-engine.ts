@@ -1400,20 +1400,16 @@ export async function generatePlan(
   let startDate: Date;
   if (requestedStart) {
     const requested = new Date(requestedStart + "T00:00:00Z");
-    // Use requested date if it's today or in the future, otherwise next Monday
+    // Use requested date if it's today or in the future, otherwise start tomorrow
     if (requested >= today) {
       startDate = requested;
     } else {
-      // Requested date is in the past — start next Monday
-      const dayOfWeek = today.getDay();
-      const daysUntilMonday = dayOfWeek === 0 ? 1 : dayOfWeek === 1 ? 0 : 8 - dayOfWeek;
-      startDate = daysUntilMonday === 0 ? today : addDays(today, daysUntilMonday);
+      // Requested date is in the past — start tomorrow
+      startDate = addDays(today, 1);
     }
   } else {
-    // No start date specified — start next Monday (or today if Monday)
-    const dayOfWeek = today.getDay();
-    const daysUntilMonday = dayOfWeek === 0 ? 1 : dayOfWeek === 1 ? 0 : 8 - dayOfWeek;
-    startDate = daysUntilMonday === 0 ? today : addDays(today, daysUntilMonday);
+    // No start date specified — start tomorrow
+    startDate = addDays(today, 1);
   }
   const raceDate = athlete.goal_race_date ? new Date(athlete.goal_race_date) : null;
   const sport = (athlete.primary_sport || "running") as "running" | "triathlon" | "cycling";
