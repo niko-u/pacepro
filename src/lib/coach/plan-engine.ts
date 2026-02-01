@@ -11,6 +11,13 @@ function getOpenAI(): OpenAI {
   return _openai;
 }
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+/** Round minutes to the nearest 5 (e.g., 63 → 65, 113 → 115, 47 → 45) */
+function roundTo5(minutes: number): number {
+  return Math.round(minutes / 5) * 5;
+}
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface Phase {
@@ -394,9 +401,9 @@ function buildRunningTemplates(
 
   if (isDeload) {
     const factor = 0.65;
-    const easyDur = Math.round(weeklyMinutes * 0.2 * factor);
-    const qualityDur = Math.round(weeklyMinutes * 0.25 * factor);
-    const longDur = Math.round(weeklyMinutes * 0.3 * factor);
+    const easyDur = roundTo5(weeklyMinutes * 0.2 * factor);
+    const qualityDur = roundTo5(weeklyMinutes * 0.25 * factor);
+    const longDur = roundTo5(weeklyMinutes * 0.3 * factor);
 
     templates.push({
       dayOfWeek: longDay,
@@ -437,9 +444,9 @@ function buildRunningTemplates(
 
   switch (phase) {
     case "base": {
-      const longDur = Math.round(weeklyMinutes * 0.3);
-      const tempoDur = Math.round(weeklyMinutes * 0.2);
-      const easyDur = Math.round(weeklyMinutes * 0.15);
+      const longDur = roundTo5(weeklyMinutes * 0.3);
+      const tempoDur = roundTo5(weeklyMinutes * 0.2);
+      const easyDur = roundTo5(weeklyMinutes * 0.15);
 
       templates.push({
         dayOfWeek: longDay,
@@ -479,10 +486,10 @@ function buildRunningTemplates(
     }
 
     case "build": {
-      const longDur = Math.round(weeklyMinutes * 0.28);
-      const tempoDur = Math.round(weeklyMinutes * 0.2);
-      const intervalDur = Math.round(weeklyMinutes * 0.18);
-      const easyDur = Math.round(weeklyMinutes * 0.15);
+      const longDur = roundTo5(weeklyMinutes * 0.28);
+      const tempoDur = roundTo5(weeklyMinutes * 0.2);
+      const intervalDur = roundTo5(weeklyMinutes * 0.18);
+      const easyDur = roundTo5(weeklyMinutes * 0.15);
       const hardDays: string[] = [];
 
       templates.push({
@@ -539,10 +546,10 @@ function buildRunningTemplates(
     }
 
     case "peak": {
-      const longDur = Math.round(weeklyMinutes * 0.28);
-      const rpDur = Math.round(weeklyMinutes * 0.2);
-      const intDur = Math.round(weeklyMinutes * 0.18);
-      const easyDur = Math.round(weeklyMinutes * 0.15);
+      const longDur = roundTo5(weeklyMinutes * 0.28);
+      const rpDur = roundTo5(weeklyMinutes * 0.2);
+      const intDur = roundTo5(weeklyMinutes * 0.18);
+      const easyDur = roundTo5(weeklyMinutes * 0.15);
       const hardDays: string[] = [];
 
       templates.push({
@@ -599,9 +606,9 @@ function buildRunningTemplates(
     }
 
     case "taper": {
-      const medLongDur = Math.round(weeklyMinutes * 0.25);
-      const tempoDur = Math.round(weeklyMinutes * 0.15);
-      const easyDur = Math.round(weeklyMinutes * 0.12);
+      const medLongDur = roundTo5(weeklyMinutes * 0.25);
+      const tempoDur = roundTo5(weeklyMinutes * 0.15);
+      const easyDur = roundTo5(weeklyMinutes * 0.12);
 
       templates.push({
         dayOfWeek: longDay,
@@ -661,9 +668,9 @@ function buildTriathlonTemplates(
   if (isDeload) {
     const factor = 0.65;
     // Simplified deload: 1 swim, 1 bike, 1 run, all easy
-    const swimDur = Math.round(weeklyMinutes * 0.15 * factor);
-    const bikeDur = Math.round(weeklyMinutes * 0.25 * factor);
-    const runDur = Math.round(weeklyMinutes * 0.2 * factor);
+    const swimDur = roundTo5(weeklyMinutes * 0.15 * factor);
+    const bikeDur = roundTo5(weeklyMinutes * 0.25 * factor);
+    const runDur = roundTo5(weeklyMinutes * 0.2 * factor);
 
     for (const day of available) {
       if (assigned.length >= 3) break;
@@ -682,12 +689,12 @@ function buildTriathlonTemplates(
   switch (phase) {
     case "base": {
       // 2 swim, 2 bike, 2 run, 1 strength = 7 sessions
-      const swimDur = Math.round(weeklyMinutes * 0.1);
-      const bikeDur = Math.round(weeklyMinutes * 0.18);
-      const longBikeDur = Math.round(weeklyMinutes * 0.22);
-      const runDur = Math.round(weeklyMinutes * 0.12);
-      const longRunDur = Math.round(weeklyMinutes * 0.18);
-      const strengthDur = Math.round(weeklyMinutes * 0.08);
+      const swimDur = roundTo5(weeklyMinutes * 0.1);
+      const bikeDur = roundTo5(weeklyMinutes * 0.18);
+      const longBikeDur = roundTo5(weeklyMinutes * 0.22);
+      const runDur = roundTo5(weeklyMinutes * 0.12);
+      const longRunDur = roundTo5(weeklyMinutes * 0.18);
+      const strengthDur = roundTo5(weeklyMinutes * 0.08);
 
       // Long ride on the long day
       templates.push({ dayOfWeek: longDay, workoutType: "bike", title: "Long Endurance Ride", intensity: "easy", durationMinutes: longBikeDur, isKeySession: true });
@@ -717,13 +724,13 @@ function buildTriathlonTemplates(
 
     case "build": {
       // 1 swim, 2 bike, 2 run, 1 brick, 1 strength = 7 sessions
-      const swimDur = Math.round(weeklyMinutes * 0.1);
-      const bikeDur = Math.round(weeklyMinutes * 0.15);
-      const bikeIntDur = Math.round(weeklyMinutes * 0.15);
-      const runTempoDur = Math.round(weeklyMinutes * 0.13);
-      const longRunDur = Math.round(weeklyMinutes * 0.18);
-      const brickDur = Math.round(weeklyMinutes * 0.22);
-      const strengthDur = Math.round(weeklyMinutes * 0.07);
+      const swimDur = roundTo5(weeklyMinutes * 0.1);
+      const bikeDur = roundTo5(weeklyMinutes * 0.15);
+      const bikeIntDur = roundTo5(weeklyMinutes * 0.15);
+      const runTempoDur = roundTo5(weeklyMinutes * 0.13);
+      const longRunDur = roundTo5(weeklyMinutes * 0.18);
+      const brickDur = roundTo5(weeklyMinutes * 0.22);
+      const strengthDur = roundTo5(weeklyMinutes * 0.07);
 
       // Brick on Saturday
       templates.push({ dayOfWeek: brickDay, workoutType: "brick", title: "Brick: Ride + Run", intensity: "moderate", durationMinutes: brickDur, isKeySession: true });
@@ -762,11 +769,11 @@ function buildTriathlonTemplates(
 
     case "peak": {
       // 1 swim, 1 bike (race-pace), 1 run (race-pace), 1 brick (race sim), 1 easy
-      const swimDur = Math.round(weeklyMinutes * 0.12);
-      const bikeRPDur = Math.round(weeklyMinutes * 0.2);
-      const runRPDur = Math.round(weeklyMinutes * 0.18);
-      const brickSimDur = Math.round(weeklyMinutes * 0.3);
-      const easyDur = Math.round(weeklyMinutes * 0.1);
+      const swimDur = roundTo5(weeklyMinutes * 0.12);
+      const bikeRPDur = roundTo5(weeklyMinutes * 0.2);
+      const runRPDur = roundTo5(weeklyMinutes * 0.18);
+      const brickSimDur = roundTo5(weeklyMinutes * 0.3);
+      const easyDur = roundTo5(weeklyMinutes * 0.1);
 
       templates.push({ dayOfWeek: brickDay, workoutType: "brick", title: "Race Simulation Brick", intensity: "hard", durationMinutes: brickSimDur, isKeySession: true });
       assigned.push(brickDay);
@@ -785,9 +792,9 @@ function buildTriathlonTemplates(
     }
 
     case "taper": {
-      const swimDur = Math.round(weeklyMinutes * 0.15);
-      const bikeDur = Math.round(weeklyMinutes * 0.2);
-      const runDur = Math.round(weeklyMinutes * 0.15);
+      const swimDur = roundTo5(weeklyMinutes * 0.15);
+      const bikeDur = roundTo5(weeklyMinutes * 0.2);
+      const runDur = roundTo5(weeklyMinutes * 0.15);
 
       for (const day of available.slice(0, 3)) {
         if (assigned.length === 0) {
@@ -821,8 +828,8 @@ function buildCyclingTemplates(
 
   if (isDeload) {
     const factor = 0.65;
-    const endDur = Math.round(weeklyMinutes * 0.3 * factor);
-    const easyDur = Math.round(weeklyMinutes * 0.2 * factor);
+    const endDur = roundTo5(weeklyMinutes * 0.3 * factor);
+    const easyDur = roundTo5(weeklyMinutes * 0.2 * factor);
 
     templates.push({ dayOfWeek: longDay, workoutType: "bike", title: "Easy Endurance Ride", intensity: "easy", durationMinutes: endDur, isKeySession: false });
     assigned.push(longDay);
@@ -837,10 +844,10 @@ function buildCyclingTemplates(
 
   switch (phase) {
     case "base": {
-      const longDur = Math.round(weeklyMinutes * 0.35);
-      const endDur = Math.round(weeklyMinutes * 0.2);
-      const tempoDur = Math.round(weeklyMinutes * 0.18);
-      const easyDur = Math.round(weeklyMinutes * 0.12);
+      const longDur = roundTo5(weeklyMinutes * 0.35);
+      const endDur = roundTo5(weeklyMinutes * 0.2);
+      const tempoDur = roundTo5(weeklyMinutes * 0.18);
+      const easyDur = roundTo5(weeklyMinutes * 0.12);
 
       templates.push({ dayOfWeek: longDay, workoutType: "bike", title: "Long Endurance Ride", intensity: "easy", durationMinutes: longDur, isKeySession: true });
       assigned.push(longDay);
@@ -864,11 +871,11 @@ function buildCyclingTemplates(
     }
 
     case "build": {
-      const longDur = Math.round(weeklyMinutes * 0.3);
-      const ssDur = Math.round(weeklyMinutes * 0.2);
-      const intDur = Math.round(weeklyMinutes * 0.18);
-      const endDur = Math.round(weeklyMinutes * 0.18);
-      const easyDur = Math.round(weeklyMinutes * 0.12);
+      const longDur = roundTo5(weeklyMinutes * 0.3);
+      const ssDur = roundTo5(weeklyMinutes * 0.2);
+      const intDur = roundTo5(weeklyMinutes * 0.18);
+      const endDur = roundTo5(weeklyMinutes * 0.18);
+      const easyDur = roundTo5(weeklyMinutes * 0.12);
       const hardDays: string[] = [];
 
       templates.push({ dayOfWeek: longDay, workoutType: "bike", title: "Long Ride", intensity: "easy", durationMinutes: longDur, isKeySession: true });
@@ -897,10 +904,10 @@ function buildCyclingTemplates(
     }
 
     case "peak": {
-      const longDur = Math.round(weeklyMinutes * 0.28);
-      const rpDur = Math.round(weeklyMinutes * 0.22);
-      const intDur = Math.round(weeklyMinutes * 0.18);
-      const easyDur = Math.round(weeklyMinutes * 0.12);
+      const longDur = roundTo5(weeklyMinutes * 0.28);
+      const rpDur = roundTo5(weeklyMinutes * 0.22);
+      const intDur = roundTo5(weeklyMinutes * 0.18);
+      const easyDur = roundTo5(weeklyMinutes * 0.12);
       const hardDays: string[] = [];
 
       templates.push({ dayOfWeek: longDay, workoutType: "bike", title: "Race Pace Long Ride", intensity: "moderate", durationMinutes: longDur, isKeySession: true });
@@ -927,9 +934,9 @@ function buildCyclingTemplates(
     }
 
     case "taper": {
-      const endDur = Math.round(weeklyMinutes * 0.25);
-      const intDur = Math.round(weeklyMinutes * 0.15);
-      const easyDur = Math.round(weeklyMinutes * 0.12);
+      const endDur = roundTo5(weeklyMinutes * 0.25);
+      const intDur = roundTo5(weeklyMinutes * 0.15);
+      const easyDur = roundTo5(weeklyMinutes * 0.12);
 
       templates.push({ dayOfWeek: longDay, workoutType: "bike", title: "Easy Endurance Ride", intensity: "easy", durationMinutes: endDur, isKeySession: false });
       assigned.push(longDay);
@@ -1532,7 +1539,7 @@ export async function generatePlan(
       // Apply progressive overload multiplier within the phase
       const weekProgressionMultiplier = getWeekProgressionMultiplier(weekMeta);
       if (weekProgressionMultiplier !== 1.0) {
-        prescribed.duration_minutes = Math.round(prescribed.duration_minutes * weekProgressionMultiplier);
+        prescribed.duration_minutes = roundTo5(prescribed.duration_minutes * weekProgressionMultiplier);
         if (prescribed.distance_meters) {
           prescribed.distance_meters = Math.round(prescribed.distance_meters * weekProgressionMultiplier);
         }
@@ -1738,7 +1745,7 @@ export async function extendPlan(
     // Apply progressive overload multiplier within the phase
     const weekProgressionMultiplier = getWeekProgressionMultiplier(weekMeta);
     if (weekProgressionMultiplier !== 1.0) {
-      prescribed.duration_minutes = Math.round(prescribed.duration_minutes * weekProgressionMultiplier);
+      prescribed.duration_minutes = roundTo5(prescribed.duration_minutes * weekProgressionMultiplier);
       if (prescribed.distance_meters) {
         prescribed.distance_meters = Math.round(prescribed.distance_meters * weekProgressionMultiplier);
       }
