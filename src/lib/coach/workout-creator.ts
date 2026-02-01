@@ -64,20 +64,28 @@ Return a JSON object:
 
 If no concrete workout is prescribed, return: { "has_workout": false }`;
 
+export interface WorkoutProposal {
+  type: WorkoutType;
+  title: string;
+  duration_minutes: number | null;
+  distance_meters: number | null;
+  description: string;
+  intensity: string;
+  target_date: string;
+}
+
 /**
  * Analyze a coach response for workout suggestions.
- * If found, create the workout in the DB so it appears on dashboard/calendar.
+ * Returns a structured proposal (does NOT create in DB — user must accept first).
  */
-export async function extractAndCreateWorkout(
-  supabase: SupabaseClient,
-  userId: string,
+export async function extractWorkoutProposal(
   coachResponse: string,
   userMessage: string
-): Promise<{ created: boolean; workoutId?: string }> {
+): Promise<{ hasProposal: boolean; proposal?: WorkoutProposal }> {
   try {
     // Quick heuristic: skip extraction if response is very short or clearly not a workout
     if (coachResponse.length < 80) {
-      return { created: false };
+      return { hasProposal: false };
     }
 
     const today = new Date().toISOString().split("T")[0];
@@ -106,17 +114,49 @@ export async function extractAndCreateWorkout(
     const extracted: ExtractedWorkout = JSON.parse(content);
 
     if (!extracted.has_workout) {
-      return { created: false };
+      return { hasProposal: false };
     }
 
     // Validate workout type
     const workoutType = validateWorkoutType(extracted.type);
     if (!workoutType) {
       console.warn("Invalid workout type extracted:", extracted.type);
-      return { created: false };
+      return { hasProposal: false };
     }
 
-    // Get user's active plan (required for FK constraint)
+    const title = extracted.title || `${capitalize(workoutType)} Session`;
+    let description = extracted.description || "";
+    if (extracted.intensity && !description.toLowerCase().includes(extracted.intensity)) {
+      description = `Intensity: ${extracted.intensity}\n\n${description}`;
+    }
+
+    return {
+      hasProposal: true,
+      proposal: {
+        type: workoutType,
+        title,
+        duration_minutes: extracted.duration_minutes || null,
+        distance_meters: extracted.distance_meters || null,
+        description,
+        intensity: extracted.intensity || "moderate",
+        target_date: extracted.target_date || today,
+      },
+    };
+  } catch (error) {
+    console.error("extractWorkoutProposal error:", error);
+    return { hasProposal: false };
+  }
+}
+
+/**
+ * Accept a workout proposal — creates it in the DB on the user's active plan.
+ */
+export async function acceptWorkoutProposal(
+  supabase: SupabaseClient,
+  userId: string,
+  proposal: WorkoutProposal
+): Promise<{ created: boolean; workoutId?: string }> {
+  try {
     const { data: plan } = await supabase
       .from("training_plans")
       .select("id")
@@ -125,20 +165,8 @@ export async function extractAndCreateWorkout(
       .single();
 
     if (!plan) {
-      console.log(
-        "No active plan for user, skipping workout creation from chat"
-      );
+      console.log("No active plan for user, cannot accept workout proposal");
       return { created: false };
-    }
-
-    // Build workout row
-    const scheduledDate = extracted.target_date || today;
-    const title = extracted.title || `${capitalize(workoutType)} Session`;
-
-    // Build description including intensity
-    let description = extracted.description || "";
-    if (extracted.intensity && !description.toLowerCase().includes(extracted.intensity)) {
-      description = `Intensity: ${extracted.intensity}\n\n${description}`;
     }
 
     const { data: workout, error } = await supabase
@@ -146,31 +174,43 @@ export async function extractAndCreateWorkout(
       .insert({
         plan_id: plan.id,
         user_id: userId,
-        scheduled_date: scheduledDate,
-        workout_type: workoutType,
-        title,
-        description,
-        duration_minutes: extracted.duration_minutes || null,
-        distance_meters: extracted.distance_meters || null,
+        scheduled_date: proposal.target_date,
+        workout_type: proposal.type,
+        title: proposal.title,
+        description: proposal.description,
+        duration_minutes: proposal.duration_minutes,
+        distance_meters: proposal.distance_meters,
         status: "scheduled",
-        coach_notes: "Created from coach chat suggestion.",
+        coach_notes: "Accepted from coach chat proposal.",
       })
       .select("id")
       .single();
 
     if (error) {
-      console.error("Failed to create workout from chat:", error);
+      console.error("Failed to create workout from proposal:", error);
       return { created: false };
     }
 
-    console.log(
-      `Created workout ${workout.id} from chat: "${title}" on ${scheduledDate}`
-    );
+    console.log(`Accepted workout proposal ${workout.id}: "${proposal.title}" on ${proposal.target_date}`);
     return { created: true, workoutId: workout.id };
   } catch (error) {
-    console.error("extractAndCreateWorkout error:", error);
+    console.error("acceptWorkoutProposal error:", error);
     return { created: false };
   }
+}
+
+/**
+ * @deprecated Use extractWorkoutProposal + acceptWorkoutProposal instead
+ */
+export async function extractAndCreateWorkout(
+  supabase: SupabaseClient,
+  userId: string,
+  coachResponse: string,
+  userMessage: string
+): Promise<{ created: boolean; workoutId?: string }> {
+  const { hasProposal, proposal } = await extractWorkoutProposal(coachResponse, userMessage);
+  if (!hasProposal || !proposal) return { created: false };
+  return acceptWorkoutProposal(supabase, userId, proposal);
 }
 
 function validateWorkoutType(type: string | undefined): WorkoutType | null {

@@ -4,7 +4,7 @@ import { buildCoachContext } from "@/lib/coach/context";
 import { coachChat, extractPreferences } from "@/lib/coach/ai";
 import { mergePreferences } from "@/lib/coach/preferences";
 import { checkAndCompressConversation } from "@/lib/coach/memory";
-import { extractAndCreateWorkout } from "@/lib/coach/workout-creator";
+import { extractWorkoutProposal } from "@/lib/coach/workout-creator";
 import { detectAndExecutePlanModification } from "@/lib/coach/chat-plan-modifier";
 import { checkChatRateLimit } from "@/lib/rate-limit";
 
@@ -67,7 +67,19 @@ export async function POST(req: NextRequest) {
       message_type: "chat",
     });
 
-    // Background tasks: preference extraction + memory compression + workout creation (don't block response)
+    // Extract workout proposal (awaited — gpt-4o-mini is fast, ~500ms)
+    // This lets us return the proposal in the response so the user can accept it
+    let proposedWorkout = null;
+    try {
+      const { hasProposal, proposal } = await extractWorkoutProposal(response, message);
+      if (hasProposal && proposal) {
+        proposedWorkout = proposal;
+      }
+    } catch (err) {
+      console.error("Workout extraction error:", err);
+    }
+
+    // Background tasks: preference extraction + memory compression + plan modification (don't block response)
     // 1. Extract and merge preferences
     extractPreferences(message, response, user.id).then(async (prefs) => {
       if (Object.keys(prefs).length > 0) {
@@ -84,16 +96,7 @@ export async function POST(req: NextRequest) {
       })
       .catch((err) => console.error("Conversation compression error:", err));
 
-    // 3. Check if coach response contains a workout prescription → create it
-    extractAndCreateWorkout(supabase, user.id, response, message)
-      .then((result) => {
-        if (result.created) {
-          console.log(`Created workout ${result.workoutId} from chat for user ${user.id}`);
-        }
-      })
-      .catch((err) => console.error("Workout extraction error:", err));
-
-    // 4. Detect and execute plan modifications from chat (non-blocking)
+    // 3. Detect and execute plan modifications from chat (non-blocking)
     detectAndExecutePlanModification(supabase, user.id, message, response, context)
       .then(async (result) => {
         if (result.modified) {
@@ -107,7 +110,7 @@ export async function POST(req: NextRequest) {
       })
       .catch((err) => console.error("Plan modification error:", err));
 
-    return NextResponse.json({ response, reply: response });
+    return NextResponse.json({ response, reply: response, proposedWorkout });
   } catch (error) {
     console.error("Chat API error:", error);
     return NextResponse.json(
