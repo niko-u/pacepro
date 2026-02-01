@@ -1391,7 +1391,11 @@ export async function generatePlan(
   // Use the user's timezone (if set) to determine "today" for scheduling
   const userTimezone = (profile as Record<string, unknown>).timezone as string | undefined;
   const todayStr = getUserToday(userTimezone);
-  const startDate = new Date(todayStr + "T00:00:00Z");
+  // Start plan from NEXT Monday so we don't generate workouts in the past
+  const today = new Date(todayStr + "T00:00:00Z");
+  const dayOfWeek = today.getDay(); // 0=Sun, 1=Mon, ...
+  const daysUntilMonday = dayOfWeek === 0 ? 1 : dayOfWeek === 1 ? 0 : 8 - dayOfWeek;
+  const startDate = daysUntilMonday === 0 ? today : addDays(today, daysUntilMonday);
   const raceDate = athlete.goal_race_date ? new Date(athlete.goal_race_date) : null;
   const sport = (athlete.primary_sport || "running") as "running" | "triathlon" | "cycling";
   const experience = athlete.experience_level || "intermediate";
@@ -1489,7 +1493,8 @@ export async function generatePlan(
   const weekMetasUsed: WeekMeta[] = [];
   const weekTemplateCounts: number[] = [];
 
-  for (let weekIdx = 0; weekIdx < 2 && weekIdx < weekSchedule.length; weekIdx++) {
+  // Generate first 4 weeks of workouts up front (extended weekly by cron after that)
+  for (let weekIdx = 0; weekIdx < 4 && weekIdx < weekSchedule.length; weekIdx++) {
     const weekMeta = weekSchedule[weekIdx];
     const weekVolume = weeklyHoursTarget * weekMeta.volumeMultiplier;
     const weekStart = addDays(getWeekStart(startDate), weekIdx * 7);
