@@ -1391,11 +1391,30 @@ export async function generatePlan(
   // Use the user's timezone (if set) to determine "today" for scheduling
   const userTimezone = (profile as Record<string, unknown>).timezone as string | undefined;
   const todayStr = getUserToday(userTimezone);
-  // Start plan from NEXT Monday so we don't generate workouts in the past
   const today = new Date(todayStr + "T00:00:00Z");
-  const dayOfWeek = today.getDay(); // 0=Sun, 1=Mon, ...
-  const daysUntilMonday = dayOfWeek === 0 ? 1 : dayOfWeek === 1 ? 0 : 8 - dayOfWeek;
-  const startDate = daysUntilMonday === 0 ? today : addDays(today, daysUntilMonday);
+
+  // Check if user specified a start date during onboarding
+  const onboardingData = (profile as Record<string, unknown>).onboarding_data as Record<string, unknown> | null;
+  const requestedStart = onboardingData?.startDate as string | undefined;
+
+  let startDate: Date;
+  if (requestedStart) {
+    const requested = new Date(requestedStart + "T00:00:00Z");
+    // Use requested date if it's today or in the future, otherwise next Monday
+    if (requested >= today) {
+      startDate = requested;
+    } else {
+      // Requested date is in the past — start next Monday
+      const dayOfWeek = today.getDay();
+      const daysUntilMonday = dayOfWeek === 0 ? 1 : dayOfWeek === 1 ? 0 : 8 - dayOfWeek;
+      startDate = daysUntilMonday === 0 ? today : addDays(today, daysUntilMonday);
+    }
+  } else {
+    // No start date specified — start next Monday (or today if Monday)
+    const dayOfWeek = today.getDay();
+    const daysUntilMonday = dayOfWeek === 0 ? 1 : dayOfWeek === 1 ? 0 : 8 - dayOfWeek;
+    startDate = daysUntilMonday === 0 ? today : addDays(today, daysUntilMonday);
+  }
   const raceDate = athlete.goal_race_date ? new Date(athlete.goal_race_date) : null;
   const sport = (athlete.primary_sport || "running") as "running" | "triathlon" | "cycling";
   const experience = athlete.experience_level || "intermediate";
