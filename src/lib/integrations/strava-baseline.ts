@@ -406,7 +406,7 @@ async function importStravaHistory(
   const rows = toImport.map((a) => {
     const actDate = new Date(a.start_date).toISOString().split("T")[0];
     const workoutType = mapStravaType(a.type);
-    const durationMin = Math.round(a.moving_time / 60);
+    const durationMin = Math.floor(a.moving_time / 60);
     const distanceMeters = Math.round(a.distance);
     const distanceMiles = Math.round(a.distance / 1609.34 * 100) / 100;
 
