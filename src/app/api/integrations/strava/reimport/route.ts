@@ -23,11 +23,11 @@ export async function POST(req: NextRequest) {
       userId = body.userId;
     } else {
       // Normal user auth
-      const user = await getApiUser(req);
-      if (!user) {
+      const auth = await getApiUser(req);
+      if (!auth) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
       }
-      userId = user.id;
+      userId = auth.user.id;
     }
 
     const result = await fetchAndAnalyzeStravaBaseline(userId);
