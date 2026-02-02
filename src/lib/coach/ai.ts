@@ -204,7 +204,7 @@ export async function analyzeWorkout(
       },
     ],
     temperature: 0.7,
-    max_tokens: 400,
+    max_tokens: 800,
   });
 
   logUsage(context.athlete.id, "workout_analysis", response);
@@ -225,10 +225,17 @@ function formatSecPerKm(secPerKm: number): string {
 export async function generateWeeklyOutlook(
   context: CoachContext,
   lastWeekWorkouts: unknown[],
-  thisWeekPlan: unknown[]
+  thisWeekPlan: unknown[],
+  enrichedData?: Record<string, unknown>
 ): Promise<string> {
   const contextSummary = formatContextForAI(context);
   const systemPrompt = buildDynamicPrompt(context);
+
+  // Build the data payload — use enriched data if available, fall back to basic
+  const dataPayload = enrichedData || {
+    lastWeek: lastWeekWorkouts,
+    thisWeek: thisWeekPlan,
+  };
 
   const response = await getOpenAI().chat.completions.create({
     model: "gpt-4o",
@@ -239,14 +246,11 @@ export async function generateWeeklyOutlook(
       },
       {
         role: "user",
-        content: JSON.stringify({
-          lastWeek: lastWeekWorkouts,
-          thisWeek: thisWeekPlan,
-        }),
+        content: JSON.stringify(dataPayload),
       },
     ],
     temperature: 0.7,
-    max_tokens: 300,
+    max_tokens: 1000,
   });
 
   logUsage(context.athlete.id, "weekly_outlook", response);
@@ -311,7 +315,7 @@ export async function generateDailyCheckin(
       },
     ],
     temperature: 0.7,
-    max_tokens: 200,
+    max_tokens: 800,
   });
 
   logUsage(context.athlete.id, "daily_checkin", response);

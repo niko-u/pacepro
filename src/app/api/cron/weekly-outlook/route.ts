@@ -73,16 +73,17 @@ async function generateWeeklyOutlookForUser(userId: string) {
   // Build context (pass supabase client for cron context — no cookies available)
   const context = await buildCoachContext(userId, supabase);
 
-  // Get last week's workouts
+  // Get last week's workouts (completed only for accurate stats)
   const lastWeekStart = new Date();
   lastWeekStart.setDate(lastWeekStart.getDate() - 7);
+  const today = new Date().toISOString().split("T")[0];
   
   const { data: lastWeekWorkouts } = await supabase
     .from("workouts")
     .select("*")
     .eq("user_id", userId)
     .gte("scheduled_date", lastWeekStart.toISOString().split("T")[0])
-    .lt("scheduled_date", new Date().toISOString().split("T")[0])
+    .lt("scheduled_date", today)
     .order("scheduled_date", { ascending: true });
 
   // Get this week's plan
@@ -93,15 +94,69 @@ async function generateWeeklyOutlookForUser(userId: string) {
     .from("workouts")
     .select("*")
     .eq("user_id", userId)
-    .gte("scheduled_date", new Date().toISOString().split("T")[0])
+    .gte("scheduled_date", today)
     .lte("scheduled_date", thisWeekEnd.toISOString().split("T")[0])
     .order("scheduled_date", { ascending: true });
 
-  // Generate outlook
+  // Get active plan for phase/target info
+  const { data: activePlan } = await supabase
+    .from("training_plans")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("status", "active")
+    .maybeSingle();
+
+  // Get user profile for race/goal info
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("goal_race_date, goal_race_type, goal_time, weekly_hours_available, primary_sport")
+    .eq("id", userId)
+    .single();
+
+  // Calculate per-sport breakdown from completed workouts
+  const sportBreakdown = calculateSportBreakdown(lastWeekWorkouts || []);
+
+  // Calculate days to race
+  const daysToRace = profile?.goal_race_date 
+    ? Math.ceil((new Date(profile.goal_race_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+    : null;
+
+  // Calculate compliance
+  const totalPlanned = (lastWeekWorkouts || []).length;
+  const completed = (lastWeekWorkouts || []).filter(w => w.status === "completed").length;
+
+  // Enrich data for AI
+  const enrichedData = {
+    lastWeek: lastWeekWorkouts || [],
+    thisWeek: thisWeekWorkouts || [],
+    sportBreakdown,
+    plan: activePlan ? {
+      current_phase: activePlan.plan_config?.current_phase || activePlan.current_phase,
+      total_weeks: activePlan.total_weeks,
+      current_week: activePlan.current_week,
+      weekly_hours_target: profile?.weekly_hours_available || 10,
+    } : null,
+    race: profile ? {
+      type: profile.goal_race_type,
+      date: profile.goal_race_date,
+      days_away: daysToRace,
+      goal_time: profile.goal_time,
+      sport: profile.primary_sport,
+    } : null,
+    compliance: {
+      total_planned: totalPlanned,
+      completed,
+      percentage: totalPlanned > 0 ? Math.round((completed / totalPlanned) * 100) : 0,
+    },
+    today: today,
+  };
+
+  // Generate outlook with enriched data
   const outlook = await generateWeeklyOutlook(
     context,
-    lastWeekWorkouts || [],
-    thisWeekWorkouts || []
+    enrichedData.lastWeek,
+    enrichedData.thisWeek,
+    enrichedData
   );
 
   // Store as chat message
@@ -110,10 +165,63 @@ async function generateWeeklyOutlookForUser(userId: string) {
     role: "assistant",
     content: outlook,
     message_type: "weekly_outlook",
-    metadata: { week_of: new Date().toISOString().split("T")[0] },
+    metadata: { 
+      week_of: today,
+      sport_breakdown: sportBreakdown,
+      compliance: enrichedData.compliance,
+      days_to_race: daysToRace,
+    },
   });
 
   console.log(`Generated weekly outlook for user ${userId}`);
+}
+
+interface SportStats {
+  sessions: number;
+  distance_miles: number;
+  duration_hours: number;
+}
+
+function calculateSportBreakdown(workouts: Array<Record<string, unknown>>): Record<string, SportStats> {
+  const breakdown: Record<string, SportStats> = {
+    swim: { sessions: 0, distance_miles: 0, duration_hours: 0 },
+    bike: { sessions: 0, distance_miles: 0, duration_hours: 0 },
+    run: { sessions: 0, distance_miles: 0, duration_hours: 0 },
+  };
+
+  for (const w of workouts) {
+    if (w.status !== "completed") continue;
+    const sport = (w.workout_type as string) || "run";
+    
+    // Handle brick workouts — split 60/40 bike/run
+    if (sport === "brick") {
+      const durHrs = ((w.actual_duration_minutes as number) || (w.duration_minutes as number) || 0) / 60;
+      const distM = ((w.actual_distance_meters as number) || (w.distance_meters as number) || 0) / 1609.34;
+      breakdown.bike.sessions++;
+      breakdown.bike.duration_hours += durHrs * 0.6;
+      breakdown.bike.distance_miles += distM * 0.6;
+      breakdown.run.sessions++;
+      breakdown.run.duration_hours += durHrs * 0.4;
+      breakdown.run.distance_miles += distM * 0.4;
+      continue;
+    }
+
+    if (!breakdown[sport]) {
+      breakdown[sport] = { sessions: 0, distance_miles: 0, duration_hours: 0 };
+    }
+
+    breakdown[sport].sessions++;
+    breakdown[sport].duration_hours += ((w.actual_duration_minutes as number) || (w.duration_minutes as number) || 0) / 60;
+    breakdown[sport].distance_miles += ((w.actual_distance_meters as number) || (w.distance_meters as number) || 0) / 1609.34;
+  }
+
+  // Round values
+  for (const sport of Object.keys(breakdown)) {
+    breakdown[sport].distance_miles = Math.round(breakdown[sport].distance_miles * 10) / 10;
+    breakdown[sport].duration_hours = Math.round(breakdown[sport].duration_hours * 10) / 10;
+  }
+
+  return breakdown;
 }
 
 // Also allow GET for testing (with auth)

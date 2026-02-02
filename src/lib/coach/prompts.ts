@@ -214,46 +214,115 @@ The athlete hasn't connected WHOOP. If recovery comes up in conversation, you ca
   return parts.join("\n");
 }
 
-export const WORKOUT_ANALYSIS_PROMPT = `You are analyzing a just-completed workout for your athlete.
+export const WORKOUT_ANALYSIS_PROMPT = `You are writing a post-workout analysis that appears as a coach message in the athlete's chat.
 
-Compare the prescribed workout to what was actually done. Consider:
-1. Did they hit the targets? (duration, pace/power, HR zones)
-2. How does this compare to similar recent workouts?
-3. Any concerning patterns? (HR drift, pace fade, unusual metrics)
-4. Training effect: what adaptation does this provide?
+Use this EXACT structure with emoji formatting:
 
-Structure your response:
-1. Brief acknowledgment (1 sentence, encouraging)
-2. Key observations (2-3 bullet points)
-3. How this fits the bigger picture (1 sentence)
-4. Any coaching tip for next time (optional, only if relevant)
+🏋️ **Workout Complete!**
 
-Keep it under 100 words. Be encouraging but insightful.`;
+**{Activity Name}** — {Sport Type}
+📊 {distance} | {duration} | {key metric like avg power or pace}
+❤️ HR: {avg}/{max} | 🔥 Effort: {suffer score or TSS} | ⚡ {calories} kJ
 
-export const WEEKLY_OUTLOOK_PROMPT = `It's Monday morning. Write a brief, motivating weekly outlook for your athlete.
+**📈 Breakdown:**
+• Warmup: {duration} @ {intensity} ({zone}), HR {avg}
+• Main set: {duration} @ {intensity} ({zone}), HR {avg}
+• Cooldown: {duration if applicable}
 
-Cover:
-1. Quick reflection on last week (1-2 sentences on wins, completion rate)
-2. This week's focus and key workouts (2-3 sentences)
-3. Any adjustments you're making based on their recovery/performance (if applicable)
-4. One specific thing to focus on this week
+**💡 Coach's Analysis:**
+{2-4 sentences of insightful coaching analysis. Compare to recent similar workouts if possible. Note cardiac efficiency trends, pacing execution, aerobic decoupling. Be specific with numbers. Reference their training phase and goals.}
 
-Tone: Energizing, like a coach greeting them at the start of the week.
-Length: 100-150 words.
-Start with a greeting using their name.`;
+**🔮 Tomorrow:** {1-2 sentences recommending what to do next based on fatigue, recovery, and training plan.}
 
-export const DAILY_CHECKIN_PROMPT = `Good morning check-in for your athlete.
+FORMATTING RULES:
+- Use emoji headers exactly as shown above
+- Include real numbers from the workout data — never make up stats
+- The Breakdown section should have 2-4 bullet points based on actual splits/segments
+- If no detailed splits available, describe the overall effort pattern
+- Coach's Analysis should be personalized, data-driven, and specific
+- Reference FTP%, pace zones, HR zones by name when relevant
+- Compare to recent workouts when data is available
+- End with forward-looking recommendation
 
-If they have a workout today:
-- Briefly preview the workout
-- Mention their recovery status if available
-- Any quick tips for the session
+Keep total response between 150-250 words.`;
 
-If it's a rest day:
-- Acknowledge the rest
-- Quick recovery tip or encouragement
+export const WEEKLY_OUTLOOK_PROMPT = `It's Monday morning. Write a structured weekly overview that appears as a coach message in the athlete's chat.
 
-Keep it to 2-3 sentences max. Casual and supportive.`;
+Use this EXACT structure with emoji formatting:
+
+📅 **Weekly Overview — {Day, Month Date}**
+
+🏊🚴🏃 **Last Week's Training ({date range}):**
+• Swim: {distance} / {hours} hrs ({count} sessions)
+• Bike: {distance} / {hours} hrs ({count} sessions)
+• Run: {distance} / {hours} hrs ({count} sessions)
+• **Total: {hours} hours** vs {target}h target {✅ or ⚠️}
+• Compliance: {pct}% ({completed}/{total} planned workouts followed)
+
+📊 **Key Workouts:**
+{2-3 standout workouts from last week with specific performance data. Use sport emoji (🔥🏊⚡🏃) and bold names. Include power, pace, HR, splits — be specific with numbers.}
+
+📈 **Progress:**
+{3-4 bullet points on fitness trends, improvements, gaps. Be specific — reference FTP changes, pace trends, volume progression, weak disciplines.}
+
+🎯 **This Week's Focus:**
+• Phase: **{current training phase}** ({intensity level})
+• Priority: **{main focus}** — {why}
+• Today: {what to do today based on recovery}
+• {Key upcoming race/event}: {countdown and what it means for training}
+
+🏁 **{Goal Race}: {days} days**
+
+{1-2 sentence motivational closer that's personal and specific to their situation. Reference what's going well and what needs attention.}
+
+FORMATTING RULES:
+- Use emoji headers exactly as shown
+- Include real workout data from the last_week workouts provided — never make up stats
+- Break down volume by sport (swim/bike/run) using actual numbers
+- If a sport had 0 sessions, still list it as "0 sessions" to highlight the gap
+- Key Workouts should reference specific activities with real metrics
+- Progress bullets should compare to previous weeks when possible
+- This Week's Focus should reference their actual training plan phase
+- Calculate days to goal race from the race date in their profile
+- Omit swim/bike lines for running-only athletes
+- Keep total response between 250-400 words`;
+
+export const DAILY_CHECKIN_PROMPT = `Good morning check-in for your athlete. Write a structured morning message that appears as a coach message in the chat.
+
+Use this structure with emoji formatting:
+
+☀️ **Good Morning, {Name}!**
+
+📊 **Recovery:** {score}% ({emoji color}) | Sleep: {hours}h | HRV: {value}
+🌡️ **Weather:** {if available, otherwise omit this line}
+
+**Today's Options:**
+
+🥇 **Option 1 (Recommended):** {emoji} {Workout Name} — {distance}
+   └ {duration} | {effort description} | {intensity}
+   └ Why: {1 sentence explaining fit with training plan}
+
+🥈 **Option 2:** {emoji} {Alternative} — {distance}
+   └ {duration} | {effort description} | {intensity}
+   └ Why: {1 sentence}
+
+🥉 **Option 3:** {emoji} {Third option} — {distance}
+   └ {duration} | {effort description} | {intensity}
+   └ Why: {1 sentence}
+
+🎯 **{Goal Race}: {days} days** | **This Week:** {hours logged}/{target} hrs
+
+💡 {1-2 sentence coaching insight — connect recovery to recommendation, note what to watch for}
+
+Reply 1, 2, or 3!
+
+RULES:
+- If recovery data is unavailable, omit the recovery line
+- Options should vary by sport/intensity to give real choice
+- Always include why each option fits the training plan
+- If it's a rest day, say so with one recovery option
+- Use sport emoji: 🏊 swim, 🚴 bike, 🏃 run, 💪 strength
+- Keep total response between 150-250 words`;
 
 export const RECOVERY_ALERT_PROMPT = `Your athlete's recovery data shows something concerning:
 

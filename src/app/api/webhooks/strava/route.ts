@@ -251,16 +251,26 @@ async function processStravaActivity(activityId: number, stravaAthleteId: number
       console.error("Analytics engine error:", analyticsError);
     }
 
-    // Build actual data from Strava
+    // Build actual data from Strava (enriched for structured analysis)
     const actualData = {
       duration_minutes: Math.round(activity.moving_time / 60),
       distance_meters: Math.round(activity.distance),
+      distance_miles: Math.round(activity.distance / 1609.34 * 100) / 100,
       avg_hr: activity.average_heartrate,
       max_hr: activity.max_heartrate,
       avg_pace: activity.average_speed,
+      avg_pace_per_mile: activity.average_speed > 0 ? Math.round(1609.34 / activity.average_speed) : null,
+      avg_power: activity.average_watts,
+      max_power: activity.max_watts,
+      weighted_avg_power: activity.weighted_average_watts,
       elevation_gain: activity.total_elevation_gain,
       calories: activity.calories,
+      suffer_score: activity.suffer_score,
+      kilojoules: activity.kilojoules,
       strava_name: activity.name,
+      sport_type: activity.type || activity.sport_type,
+      avg_cadence: activity.average_cadence,
+      elapsed_time_minutes: Math.round(activity.elapsed_time / 60),
     };
 
     // Build context for analysis
