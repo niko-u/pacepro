@@ -66,14 +66,6 @@ export async function POST(req: NextRequest) {
     // Generate coach response
     const response = await coachChat(context, history, message);
 
-    // Store assistant response
-    await supabase.from("chat_messages").insert({
-      user_id: user.id,
-      role: "assistant",
-      content: response,
-      message_type: "chat",
-    });
-
     // Extract workout proposal only if the response contains workout-related language
     // (avoids unnecessary GPT call on every response)
     let proposedWorkout = null;
@@ -95,6 +87,15 @@ export async function POST(req: NextRequest) {
         console.error("Workout extraction error:", err);
       }
     }
+
+    // Store assistant response (with proposal metadata if present)
+    await supabase.from("chat_messages").insert({
+      user_id: user.id,
+      role: "assistant",
+      content: response,
+      message_type: "chat",
+      metadata: proposedWorkout ? { proposedWorkout } : {},
+    });
 
     // Await background tasks before returning (Vercel kills fire-and-forget promises)
     await Promise.allSettled([
