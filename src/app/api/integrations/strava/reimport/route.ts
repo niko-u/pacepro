@@ -5,16 +5,32 @@ import { getApiUser } from "@/lib/auth/get-api-user";
 /**
  * POST /api/integrations/strava/reimport
  * Re-runs the Strava baseline + history import for the authenticated user.
- * Useful when Strava was connected before the import feature existed.
+ * Auth: Bearer token (user) OR cron secret + userId (admin/server)
  */
 export async function POST(req: NextRequest) {
   try {
-    const user = await getApiUser(req);
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    let userId: string | null = null;
+
+    // Check for cron/admin auth first
+    const body = await req.json().catch(() => ({}));
+    const authHeader = req.headers.get("authorization");
+
+    if (
+      authHeader === `Bearer ${process.env.CRON_SECRET}` &&
+      body.userId
+    ) {
+      // Admin/server auth with explicit userId
+      userId = body.userId;
+    } else {
+      // Normal user auth
+      const user = await getApiUser(req);
+      if (!user) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      }
+      userId = user.id;
     }
 
-    const result = await fetchAndAnalyzeStravaBaseline(user.id);
+    const result = await fetchAndAnalyzeStravaBaseline(userId);
 
     return NextResponse.json({
       success: true,
