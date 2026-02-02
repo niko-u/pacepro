@@ -26,17 +26,21 @@ export async function GET(req: NextRequest) {
       return NextResponse.redirect(settingsUrl.toString());
     }
 
-    // Decode state to get user_id, nonce, and returnTo
+    // Decode state to get user_id, nonce, returnTo, and mobile flag
     let userId: string;
     let nonce: string;
     let returnTo = "/settings";
+    let isMobile = false;
     try {
       const decoded = Buffer.from(state, "base64url").toString("utf-8");
       const parts = decoded.split(":");
       userId = parts[0];
       nonce = parts[1];
       if (!userId || !nonce) throw new Error("Missing user ID or nonce in state");
-      if (parts.length >= 3) {
+      if (parts[parts.length - 1] === "mobile") {
+        isMobile = true;
+        if (parts.length >= 4) returnTo = parts.slice(2, -1).join(":");
+      } else if (parts.length >= 3) {
         returnTo = parts.slice(2).join(":");
       }
     } catch {
@@ -44,23 +48,24 @@ export async function GET(req: NextRequest) {
       return NextResponse.redirect(settingsUrl.toString());
     }
 
-    // Verify CSRF nonce against cookie
-    const cookieNonce = req.cookies.get("whoop_oauth_nonce")?.value;
-    if (!cookieNonce || cookieNonce !== nonce) {
-      console.error("WHOOP OAuth CSRF validation failed: nonce mismatch");
-      settingsUrl.searchParams.set("error", "whoop_csrf_failed");
-      return NextResponse.redirect(settingsUrl.toString());
-    }
+    // CSRF verification — skip for mobile (no cookies in in-app browser)
+    if (!isMobile) {
+      const cookieNonce = req.cookies.get("whoop_oauth_nonce")?.value;
+      if (!cookieNonce || cookieNonce !== nonce) {
+        console.error("WHOOP OAuth CSRF validation failed: nonce mismatch");
+        settingsUrl.searchParams.set("error", "whoop_csrf_failed");
+        return NextResponse.redirect(settingsUrl.toString());
+      }
 
-    // Verify user is authenticated and matches state
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+      const supabase = await createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
-    if (!user || user.id !== userId) {
-      settingsUrl.searchParams.set("error", "whoop_auth_mismatch");
-      return NextResponse.redirect(settingsUrl.toString());
+      if (!user || user.id !== userId) {
+        settingsUrl.searchParams.set("error", "whoop_auth_mismatch");
+        return NextResponse.redirect(settingsUrl.toString());
+      }
     }
 
     // Exchange code for tokens
@@ -141,7 +146,11 @@ export async function GET(req: NextRequest) {
 
     console.log(`WHOOP connected for user ${userId}, whoop user ${whoopUserId}`);
 
-    // Clear the CSRF cookie
+    // Redirect back — deep link for mobile, web URL for browser
+    if (isMobile) {
+      return NextResponse.redirect("pacepro://oauth-callback?connected=whoop");
+    }
+
     const redirectUrl = new URL(returnTo, appUrl);
     redirectUrl.searchParams.set("connected", "whoop");
     const response = NextResponse.redirect(redirectUrl.toString());
