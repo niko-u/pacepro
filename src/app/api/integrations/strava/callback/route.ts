@@ -46,7 +46,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Verify CSRF nonce against cookie
-    const cookieNonce = req.cookies.get("oauth_state_nonce")?.value;
+    const cookieNonce = req.cookies.get("strava_oauth_nonce")?.value;
     if (!cookieNonce || cookieNonce !== nonce) {
       console.error("Strava OAuth CSRF validation failed: nonce mismatch");
       settingsUrl.searchParams.set("error", "strava_csrf_failed");
@@ -129,17 +129,18 @@ export async function GET(req: NextRequest) {
 
     console.log(`Strava connected for user ${userId}, athlete ${athlete.id}`);
 
-    // Fire-and-forget: fetch baseline from Strava activity history
-    // Don't await — we don't want to block the redirect
-    fetchAndAnalyzeStravaBaseline(userId).catch((err) => {
-      console.error("Background baseline fetch failed:", err);
-    });
+    // Await baseline fetch — Vercel kills fire-and-forget promises after response
+    try {
+      await fetchAndAnalyzeStravaBaseline(userId);
+    } catch (err) {
+      console.error("Baseline fetch failed:", err);
+    }
 
     // Clear the CSRF cookie
     const redirectUrl = new URL(returnTo, appUrl);
     redirectUrl.searchParams.set("connected", "strava");
     const response = NextResponse.redirect(redirectUrl.toString());
-    response.cookies.set("oauth_state_nonce", "", {
+    response.cookies.set("strava_oauth_nonce", "", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",

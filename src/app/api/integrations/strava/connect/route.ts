@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
 
   // Store nonce in an httpOnly cookie for CSRF verification in the callback
   const response = NextResponse.redirect(stravaAuthUrl);
-  response.cookies.set("oauth_state_nonce", nonce, {
+  response.cookies.set("strava_oauth_nonce", nonce, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",

@@ -70,23 +70,36 @@ export async function POST(req: NextRequest) {
           continue;
         }
 
-        // Run adaptation engine based on recovery data (always, regardless of notification prefs)
-        try {
-          const adaptResult = await adaptForRecovery(supabase, userId, {
-            recovery_score: todayRecovery.recovery_score,
-            hrv_ms: todayRecovery.hrv_ms,
-            sleep_hours: todayRecovery.sleep_hours,
-          });
+        // P2-11: Check if adaptation was already run today (e.g. by WHOOP sync)
+        const todayStart = new Date(today + "T00:00:00Z").toISOString();
+        const { count: existingAdaptations } = await supabase
+          .from("chat_messages")
+          .select("*", { count: "exact", head: true })
+          .eq("user_id", userId)
+          .eq("message_type", "recovery_alert")
+          .gte("created_at", todayStart);
 
-          if (adaptResult.actions.length > 0 || adaptResult.message) {
-            await executeAdaptationActions(supabase, userId, adaptResult);
-            results.adaptations_run++;
-            console.log(
-              `Recovery adaptation: ${adaptResult.actions.length} actions for user ${userId}`
-            );
+        // Run adaptation engine based on recovery data (skip if already ran today)
+        if (existingAdaptations && existingAdaptations > 0) {
+          console.log(`Adaptation already ran today for user ${userId}, skipping`);
+        } else {
+          try {
+            const adaptResult = await adaptForRecovery(supabase, userId, {
+              recovery_score: todayRecovery.recovery_score,
+              hrv_ms: todayRecovery.hrv_ms,
+              sleep_hours: todayRecovery.sleep_hours,
+            });
+
+            if (adaptResult.actions.length > 0 || adaptResult.message) {
+              await executeAdaptationActions(supabase, userId, adaptResult);
+              results.adaptations_run++;
+              console.log(
+                `Recovery adaptation: ${adaptResult.actions.length} actions for user ${userId}`
+              );
+            }
+          } catch (adaptErr) {
+            console.error(`Recovery adaptation error for user ${userId}:`, adaptErr);
           }
-        } catch (adaptErr) {
-          console.error(`Recovery adaptation error for user ${userId}:`, adaptErr);
         }
 
         // Check notification preferences (for alerts only)

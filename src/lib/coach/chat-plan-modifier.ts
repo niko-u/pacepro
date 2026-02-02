@@ -468,7 +468,10 @@ function mightRequestPlanChange(message: string): boolean {
     "spacing between",
   ];
 
-  return keywords.some((kw) => lower.includes(kw));
+  // P2-12: Require at least 2 keyword matches to reduce false positives
+  // Single common words like "more", "less", "change" alone aren't enough
+  const matchCount = keywords.filter((kw) => lower.includes(kw)).length;
+  return matchCount >= 2;
 }
 
 // ---------- Execute Standard Workout Changes (Existing) ----------

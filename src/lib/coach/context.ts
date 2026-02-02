@@ -92,6 +92,7 @@ export interface CoachContext {
   trainingLoad: TrainingLoadContext | null;
   stravaConnected: boolean;
   whoopConnected: boolean;
+  profileMissing?: boolean;
   stats: {
     completionRate: number;
     weeklyVolume: number;
@@ -106,7 +107,8 @@ export interface CoachContext {
  */
 export async function buildCoachContext(
   userId: string,
-  externalSupabase?: SupabaseClient
+  externalSupabase?: SupabaseClient,
+  options?: { preloadedMessages?: ChatMessage[] }
 ): Promise<CoachContext> {
   const supabase = externalSupabase || (await createClient());
   const today = new Date().toISOString().split("T")[0];
@@ -152,13 +154,16 @@ export async function buildCoachContext(
       .gte("date", new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0])
       .order("date", { ascending: false }),
 
-    // Recent chat messages
-    supabase
-      .from("chat_messages")
-      .select("*")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false })
-      .limit(20),
+    // Recent chat messages (skip if pre-loaded by caller)
+    options?.preloadedMessages
+      ? Promise.resolve({ data: null })
+      : supabase
+          .from("chat_messages")
+          .select("*")
+          .eq("user_id", userId)
+          .is("compressed_at", null)
+          .order("created_at", { ascending: false })
+          .limit(20),
 
     // Connected integrations (Strava, WHOOP, etc.)
     supabase
@@ -167,9 +172,47 @@ export async function buildCoachContext(
       .eq("user_id", userId),
   ]);
 
-  // Guard against missing profile
+  // Guard against missing profile — return minimal context instead of crashing
   if (!profile) {
-    throw new Error(`Profile not found for user ${userId}`);
+    console.warn(`Profile not found for user ${userId}, returning minimal context`);
+    const minimalAthlete: AthleteProfile = {
+      id: userId,
+      email: "",
+      full_name: "Athlete",
+      experience_level: "intermediate",
+      goal_race_type: "",
+      goal_race_date: "",
+      weekly_hours_available: 0,
+      preferences: {
+        workout_likes: [],
+        workout_dislikes: [],
+        push_tolerance: 3,
+        recovery_needs: 3,
+        flexibility: 3,
+        feedback_style: "balanced",
+      },
+      learned_preferences: {
+        schedule_constraints: [],
+        recovery_notes: [],
+        limitations: [],
+        life_context: [],
+      },
+      notifications: {},
+    };
+    return {
+      athlete: minimalAthlete,
+      plan: plan as TrainingPlan | null,
+      todayWorkout: null,
+      recentWorkouts: [],
+      upcomingWorkouts: [],
+      recovery: [],
+      conversation: options?.preloadedMessages || (messages || []).reverse() as ChatMessage[],
+      trainingLoad: null,
+      stravaConnected: false,
+      whoopConnected: false,
+      profileMissing: true,
+      stats: { completionRate: 100, weeklyVolume: 0, daysUntilRace: 0 },
+    };
   }
 
   // Split workouts
@@ -216,7 +259,7 @@ export async function buildCoachContext(
     recentWorkouts: recentWorkouts as Workout[],
     upcomingWorkouts: upcomingWorkouts as Workout[],
     recovery: (recovery || []) as RecoverySnapshot[],
-    conversation: (messages || []).reverse() as ChatMessage[],
+    conversation: options?.preloadedMessages || (messages || []).reverse() as ChatMessage[],
     trainingLoad,
     stravaConnected,
     whoopConnected,

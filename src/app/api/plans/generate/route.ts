@@ -59,7 +59,32 @@ export async function POST(req: NextRequest) {
       supabase = getServiceClient();
     }
 
-    // Check for recently created plans (prevent double-tap race condition)
+    // P2-14: Check for in-progress generation (prevents race condition)
+    const { data: generatingPlan } = await supabase
+      .from("training_plans")
+      .select("id, created_at")
+      .eq("user_id", userId)
+      .eq("status", "generating")
+      .limit(1)
+      .maybeSingle();
+
+    if (generatingPlan) {
+      const genAge = (Date.now() - new Date(generatingPlan.created_at).getTime()) / 1000;
+      if (genAge < 300) {
+        // Still generating (< 5 min old)
+        return NextResponse.json(
+          { error: "Plan generation already in progress" },
+          { status: 409 }
+        );
+      }
+      // Stale lock (> 5 min) — clean it up
+      await supabase
+        .from("training_plans")
+        .update({ status: "cancelled" })
+        .eq("id", generatingPlan.id);
+    }
+
+    // Also check for recently created active plans (double-tap guard)
     const { data: recentPlans } = await supabase
       .from("training_plans")
       .select("id, created_at")
@@ -71,7 +96,6 @@ export async function POST(req: NextRequest) {
     if (recentPlans && recentPlans.length > 0) {
       const created = new Date(recentPlans[0].created_at).getTime();
       const ageSeconds = (Date.now() - created) / 1000;
-      // If a plan was created in the last 30 seconds, skip (race condition guard)
       if (ageSeconds < 30) {
         console.log(`Plan for user ${userId} was just created ${ageSeconds}s ago, skipping duplicate`);
         return NextResponse.json({
@@ -83,46 +107,81 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Delete any existing active plan for this user (replace)
-    const { error: deleteError } = await supabase
+    // Insert a lock plan with 'generating' status to prevent concurrent generation
+    const { data: lockPlan, error: lockError } = await supabase
       .from("training_plans")
-      .update({ status: "cancelled" })
-      .eq("user_id", userId)
-      .eq("status", "active");
-
-    if (deleteError) {
-      console.error("Failed to cancel existing plan:", deleteError);
-      // Continue anyway — the new plan will be active
-    }
-
-    // Also delete scheduled (not completed) workouts from cancelled plans
-    const { data: cancelledPlans } = await supabase
-      .from("training_plans")
+      .insert({
+        user_id: userId,
+        status: "generating",
+        name: "Generating...",
+        goal_race_date: new Date().toISOString().split("T")[0],
+        goal_race_type: "pending",
+      })
       .select("id")
-      .eq("user_id", userId)
-      .eq("status", "cancelled");
+      .single();
 
-    if (cancelledPlans && cancelledPlans.length > 0) {
-      const planIds = cancelledPlans.map((p) => p.id);
-      await supabase
-        .from("workouts")
-        .delete()
-        .in("plan_id", planIds)
-        .eq("status", "scheduled");
+    if (lockError) {
+      console.error("Failed to create generation lock:", lockError);
+      return NextResponse.json(
+        { error: "Plan generation already in progress" },
+        { status: 409 }
+      );
     }
 
-    // Generate the new plan
-    const result = await generatePlan(supabase, userId);
+    try {
+      // Cancel any existing active plans for this user
+      const { error: deleteError } = await supabase
+        .from("training_plans")
+        .update({ status: "cancelled" })
+        .eq("user_id", userId)
+        .eq("status", "active");
 
-    return NextResponse.json({
-      planId: result.planId,
-      workoutsCreated: result.workoutsCreated,
-      phases: result.phases.map((p) => ({
-        name: p.name,
-        weeks: p.weeks,
-        volumeMultiplier: p.volumeMultiplier,
-      })),
-    });
+      if (deleteError) {
+        console.error("Failed to cancel existing plan:", deleteError);
+      }
+
+      // Also delete scheduled (not completed) workouts from cancelled plans
+      const { data: cancelledPlans } = await supabase
+        .from("training_plans")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("status", "cancelled");
+
+      if (cancelledPlans && cancelledPlans.length > 0) {
+        const planIds = cancelledPlans.map((p) => p.id);
+        await supabase
+          .from("workouts")
+          .delete()
+          .in("plan_id", planIds)
+          .eq("status", "scheduled");
+      }
+
+      // Generate the new plan
+      const result = await generatePlan(supabase, userId);
+
+      // Clean up the lock plan (generatePlan creates its own plan record)
+      await supabase
+        .from("training_plans")
+        .delete()
+        .eq("id", lockPlan.id);
+
+      return NextResponse.json({
+        planId: result.planId,
+        workoutsCreated: result.workoutsCreated,
+        phases: result.phases.map((p) => ({
+          name: p.name,
+          weeks: p.weeks,
+          volumeMultiplier: p.volumeMultiplier,
+        })),
+      });
+    } catch (genError) {
+      // Clean up lock plan on failure
+      await supabase
+        .from("training_plans")
+        .update({ status: "failed" })
+        .eq("id", lockPlan.id);
+      throw genError;
+    }
   } catch (error) {
     console.error("Plan generation error:", error);
     const message = error instanceof Error ? error.message : "Plan generation failed";

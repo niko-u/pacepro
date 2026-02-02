@@ -321,20 +321,29 @@ async function countRecentBreakthroughs(
 ): Promise<number> {
   const startDate = addDays(new Date().toISOString().split("T")[0], -lookbackDays);
 
-  // Store breakthroughs in workout_analytics metadata or a simple approach:
-  // Query recent analytics for workouts with similar breakthrough values
-  // For simplicity, we use the workout_analytics table with a pattern
-
+  // Query workout_analytics for rows where zone_compliance_details contains
+  // breakthrough data matching the given type within the lookback window
   const { data } = await supabase
     .from("workout_analytics")
-    .select("id")
+    .select("id, zone_compliance_details")
     .eq("user_id", userId)
     .gte("created_at", startDate + "T00:00:00Z");
 
-  // This is simplified — in production we'd store breakthrough candidates
-  // in a dedicated table or JSONB field. For now, return 0 and let
-  // the storeBreakthroughCandidate handle tracking.
-  return 0;
+  if (!data || data.length === 0) return 0;
+
+  // Count rows that have a stored breakthrough of the matching type
+  let count = 0;
+  for (const row of data) {
+    const details = row.zone_compliance_details as Record<string, unknown> | null;
+    if (details?.breakthrough) {
+      const bt = details.breakthrough as { type?: string; value?: number };
+      if (bt.type === type) {
+        count++;
+      }
+    }
+  }
+
+  return count;
 }
 
 /**

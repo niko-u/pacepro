@@ -48,7 +48,7 @@ CREATE TABLE public.training_plans (
   
   goal_race_date DATE,
   goal_race_type TEXT,
-  goal_finish_time INTEGER,
+  goal_finish_time TEXT,
   
   status TEXT DEFAULT 'active' CHECK (status IN ('active', 'completed', 'paused', 'cancelled')),
   

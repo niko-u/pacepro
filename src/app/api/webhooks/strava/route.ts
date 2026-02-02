@@ -73,6 +73,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ received: true });
     }
 
+    // Validate owner_id corresponds to a known user before processing
+    if (event.owner_id) {
+      const { data: knownIntegration } = await supabase
+        .from("integrations")
+        .select("id")
+        .eq("provider", "strava")
+        .eq("strava_athlete_id", event.owner_id)
+        .limit(1)
+        .maybeSingle();
+
+      if (!knownIntegration) {
+        console.warn(`Strava webhook from unknown owner_id: ${event.owner_id}, ignoring`);
+        return NextResponse.json({ received: true });
+      }
+    }
+
     // Only process new activities
     if (event.aspect_type === "create" && event.object_type === "activity") {
       await processStravaActivity(event.object_id, event.owner_id, eventId);
@@ -211,7 +227,8 @@ async function processStravaActivity(activityId: number, stravaAthleteId: number
       .eq("scheduled_date", activityDate)
       .eq("workout_type", workoutType)
       .eq("status", "scheduled")
-      .single();
+      .limit(1)
+      .maybeSingle();
 
     // Fetch user profile for zone calculations
     const { data: userProfile } = await supabase

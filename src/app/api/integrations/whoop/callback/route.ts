@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Verify CSRF nonce against cookie
-    const cookieNonce = req.cookies.get("oauth_state_nonce")?.value;
+    const cookieNonce = req.cookies.get("whoop_oauth_nonce")?.value;
     if (!cookieNonce || cookieNonce !== nonce) {
       console.error("WHOOP OAuth CSRF validation failed: nonce mismatch");
       settingsUrl.searchParams.set("error", "whoop_csrf_failed");
@@ -145,7 +145,7 @@ export async function GET(req: NextRequest) {
     const redirectUrl = new URL(returnTo, appUrl);
     redirectUrl.searchParams.set("connected", "whoop");
     const response = NextResponse.redirect(redirectUrl.toString());
-    response.cookies.set("oauth_state_nonce", "", {
+    response.cookies.set("whoop_oauth_nonce", "", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",

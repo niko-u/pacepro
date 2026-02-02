@@ -49,21 +49,23 @@ export async function checkAndCompressConversation(
   supabase: SupabaseClient,
   userId: string
 ): Promise<{ compressed: boolean; messagesCompressed?: number }> {
-  // Count total messages for user
+  // Count total non-compressed messages for user
   const { count, error: countError } = await supabase
     .from("chat_messages")
     .select("*", { count: "exact", head: true })
-    .eq("user_id", userId);
+    .eq("user_id", userId)
+    .is("compressed_at", null);
 
   if (countError || !count || count <= 30) {
     return { compressed: false };
   }
 
-  // Get all messages ordered by creation time
+  // Get all non-compressed messages ordered by creation time
   const { data: allMessages, error: msgError } = await supabase
     .from("chat_messages")
     .select("id, role, content, message_type, created_at")
     .eq("user_id", userId)
+    .is("compressed_at", null)
     .order("created_at", { ascending: true });
 
   if (msgError || !allMessages) {
@@ -123,15 +125,18 @@ export async function checkAndCompressConversation(
     return { compressed: false };
   }
 
-  // Delete the compressed messages
+  // Soft-delete: mark compressed messages with timestamp instead of hard-deleting
+  // NOTE: requires `compressed_at` column (timestamptz, nullable) on chat_messages table.
+  // If column doesn't exist yet, a migration is needed:
+  //   ALTER TABLE chat_messages ADD COLUMN compressed_at timestamptz;
   const idsToDelete = messagesToCompress.map((m) => m.id);
   const { error: deleteError } = await supabase
     .from("chat_messages")
-    .delete()
+    .update({ compressed_at: new Date().toISOString() })
     .in("id", idsToDelete);
 
   if (deleteError) {
-    console.error("Failed to delete compressed messages:", deleteError);
+    console.error("Failed to soft-delete compressed messages:", deleteError);
     // Summary was saved, so partial success
   }
 

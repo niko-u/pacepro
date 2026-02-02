@@ -262,19 +262,41 @@ export async function POST(req: NextRequest) {
         );
 
         // Trigger recovery-based adaptation if we have a recovery score
+        // P2-11: Check if adaptation was already run today (e.g. by recovery-check cron)
         if (recoveryScore !== null) {
-          try {
-            const adaptResult = await adaptForRecovery(supabase, userId, {
-              recovery_score: recoveryScore,
-              hrv_ms: hrvMs ?? undefined,
-              sleep_hours: sleepHours ?? undefined,
-            } as any);
-            if (adaptResult.actions.length > 0 || adaptResult.message) {
-              await executeAdaptationActions(supabase, userId, adaptResult);
-              console.log(`WHOOP adaptation triggered for user ${userId}: ${adaptResult.actions.length} actions`);
+          const todayStr = new Date().toISOString().split("T")[0];
+          const todayStart = new Date(todayStr + "T00:00:00Z").toISOString();
+          const { count: existingAdaptations } = await supabase
+            .from("chat_messages")
+            .select("*", { count: "exact", head: true })
+            .eq("user_id", userId)
+            .eq("message_type", "recovery_alert")
+            .gte("created_at", todayStart);
+
+          if (existingAdaptations && existingAdaptations > 0) {
+            console.log(`Adaptation already ran today for user ${userId}, skipping WHOOP adaptation`);
+          } else {
+            try {
+              const adaptResult = await adaptForRecovery(supabase, userId, {
+                recovery_score: recoveryScore,
+                hrv_ms: hrvMs ?? undefined,
+                sleep_hours: sleepHours ?? undefined,
+              } as any);
+              if (adaptResult.actions.length > 0 || adaptResult.message) {
+                await executeAdaptationActions(supabase, userId, adaptResult);
+                // Insert a recovery_alert marker so other cron jobs don't double-adapt
+                await supabase.from("chat_messages").insert({
+                  user_id: userId,
+                  role: "assistant",
+                  content: `🔄 Training adjusted based on WHOOP recovery data (score: ${recoveryScore}%).`,
+                  message_type: "recovery_alert",
+                  metadata: { source: "whoop_sync", recovery_score: recoveryScore },
+                });
+                console.log(`WHOOP adaptation triggered for user ${userId}: ${adaptResult.actions.length} actions`);
+              }
+            } catch (adaptErr) {
+              console.error(`WHOOP adaptation error for user ${userId}:`, adaptErr);
             }
-          } catch (adaptErr) {
-            console.error(`WHOOP adaptation error for user ${userId}:`, adaptErr);
           }
         }
 

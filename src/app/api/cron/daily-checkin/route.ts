@@ -152,19 +152,44 @@ function isApprox6AM(now: Date, timezone: string): boolean {
 }
 
 /**
- * Get the start of today in the user's timezone as an ISO string
+ * Get the start of today in the user's timezone as a UTC ISO string.
+ * E.g. for timezone "America/New_York" (UTC-5), midnight local = 05:00 UTC.
  */
 function getTodayStart(timezone: string): string {
   try {
-    const now = new Date();
-    const formatter = new Intl.DateTimeFormat("en-CA", {
+    // Step 1: Get today's date in the user's timezone
+    const dateStr = new Intl.DateTimeFormat("en-CA", {
       timeZone: timezone,
       year: "numeric",
       month: "2-digit",
       day: "2-digit",
-    });
-    const dateStr = formatter.format(now); // YYYY-MM-DD
-    return `${dateStr}T00:00:00.000Z`;
+    }).format(new Date()); // YYYY-MM-DD
+
+    // Step 2: Compute the timezone offset using noon UTC as a safe reference
+    // (avoids DST edge cases at midnight)
+    const refUTC = new Date(`${dateStr}T12:00:00Z`);
+    const parts = new Intl.DateTimeFormat("en-GB", {
+      timeZone: timezone,
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).formatToParts(refUTC);
+
+    const localDay = parseInt(parts.find((p) => p.type === "day")?.value || "0");
+    const localHour = parseInt(parts.find((p) => p.type === "hour")?.value || "0");
+    const localMin = parseInt(parts.find((p) => p.type === "minute")?.value || "0");
+    const refDay = parseInt(dateStr.split("-")[2]);
+
+    let localTotalMin = localHour * 60 + localMin;
+    if (localDay > refDay) localTotalMin += 24 * 60;
+    else if (localDay < refDay) localTotalMin -= 24 * 60;
+
+    const offsetMin = localTotalMin - 720; // 720 = noon in minutes
+
+    // Step 3: midnight local in UTC = midnight UTC of dateStr - offset
+    const midnightUTCMs = new Date(`${dateStr}T00:00:00Z`).getTime();
+    return new Date(midnightUTCMs - offsetMin * 60 * 1000).toISOString();
   } catch {
     return new Date().toISOString().split("T")[0] + "T00:00:00.000Z";
   }

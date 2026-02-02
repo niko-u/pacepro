@@ -1,10 +1,17 @@
 // AI Usage Tracking — logs input/output tokens per call
-import { createClient } from "@supabase/supabase-js";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// Lazy init to avoid build-time errors when env vars aren't available
+let _supabaseAdmin: SupabaseClient | null = null;
+function getSupabaseAdmin() {
+  if (!_supabaseAdmin) {
+    _supabaseAdmin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+  }
+  return _supabaseAdmin;
+}
 
 export type AiCallType =
   | "chat"
@@ -53,7 +60,7 @@ export async function trackAiUsage(params: {
       params.outputTokens
     );
 
-    await supabaseAdmin.from("ai_usage").insert({
+    await getSupabaseAdmin().from("ai_usage").insert({
       user_id: params.userId,
       call_type: params.callType,
       model: params.model,
@@ -73,7 +80,7 @@ export async function getUserUsageThisMonth(userId: string) {
   startOfMonth.setDate(1);
   startOfMonth.setHours(0, 0, 0, 0);
 
-  const { data, error } = await supabaseAdmin
+  const { data, error } = await getSupabaseAdmin()
     .from("ai_usage")
     .select("input_tokens, output_tokens, cost_cents, call_type")
     .eq("user_id", userId)

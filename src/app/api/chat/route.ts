@@ -30,20 +30,27 @@ export async function POST(req: NextRequest) {
     if (!message || typeof message !== "string") {
       return NextResponse.json({ error: "Message required" }, { status: 400 });
     }
+    if (message.length > 5000) {
+      return NextResponse.json({ error: "Message too long" }, { status: 400 });
+    }
 
-    // Build context for AI (pass authenticated supabase client for mobile Bearer auth)
-    const context = await buildCoachContext(user.id, supabase);
-
-    // Get recent messages for conversation history BEFORE inserting the new user message
-    // to avoid the user message appearing twice (once in history, once as the explicit parameter)
-    const { data: recentMessages } = await supabase
+    // Fetch messages once for both context and conversation history
+    // (avoids duplicate DB query — buildCoachContext also needs messages)
+    const { data: allRecentMessages } = await supabase
       .from("chat_messages")
-      .select("role, content")
+      .select("*")
       .eq("user_id", user.id)
+      .is("compressed_at", null)
       .order("created_at", { ascending: false })
-      .limit(10);
+      .limit(20);
 
-    const history = (recentMessages || []).reverse().map((m) => ({
+    const preloadedMessages = (allRecentMessages || []).reverse();
+
+    // Build context for AI (pass pre-fetched messages to avoid second query)
+    const context = await buildCoachContext(user.id, supabase, { preloadedMessages });
+
+    // Use last 10 messages for conversation history
+    const history = preloadedMessages.slice(-10).map((m) => ({
       role: m.role as "user" | "assistant",
       content: m.content,
     }));
@@ -67,48 +74,56 @@ export async function POST(req: NextRequest) {
       message_type: "chat",
     });
 
-    // Extract workout proposal (awaited — gpt-4o-mini is fast, ~500ms)
-    // This lets us return the proposal in the response so the user can accept it
+    // Extract workout proposal only if the response contains workout-related language
+    // (avoids unnecessary GPT call on every response)
     let proposedWorkout = null;
-    try {
-      const { hasProposal, proposal } = await extractWorkoutProposal(response, message);
-      if (hasProposal && proposal) {
-        proposedWorkout = proposal;
+    const workoutKeywords = [
+      "workout", "session", "run", "ride", "swim", "intervals", "tempo",
+      "easy", "recovery", "brick", "minutes", "miles", "km", "warm-up",
+      "cool-down", "threshold", "fartlek", "repeats", "sets",
+    ];
+    const responseLower = response.toLowerCase();
+    const hasWorkoutLanguage = workoutKeywords.some((kw) => responseLower.includes(kw));
+
+    if (hasWorkoutLanguage) {
+      try {
+        const { hasProposal, proposal } = await extractWorkoutProposal(response, message);
+        if (hasProposal && proposal) {
+          proposedWorkout = proposal;
+        }
+      } catch (err) {
+        console.error("Workout extraction error:", err);
       }
-    } catch (err) {
-      console.error("Workout extraction error:", err);
     }
 
-    // Background tasks: preference extraction + memory compression + plan modification (don't block response)
-    // 1. Extract and merge preferences
-    extractPreferences(message, response, user.id).then(async (prefs) => {
-      if (Object.keys(prefs).length > 0) {
-        await mergePreferences(supabase, user.id, prefs);
-      }
-    }).catch((err) => console.error("Preference extraction error:", err));
-
-    // 2. Check if conversation needs compression
-    checkAndCompressConversation(supabase, user.id)
-      .then((result) => {
+    // Await background tasks before returning (Vercel kills fire-and-forget promises)
+    await Promise.allSettled([
+      // 1. Extract and merge preferences
+      extractPreferences(message, response, user.id).then(async (prefs) => {
+        if (Object.keys(prefs).length > 0) {
+          await mergePreferences(supabase, user.id, prefs);
+        }
+      }),
+      // 2. Check if conversation needs compression
+      checkAndCompressConversation(supabase, user.id).then((result) => {
         if (result.compressed) {
           console.log(`Compressed ${result.messagesCompressed} messages for user ${user.id}`);
         }
-      })
-      .catch((err) => console.error("Conversation compression error:", err));
-
-    // 3. Detect and execute plan modifications from chat (non-blocking)
-    detectAndExecutePlanModification(supabase, user.id, message, response, context)
-      .then(async (result) => {
-        if (result.modified) {
-          await supabase.from("chat_messages").insert({
-            user_id: user.id,
-            role: "assistant",
-            content: `📋 Plan updated: ${result.description}`,
-            message_type: "plan_adjustment",
-          });
+      }),
+      // 3. Detect and execute plan modifications from chat
+      detectAndExecutePlanModification(supabase, user.id, message, response, context).then(
+        async (result) => {
+          if (result.modified) {
+            await supabase.from("chat_messages").insert({
+              user_id: user.id,
+              role: "assistant",
+              content: `📋 Plan updated: ${result.description}`,
+              message_type: "plan_adjustment",
+            });
+          }
         }
-      })
-      .catch((err) => console.error("Plan modification error:", err));
+      ),
+    ]);
 
     return NextResponse.json({ response, reply: response, proposedWorkout });
   } catch (error) {
@@ -129,12 +144,13 @@ export async function GET(req: NextRequest) {
     const { user, supabase } = auth;
 
     const url = new URL(req.url);
-    const limit = parseInt(url.searchParams.get("limit") || "50");
+    const limit = Math.min(parseInt(url.searchParams.get("limit") || "50") || 50, 200);
 
     const { data: messages, error } = await supabase
       .from("chat_messages")
       .select("*")
       .eq("user_id", user.id)
+      .is("compressed_at", null)
       .order("created_at", { ascending: false })
       .limit(limit);
 
