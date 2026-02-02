@@ -1,8 +1,94 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient as createServiceClient } from "@supabase/supabase-js";
+import { createClient as createServiceClient, SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 
 const WHOOP_TOKEN_URL = "https://api.prod.whoop.com/oauth/oauth2/token";
+const WHOOP_RECOVERY_URL = "https://api.prod.whoop.com/developer/v1/recovery";
+const WHOOP_SLEEP_URL = "https://api.prod.whoop.com/developer/v1/activity/sleep";
+
+/**
+ * Fetch and store WHOOP recovery + sleep data immediately after connect.
+ */
+async function syncWhoopDataOnConnect(
+  supabase: SupabaseClient,
+  userId: string,
+  accessToken: string
+) {
+  try {
+    const [recoveryRes, sleepRes] = await Promise.all([
+      fetch(`${WHOOP_RECOVERY_URL}?limit=1`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      }),
+      fetch(`${WHOOP_SLEEP_URL}?limit=1`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      }),
+    ]);
+
+    const recoveryData = recoveryRes.ok ? await recoveryRes.json() : null;
+    const sleepData = sleepRes.ok ? await sleepRes.json() : null;
+
+    const recovery = recoveryData?.records?.[0] ?? null;
+    const sleep = sleepData?.records?.[0] ?? null;
+
+    if (!recovery && !sleep) {
+      console.log(`No WHOOP data available yet for user ${userId}`);
+      return;
+    }
+
+    const recordDate = recovery?.created_at
+      ? new Date(recovery.created_at).toISOString().split("T")[0]
+      : sleep?.end
+        ? new Date(sleep.end).toISOString().split("T")[0]
+        : new Date().toISOString().split("T")[0];
+
+    const recoveryScore = recovery?.score?.recovery_score ?? null;
+    const hrvMs = recovery?.score?.hrv_rmssd_milli
+      ? Math.round(recovery.score.hrv_rmssd_milli * 100) / 100
+      : null;
+    const restingHr = recovery?.score?.resting_heart_rate ?? null;
+
+    let sleepHours: number | null = null;
+    let sleepQuality: number | null = null;
+    const sleepStages: Record<string, number> = {};
+
+    if (sleep?.score) {
+      const s = sleep.score.stage_summary;
+      const totalSleepMilli = s.total_in_bed_time_milli - s.total_awake_time_milli;
+      sleepHours = Math.round((totalSleepMilli / 3600000) * 100) / 100;
+      sleepQuality = sleep.score.sleep_performance_percentage
+        ? Math.round(sleep.score.sleep_performance_percentage)
+        : null;
+      sleepStages.deep = Math.round((s.total_slow_wave_sleep_time_milli / 3600000) * 100) / 100;
+      sleepStages.rem = Math.round((s.total_rem_sleep_time_milli / 3600000) * 100) / 100;
+      sleepStages.light = Math.round((s.total_light_sleep_time_milli / 3600000) * 100) / 100;
+      sleepStages.awake = Math.round((s.total_awake_time_milli / 3600000) * 100) / 100;
+    }
+
+    await supabase.from("recovery_data").upsert(
+      {
+        user_id: userId,
+        date: recordDate,
+        source: "whoop",
+        recovery_score: recoveryScore,
+        hrv_ms: hrvMs,
+        resting_hr: restingHr,
+        sleep_hours: sleepHours,
+        sleep_quality: sleepQuality,
+        sleep_stages: Object.keys(sleepStages).length > 0 ? sleepStages : {},
+        raw_data: { recovery, sleep },
+        synced_at: new Date().toISOString(),
+      },
+      { onConflict: "user_id,date,source" }
+    );
+
+    console.log(
+      `WHOOP initial sync for ${userId}: recovery=${recoveryScore}, sleep=${sleepHours}h`
+    );
+  } catch (err) {
+    // Non-fatal — data will sync on next cron run
+    console.error("WHOOP initial sync failed (non-fatal):", err);
+  }
+}
 const WHOOP_PROFILE_URL = "https://api.prod.whoop.com/developer/v1/user/profile/basic";
 
 export async function GET(req: NextRequest) {
@@ -145,6 +231,9 @@ export async function GET(req: NextRequest) {
     }
 
     console.log(`WHOOP connected for user ${userId}, whoop user ${whoopUserId}`);
+
+    // Immediately sync recovery + sleep data
+    await syncWhoopDataOnConnect(serviceClient, userId, access_token);
 
     // Redirect back — deep link for mobile, web URL for browser
     if (isMobile) {
