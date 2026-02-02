@@ -27,6 +27,8 @@ function getServiceClient(): SupabaseClient {
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface StravaActivity {
+  id: number;              // Strava activity ID
+  name: string;            // Activity name
   type: string;
   distance: number;        // meters
   moving_time: number;     // seconds
@@ -34,6 +36,10 @@ interface StravaActivity {
   average_speed: number;   // m/s
   average_watts?: number;
   weighted_average_watts?: number;
+  average_heartrate?: number;
+  max_heartrate?: number;
+  total_elevation_gain?: number;
+  calories?: number;
   start_date: string;
 }
 
@@ -330,14 +336,135 @@ async function updatePlanZones(
   return updated;
 }
 
+// ─── Strava Type Mapping ──────────────────────────────────────────────────────
+
+const STRAVA_TYPE_MAP: Record<string, string> = {
+  Run: "run",
+  Ride: "bike",
+  Swim: "swim",
+  WeightTraining: "strength",
+  Workout: "strength",
+  Walk: "run", // count walks as light activity for history import
+  VirtualRun: "run",
+  VirtualRide: "bike",
+};
+
+function mapStravaType(stravaType: string): string {
+  return STRAVA_TYPE_MAP[stravaType] || "run";
+}
+
+// ─── Historical Activity Import ───────────────────────────────────────────────
+
+/**
+ * Import Strava activities as completed workouts into the database.
+ * - Skips activities that already exist (by strava_activity_id)
+ * - No AI analysis (too expensive for bulk import; webhook handles new ones)
+ * - Creates workout entries so analytics/volume/records have data from day one
+ */
+async function importStravaHistory(
+  supabase: SupabaseClient,
+  userId: string,
+  activities: StravaActivity[]
+): Promise<{ imported: number; skipped: number }> {
+  if (!activities || activities.length === 0) {
+    return { imported: 0, skipped: 0 };
+  }
+
+  // Get active plan (needed for plan_id foreign key)
+  const { data: plan } = await supabase
+    .from("training_plans")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("status", "active")
+    .maybeSingle();
+
+  if (!plan) {
+    console.log(`No active plan for user ${userId}, skipping history import`);
+    return { imported: 0, skipped: activities.length };
+  }
+
+  // Fetch all existing strava_activity_ids for this user to deduplicate
+  const { data: existingWorkouts } = await supabase
+    .from("workouts")
+    .select("strava_activity_id")
+    .eq("user_id", userId)
+    .not("strava_activity_id", "is", null);
+
+  const existingIds = new Set(
+    (existingWorkouts ?? []).map((w) => w.strava_activity_id)
+  );
+
+  // Filter to activities not yet imported
+  const toImport = activities.filter((a) => a.id && !existingIds.has(a.id));
+
+  if (toImport.length === 0) {
+    console.log(`All ${activities.length} Strava activities already imported for user ${userId}`);
+    return { imported: 0, skipped: activities.length };
+  }
+
+  // Build insert rows
+  const rows = toImport.map((a) => {
+    const actDate = new Date(a.start_date).toISOString().split("T")[0];
+    const workoutType = mapStravaType(a.type);
+    const durationMin = Math.round(a.moving_time / 60);
+    const distanceMeters = Math.round(a.distance);
+    const distanceMiles = Math.round(a.distance / 1609.34 * 100) / 100;
+
+    return {
+      plan_id: plan.id,
+      user_id: userId,
+      scheduled_date: actDate,
+      workout_type: workoutType,
+      title: a.name || `${a.type} Activity`,
+      description: "Imported from Strava",
+      duration_minutes: durationMin,
+      distance_meters: distanceMeters,
+      status: "completed",
+      completed_at: a.start_date,
+      actual_duration_minutes: durationMin,
+      actual_distance_meters: distanceMeters,
+      actual_data: {
+        duration_minutes: durationMin,
+        distance_meters: distanceMeters,
+        distance_miles: distanceMiles,
+        avg_hr: a.average_heartrate ?? null,
+        max_hr: a.max_heartrate ?? null,
+        avg_pace: a.average_speed,
+        avg_pace_per_mile: a.average_speed > 0 ? Math.round(1609.34 / a.average_speed) : null,
+        avg_power: a.average_watts ?? null,
+        weighted_avg_power: a.weighted_average_watts ?? null,
+        elevation_gain: a.total_elevation_gain ?? null,
+        calories: a.calories ?? null,
+        strava_name: a.name,
+        sport_type: a.type,
+        source: "strava_import",
+      },
+      strava_activity_id: a.id,
+    };
+  });
+
+  // Batch insert (Supabase handles up to ~1000 rows)
+  const { error: insertError } = await supabase
+    .from("workouts")
+    .insert(rows);
+
+  if (insertError) {
+    console.error("Failed to import Strava history:", insertError);
+    return { imported: 0, skipped: activities.length };
+  }
+
+  console.log(`Imported ${rows.length} Strava activities as completed workouts for user ${userId}`);
+  return { imported: rows.length, skipped: activities.length - rows.length };
+}
+
 // ─── Main Baseline Function ───────────────────────────────────────────────────
 
 /**
- * Fetch Strava activities, analyze baselines, update profile and plan zones.
+ * Fetch Strava activities, analyze baselines, import history, update profile and plan zones.
  *
  * This is the reusable core function called by both:
  * - The baseline API endpoint (POST /api/integrations/strava/baseline)
- * - The Strava OAuth callback (fire-and-forget after connect)
+ * - The Strava OAuth callback (after connect)
  */
 export async function fetchAndAnalyzeStravaBaseline(
   userId: string,
@@ -405,6 +532,15 @@ export async function fetchAndAnalyzeStravaBaseline(
   } catch (planError) {
     console.error("Failed to update plan zones:", planError);
     // Non-fatal — baselines are still saved to profile
+  }
+
+  // 8. Import historical activities as completed workouts (for analytics)
+  try {
+    const importResult = await importStravaHistory(supabase, userId, activities);
+    console.log(`Strava history import: ${importResult.imported} imported, ${importResult.skipped} skipped`);
+  } catch (importError) {
+    console.error("Failed to import Strava history:", importError);
+    // Non-fatal — baselines and zones still saved
   }
 
   return baselines;
