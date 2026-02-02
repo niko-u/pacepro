@@ -329,7 +329,9 @@ async function processStravaActivity(activityId: number, stravaAthleteId: number
         .select("id")
         .eq("user_id", integration.user_id)
         .eq("status", "active")
-        .single();
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
       await supabase.from("workouts").insert({
         plan_id: plan?.id,

@@ -162,7 +162,9 @@ export async function acceptWorkoutProposal(
       .select("id")
       .eq("user_id", userId)
       .eq("status", "active")
-      .single();
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
     if (!plan) {
       console.log("No active plan for user, cannot accept workout proposal");
