@@ -77,24 +77,54 @@ export async function POST(req: NextRequest) {
     const responseLower = response.toLowerCase();
     const hasWorkoutLanguage = workoutKeywords.some((kw) => responseLower.includes(kw));
 
+    let existingWorkout: { id: string; title: string; type: string; date: string; duration_minutes: number | null } | null = null;
+
     if (hasWorkoutLanguage) {
       try {
         const { hasProposal, proposal } = await extractWorkoutProposal(response, message);
         if (hasProposal && proposal) {
-          proposedWorkout = proposal;
+          // Check if this workout already exists on the calendar
+          const { data: existing } = await supabase
+            .from("workouts")
+            .select("id, title, workout_type, scheduled_date, duration_minutes")
+            .eq("user_id", user.id)
+            .eq("scheduled_date", proposal.target_date)
+            .eq("workout_type", proposal.type)
+            .in("status", ["scheduled", "completed"])
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .maybeSingle();
+
+          if (existing) {
+            // Workout already on calendar — return as existing (no accept needed)
+            existingWorkout = {
+              id: existing.id,
+              title: existing.title,
+              type: existing.workout_type,
+              date: existing.scheduled_date,
+              duration_minutes: existing.duration_minutes,
+            };
+          } else {
+            // New workout — return as proposal for user to accept
+            proposedWorkout = proposal;
+          }
         }
       } catch (err) {
         console.error("Workout extraction error:", err);
       }
     }
 
-    // Store assistant response (with proposal metadata if present)
+    // Store assistant response (with proposal/existing workout metadata)
+    const msgMetadata: Record<string, unknown> = {};
+    if (proposedWorkout) msgMetadata.proposedWorkout = proposedWorkout;
+    if (existingWorkout) msgMetadata.existingWorkout = existingWorkout;
+
     await supabase.from("chat_messages").insert({
       user_id: user.id,
       role: "assistant",
       content: response,
       message_type: "chat",
-      metadata: proposedWorkout ? { proposedWorkout } : {},
+      metadata: Object.keys(msgMetadata).length > 0 ? msgMetadata : {},
     });
 
     // Await background tasks before returning (Vercel kills fire-and-forget promises)
@@ -126,7 +156,7 @@ export async function POST(req: NextRequest) {
       ),
     ]);
 
-    return NextResponse.json({ response, reply: response, proposedWorkout });
+    return NextResponse.json({ response, reply: response, proposedWorkout, existingWorkout });
   } catch (error) {
     console.error("Chat API error:", error);
     return NextResponse.json(
