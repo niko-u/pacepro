@@ -5,7 +5,7 @@ import { coachChat, extractPreferences } from "@/lib/coach/ai";
 import { mergePreferences } from "@/lib/coach/preferences";
 import { checkAndCompressConversation } from "@/lib/coach/memory";
 import { extractWorkoutProposal } from "@/lib/coach/workout-creator";
-import { detectAndExecutePlanModification } from "@/lib/coach/chat-plan-modifier";
+import { detectPlanModification, PlanModificationProposal } from "@/lib/coach/chat-plan-modifier";
 import { checkChatRateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
@@ -114,10 +114,27 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Store assistant response (with proposal/existing workout metadata)
+    // Detect plan modifications (bulk changes like "brick workouts every Saturday")
+    let planModification: PlanModificationProposal | null = null;
+    if (!proposedWorkout && !existingWorkout) {
+      // Only check for plan mods if no specific workout was proposed
+      try {
+        const { hasProposal, proposal } = await detectPlanModification(
+          user.id, message, response, context
+        );
+        if (hasProposal && proposal) {
+          planModification = proposal;
+        }
+      } catch (err) {
+        console.error("Plan modification detection error:", err);
+      }
+    }
+
+    // Store assistant response (with proposal/existing workout/plan mod metadata)
     const msgMetadata: Record<string, unknown> = {};
     if (proposedWorkout) msgMetadata.proposedWorkout = proposedWorkout;
     if (existingWorkout) msgMetadata.existingWorkout = existingWorkout;
+    if (planModification) msgMetadata.planModification = planModification;
 
     await supabase.from("chat_messages").insert({
       user_id: user.id,
@@ -141,22 +158,10 @@ export async function POST(req: NextRequest) {
           console.log(`Compressed ${result.messagesCompressed} messages for user ${user.id}`);
         }
       }),
-      // 3. Detect and execute plan modifications from chat
-      detectAndExecutePlanModification(supabase, user.id, message, response, context).then(
-        async (result) => {
-          if (result.modified) {
-            await supabase.from("chat_messages").insert({
-              user_id: user.id,
-              role: "assistant",
-              content: `📋 Plan updated: ${result.description}`,
-              message_type: "plan_adjustment",
-            });
-          }
-        }
-      ),
+      // Note: plan modifications are now user-confirmed, not auto-executed
     ]);
 
-    return NextResponse.json({ response, reply: response, proposedWorkout, existingWorkout });
+    return NextResponse.json({ response, reply: response, proposedWorkout, existingWorkout, planModification });
   } catch (error) {
     console.error("Chat API error:", error);
     return NextResponse.json(

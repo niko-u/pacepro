@@ -30,6 +30,10 @@ export async function POST(req: NextRequest) {
       userId = auth.user.id;
     }
 
+    if (!userId) {
+      return NextResponse.json({ error: "User ID required" }, { status: 400 });
+    }
+
     const result = await fetchAndAnalyzeStravaBaseline(userId);
 
     return NextResponse.json({

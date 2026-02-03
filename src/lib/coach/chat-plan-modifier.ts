@@ -1790,3 +1790,172 @@ function parseRaceDistance(distance: string): number | null {
 
   return null;
 }
+
+// ---------- Plan Modification Proposal (for user confirmation) ----------
+
+export interface PlanModificationProposal {
+  type: ModificationType;
+  description: string;
+  summary: string; // Short summary for the UI card
+  affectedDays: number; // Number of days/workouts affected
+  params: Record<string, unknown>;
+}
+
+/**
+ * Detect if a message requests a plan modification, returning a proposal for user confirmation.
+ * Does NOT execute the modification — use executePlanModificationProposal for that.
+ */
+export async function detectPlanModification(
+  userId: string,
+  userMessage: string,
+  coachResponse: string,
+  context: CoachContext
+): Promise<{ hasProposal: boolean; proposal?: PlanModificationProposal }> {
+  try {
+    // Quick heuristic: skip detection for very short messages
+    if (userMessage.length < 10) {
+      return { hasProposal: false };
+    }
+
+    // Quick keyword check — skip GPT call if message is clearly not a plan change
+    if (!mightRequestPlanChange(userMessage)) {
+      return { hasProposal: false };
+    }
+
+    const today = new Date().toISOString().split("T")[0];
+    const contextSummary = formatContextForAI(context);
+
+    const prompt = PLAN_MODIFICATION_PROMPT
+      .replace("{today}", today)
+      .replace("{context}", contextSummary);
+
+    const response = await getOpenAI().chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "system", content: prompt },
+        {
+          role: "user",
+          content: JSON.stringify({
+            athlete_message: userMessage,
+            coach_response: coachResponse,
+          }),
+        },
+      ],
+      temperature: 0.2,
+      max_tokens: 1200,
+      response_format: { type: "json_object" },
+    });
+
+    const content = response.choices[0]?.message?.content || "{}";
+    const modification: PlanModification = JSON.parse(content);
+
+    if (!modification.needed || !modification.type) {
+      return { hasProposal: false };
+    }
+
+    // Build a user-friendly summary
+    const summary = buildModificationSummary(modification);
+
+    return {
+      hasProposal: true,
+      proposal: {
+        type: modification.type,
+        description: modification.description || `Modify plan (${modification.type})`,
+        summary,
+        affectedDays: estimateAffectedDays(modification),
+        params: modification.params || {},
+      },
+    };
+  } catch (error) {
+    console.error("detectPlanModification error:", error);
+    return { hasProposal: false };
+  }
+}
+
+/**
+ * Execute a previously-detected plan modification proposal.
+ */
+export async function executePlanModificationProposal(
+  userId: string,
+  proposal: PlanModificationProposal,
+  context: CoachContext
+): Promise<{ success: boolean; description?: string }> {
+  try {
+    const serviceSupabase = getServiceSupabase();
+
+    // Reconstruct the modification object for the router
+    const modification: PlanModification = {
+      needed: true,
+      type: proposal.type,
+      description: proposal.description,
+      params: proposal.params,
+    };
+
+    const result = await routeModification(
+      serviceSupabase,
+      userId,
+      modification,
+      context
+    );
+
+    if (result.modified) {
+      console.log(`Executed plan modification [${proposal.type}] for user ${userId}`);
+    }
+
+    return { success: result.modified, description: result.description };
+  } catch (error) {
+    console.error("executePlanModificationProposal error:", error);
+    return { success: false };
+  }
+}
+
+function buildModificationSummary(mod: PlanModification): string {
+  switch (mod.type) {
+    case "add_brick_sessions":
+      return "Add brick workouts (bike + run) to your training";
+    case "change_day_assignment":
+      return "Update which days you do specific workout types";
+    case "adjust_sport_ratios":
+      return "Adjust time distribution between swim/bike/run";
+    case "adjust_volume_target":
+      return "Change your weekly training volume target";
+    case "modify_phase_duration":
+      return "Adjust the length of your training phases";
+    case "injury_protocol":
+      return "Modify training around your injury";
+    case "add_rest_day":
+      return "Add additional rest days";
+    case "reduce_volume":
+      return "Reduce your training volume";
+    case "travel_adjustment":
+      return "Adjust plan for travel period";
+    case "change_goal_time":
+      return "Update your race goal time";
+    case "focus_weakest_sport":
+      return "Shift focus to your weakest discipline";
+    default:
+      return mod.description || "Update your training plan";
+  }
+}
+
+function estimateAffectedDays(mod: PlanModification): number {
+  // Estimate based on modification type
+  switch (mod.type) {
+    case "add_brick_sessions":
+    case "change_day_assignment":
+    case "adjust_sport_ratios":
+      return 8; // ~2 months of weeks
+    case "injury_protocol":
+    case "travel_adjustment":
+      return 7; // typically a week
+    case "add_rest_day":
+    case "skip_workout":
+    case "reschedule":
+      return 1;
+    case "adjust_volume_target":
+    case "modify_phase_duration":
+      return 14;
+    default:
+      return 4;
+  }
+}
